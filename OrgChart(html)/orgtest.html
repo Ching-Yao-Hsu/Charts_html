@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="org.css">
+    <style>
+
+
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            var click_this;   
+            
+            $('a').on('click',function(e) {
+                click_this = $(this);                                     
+                
+                orgtoggle(click_this);
+
+            });
+            
+            function orgtoggle(e) {
+                e.nextAll().toggle();
+                console.log('aaaaaaaaaaaa');
+            }
+            
+            function add_no_plus_switch() {
+                click_this.next().append("<li><a href='#' href='#' class='no_plus_switch'><div class='row'></div></a></li>");
+                console.log('aaaa');
+            };
+        });
+
+    </script>
+</head>
+
+<body>
+
+    <div id="tree">
+        <ul>
+            <li>
+                <a href="#" class="switch">
+                    <div class="row"></div>
+                </a>
+                <ul>
+                    <li>
+                        <a href="#" class="switch">
+                            <div class="row"></div>
+                        </a>
+                        <ul>
+                            <li>
+                                <a href="#" class="switch">
+                                    <div class="row"></div>
+                                </a>
+                                <ul>
+                                    <li>
+                                        <a href="#" href="#" class="no_plus_switch">
+                                            <div class="row"></div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" href="#" class="no_plus_switch">
+                                            <div class="row"></div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#" href="#" class="no_plus_switch">
+                                    <div class="row"></div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#" class="switch">
+                            <div class="row"></div>
+                        </a>
+                        <ul>
+                            <li>
+                                <a href="#" href="#" class="no_plus_switch">
+                                    <div class="row"></div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#" class="switch">
+                            <div class="row"></div>
+                        </a>
+                        <ul>
+                            <li>
+                                <a href="#" class="switch">
+                                    <div class="row"></div>
+                                </a>
+                                <ul>
+                                    <li>
+                                        <a href="#" href="#" class="no_plus_switch">
+                                            <div class="row"></div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" href="#" class="no_plus_switch">
+                                            <div class="row"></div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#" href="#" class="no_plus_switch">
+                                    <div class="row"></div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#" href="#" class="no_plus_switch">
+                            <div class="row"></div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" href="#" class="no_plus_switch">
+                            <div class="row"></div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" href="#" class="no_plus_switch">
+                            <div class="row"></div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" href="#" class="no_plus_switch">
+                            <div class="row"></div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</body>
+
+</html>
