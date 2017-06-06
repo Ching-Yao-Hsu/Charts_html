@@ -7,38 +7,66 @@
     <link rel="stylesheet" href="org.css">
     <style>
 
-
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script>
-        $(document).ready(function() {
-            var click_this;   
-            
-            $('a').on('click',function(e) {
-                click_this = $(this);                                     
-                
-                orgtoggle(click_this);
+        function orgtoggle(e) {
+            e.nextAll().toggle();
+        }
 
-            });
-            
-            function orgtoggle(e) {
-                e.nextAll().toggle();
-                console.log('aaaaaaaaaaaa');
-            }
-            
-            function add_no_plus_switch() {
-                click_this.next().append("<li><a href='#' href='#' class='no_plus_switch'><div class='row'></div></a></li>");
-                console.log('aaaa');
-            };
+        function add_no_plus_switch(e) {
+            var str_no_plus_switch = "<li>";
+            str_no_plus_switch += "<a href='#' href='#' class='no_plus_switch'>";
+            str_no_plus_switch += "<div class='row'>" + table[0]['id'] + "</div>";
+            str_no_plus_switch += "</a>";
+            str_no_plus_switch += "</li>";
+            e.next().append(str_no_plus_switch);
+        }
+
+        function init_Orgchart() {
+
+        }
+
+        $(document).ready(function () {
+            var click_this;
+            var rowCount;
+            var table = [{
+                name: 'ryan',
+                parent: ''
+            }, {
+                name: 'tom',
+                parent: 'ryan'
+            }];
+
+
+            //            $('a').on('click', function (e) {
+            //                click_this = $(this);
+            //                //                orgtoggle(click_this);
+            //                add_no_plus_switch(cli);
+            //
+            //            });
+
+            rowCount = table.length;
+            console.log(table[0]['name']);
+            //            for(var i = 0; i < rowCount; i++)
+            //            {                
+            ////                console.log('aa');
+            //                if(table[i]['parent'] == ''){
+            //                    console.log('abc' + table[i]['name']);
+            //                    
+            //                }
+            //            }
+
+
+
+
         });
-
     </script>
 </head>
 
 <body>
-
     <div id="tree">
-        <ul>
+        <ul id="first">
             <li>
                 <a href="#" class="switch">
                     <div class="row"></div>
@@ -48,96 +76,42 @@
                         <a href="#" class="switch">
                             <div class="row"></div>
                         </a>
-                        <ul>
-                            <li>
-                                <a href="#" class="switch">
-                                    <div class="row"></div>
-                                </a>
-                                <ul>
-                                    <li>
-                                        <a href="#" href="#" class="no_plus_switch">
-                                            <div class="row"></div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" href="#" class="no_plus_switch">
-                                            <div class="row"></div>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="#" href="#" class="no_plus_switch">
-                                    <div class="row"></div>
-                                </a>
-                            </li>
-                        </ul>
                     </li>
                     <li>
                         <a href="#" class="switch">
-                            <div class="row"></div>
-                        </a>
-                        <ul>
-                            <li>
-                                <a href="#" href="#" class="no_plus_switch">
-                                    <div class="row"></div>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="#" class="switch">
-                            <div class="row"></div>
-                        </a>
-                        <ul>
-                            <li>
-                                <a href="#" class="switch">
-                                    <div class="row"></div>
-                                </a>
-                                <ul>
-                                    <li>
-                                        <a href="#" href="#" class="no_plus_switch">
-                                            <div class="row"></div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" href="#" class="no_plus_switch">
-                                            <div class="row"></div>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="#" href="#" class="no_plus_switch">
-                                    <div class="row"></div>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="#" href="#" class="no_plus_switch">
-                            <div class="row"></div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" href="#" class="no_plus_switch">
-                            <div class="row"></div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" href="#" class="no_plus_switch">
-                            <div class="row"></div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" href="#" class="no_plus_switch">
                             <div class="row"></div>
                         </a>
                     </li>
                 </ul>
             </li>
+
         </ul>
+
+        <ul id="first">
+            <li>
+                <a href="#" class="switch">
+                    <div class="row"></div>
+                </a>
+                <ul>
+                    <li>
+                        <a href="#" class="switch">
+                            <div class="row"></div>
+                        </a>
+                        
+                    </li>
+                    <li>
+                        <a href="#" class="switch">
+                            <div class="row"></div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+        </ul>
+
+
     </div>
+
 </body>
 
 </html>

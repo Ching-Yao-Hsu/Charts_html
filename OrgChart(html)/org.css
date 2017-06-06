@@ -1,5 +1,4 @@
 /*#region Organizational Chart*/
-
 #tree {
     margin: auto;
     width: 1200px;
@@ -12,7 +11,8 @@
 }
 
 #tree ul {
-    padding-top: 20px;
+/*    padding-top: 20px;*/
+    margin-top:16px;
     position: relative;
     -transition: all 0.5s;
     -webkit-transition: all 0.5s;
@@ -37,7 +37,7 @@
 #tree li::after {
     content: '';
     position: absolute;
-    top: 0;
+    top: -1px;
     right: 50%;
     border-top: 1px solid #696969;
     width: 50%;
@@ -102,15 +102,15 @@ right connector from last child*/
 #tree ul ul::before {
     content: '';
     position: absolute;
-    top: -4px;
+    top: -20px;
     left: 50%;
     border-left: 1px solid #696969;
     width: 0;
-    height: 24px;
+    height: 20px;
 }
 
 #tree li a {
-    height: 23px;
+    height: 20px;
     padding: 5px 10px;
     text-decoration: none;
     background-color: azure;
