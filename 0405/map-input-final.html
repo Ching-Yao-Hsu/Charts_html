@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        #map {
+            width: 600px;
+            height: 600px;
+            background-color: #eee;
+        }
+
+    </style>
+</head>
+
+<body>
+    <input type="text" id="address">
+    <input type="button" value="查詢" onclick="initMap()">
+    <div id="map"></div>
+    <script>
+        function initMap() {
+            var geocoder = new google.maps.Geocoder();
+            var addr = document.getElementById("address").value;
+            console.log(addr);
+
+            geocoder.geocode({
+                "address": addr
+            }, function(req, res) {
+                console.log(res);
+                console.log(req);
+                console.log(req[0].geometry.location.lat());
+                console.log(req[0].geometry.location.lng());
+                console.log(req[0].formatted_address);
+                var map = new google.maps.Map(document.getElementById("map"), {
+                    zoom: 17,
+                    //                    center:req[0].geometry.location
+                    center: {
+                        lat: req[0].geometry.location.lat(),
+                        lng: req[0].geometry.location.lng()
+                    }
+                });
+                var marker = new google.maps.Marker({
+                    map: map,
+                    position: req[0].geometry.location,
+                    title: "HI",
+                    draggable: true
+                });
+            });
+        }
+
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAIvdwsc3MZJtezTpVg0bkV_RRIW9_5JjY&callback=initMap">
+
+
+    </script>
+</body>
+
+</html>

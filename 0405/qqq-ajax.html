@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $.ajax({
+                url:"qqq.php",
+                dataType:"json",
+                success:function(e){
+                    $(e).each(function(){
+                        var c = "<div>"+this.s_name+"</div>"
+                        c += "<div>"+this.s_phone+"</div>"
+                        c += "<div>"+this.s_mail+"</div>"
+                        c += "<div>"+this.s_addr+"</div>"
+                        $(".container").append(c);
+                    });
+                },
+                error:function(){
+                    alert("error");
+                }
+            })
+        });
+    </script>
+</head>
+<body>
+    <div class="container"></div>
+</body>
+</html>
