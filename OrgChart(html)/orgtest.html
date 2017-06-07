@@ -7,9 +7,11 @@
     <link rel="stylesheet" href="org.css">
     <style>
 
+
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script>
+        //node
         function orgtoggle(e) {
             e.nextAll().toggle();
         }
@@ -17,7 +19,7 @@
         function add_no_plus_switch(e) {
             var str_no_plus_switch = "<li>";
             str_no_plus_switch += "<a href='#' href='#' class='no_plus_switch'>";
-            str_no_plus_switch += "<div class='row'>" + table[0]['id'] + "</div>";
+            str_no_plus_switch += "<div class='row'></div>";
             str_no_plus_switch += "</a>";
             str_no_plus_switch += "</li>";
             e.next().append(str_no_plus_switch);
@@ -27,40 +29,123 @@
 
         }
 
-        $(document).ready(function () {
+        function add_first_element(e) {
+            $('#tree').append(
+                $('<ul/>')
+                .append(
+                    $('<li/>')
+                    .attr('id', e)
+                    .append(
+                        $('<a/>')
+                        .addClass('switch')
+                        .attr('href', '#')
+                    )
+                    .append(
+                        $('<ul/>')
+                    )
+                )
+            );
+        }
+
+        function add_child_element(e1, e2) {
+            $('#' + e1).append(
+                $('<ul/>')
+                .append(
+                    $('<li/>')
+                    .attr('id', e2)
+                    .append(
+                        $('<a/>')
+                        .addClass('no_plus_switch')
+                        .attr('href', '#')
+                    )
+                )
+            );
+            //            console.log(e2);
+        }
+        //show number= 01,02,...,09,10
+        function NumFormat(e) {
+            var num;
+            if (e < 10 && e >= 0) {
+                num = '0' + e;
+            } else if (e > 10) {
+                num = e;
+            } else {
+                alert('function NumFormat has some problem!!');
+            }
+            return num;
+        }
+
+        $(document).ready(function() {
             var click_this;
             var rowCount;
             var table = [{
-                name: 'ryan',
+                id: '01',
                 parent: ''
             }, {
-                name: 'tom',
-                parent: 'ryan'
+                id: '00',
+                parent: ''
+            }, {
+                id: '00-00',
+                parent: '01'
+            }, {
+                id: '00-01',
+                parent: '00'
+            }, {
+                id: '00-00-00',
+                parent: '00-00'
             }];
 
 
-            //            $('a').on('click', function (e) {
-            //                click_this = $(this);
-            //                //                orgtoggle(click_this);
-            //                add_no_plus_switch(cli);
-            //
-            //            });
+            $('a').on('click', function(e) {
+                click_this = $(this);
+                orgtoggle(click_this);
+            });
 
             rowCount = table.length;
-            console.log(table[0]['name']);
-            //            for(var i = 0; i < rowCount; i++)
-            //            {                
-            ////                console.log('aa');
-            //                if(table[i]['parent'] == ''){
-            //                    console.log('abc' + table[i]['name']);
-            //                    
-            //                }
-            //            }
+            
+            for (var i = 0; i < rowCount; i++) {
+                var strCount = table[i]['id'].length;
+                switch (strCount) {
+                    case 2:
+                        console.log('0');
+                        break;
+                    case 5:
+                        console.log('1');
+                        break;
+                    case 8:
+                        console.log('2');
+                        break;
+                    case 11:
+                        console.log('3');
+                        break;
+                    case 14:
+                        console.log('4');
+                        break;
+                    case 17:
+                        console.log('5');
+                        break;
+                    case 20:
+                        console.log('6');
+                        break;
+                    case 23:
+                        console.log('7');
+                        break;
+                    case 26:
+                        console.log('8');
+                        break;
+                    case 29:
+                        console.log('9');
+                        break;
+                    default:
+                        alert('Your hierarchy is more than 10!!');
+                }
+            }
 
 
-
-
+            var str = $('ul').children();
+            console.log(str);
         });
+
     </script>
 </head>
 
@@ -76,42 +161,57 @@
                         <a href="#" class="switch">
                             <div class="row"></div>
                         </a>
+                        <ul>
+                            <li>
+                                <a href="#" class="switch">
+                                    <div class="row"></div>
+                                </a>
+                                <ul>
+                                    <li>
+                                        <a href="#" href="#" class="no_plus_switch">
+                                            <div class="row"></div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" href="#" class="no_plus_switch">
+                                            <div class="row"></div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#" href="#" class="no_plus_switch">
+                                    <div class="row"></div>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     <li>
-                        <a href="#" class="switch">
+                        <a href="#" href="#" class="no_plus_switch">
+                            <div class="row"></div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" href="#" class="no_plus_switch">
+                            <div class="row"></div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" href="#" class="no_plus_switch">
+                            <div class="row"></div>
+                        </a>
+
+                    </li>
+                    <li>
+                        <a href="#" href="#" class="no_plus_switch">
+
                             <div class="row"></div>
                         </a>
                     </li>
                 </ul>
             </li>
-
         </ul>
-
-        <ul id="first">
-            <li>
-                <a href="#" class="switch">
-                    <div class="row"></div>
-                </a>
-                <ul>
-                    <li>
-                        <a href="#" class="switch">
-                            <div class="row"></div>
-                        </a>
-                        
-                    </li>
-                    <li>
-                        <a href="#" class="switch">
-                            <div class="row"></div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-
-        </ul>
-
-
     </div>
-
 </body>
 
 </html>

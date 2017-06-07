@@ -1,0 +1,13 @@
+for (var i = 0; i < rowCount; i++) {
+                if (table[i]['parent'] == '') {
+                    add_first_element(table[0]['name']);
+                } else if (table[i]['parent'] != '') {
+                    for (var j = 0; j < rowCount; j++) {
+                        //                        console.log(j);
+                        if (table[i]['parent'] == table[j]['name']) {
+                            //                            console.log('++++++');
+                            add_child_element(table[i]['parent'], table[i]['name']);
+                        }
+                    }
+                }
+            }
