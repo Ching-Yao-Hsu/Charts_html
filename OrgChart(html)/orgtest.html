@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="org.css">
     <style>
 
-
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script>
@@ -25,8 +24,34 @@
             e.next().append(str_no_plus_switch);
         }
 
-        function init_Orgchart() {
-
+        function first_Orgchart(e) {
+            $('#tree').append(
+                $('<ul/>')
+                .append(
+                    $('<li/>')
+                    .append(
+                        $('<a/>')
+                        .addClass('')
+                        .attr('href', '#')
+                    )
+                )
+                .attr('id', e)
+            );
+        }
+        
+        function second_Orgchart(e){
+            $('#tree').append(
+                $('<ul/>')
+                .append(
+                    $('<li/>')
+                    .append(
+                        $('<a/>')
+                        .addClass('')
+                        .attr('href', '#')
+                    )
+                )
+                .attr('id', e)
+            );
         }
 
         function add_first_element(e) {
@@ -40,9 +65,9 @@
                         .addClass('switch')
                         .attr('href', '#')
                     )
-                    .append(
-                        $('<ul/>')
-                    )
+                    //                    .append(
+                    //                        $('<ul/>')
+                    //                    )
                 )
             );
         }
@@ -75,14 +100,14 @@
             return num;
         }
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             var click_this;
             var rowCount;
             var table = [{
-                id: '01',
+                id: '00',
                 parent: ''
             }, {
-                id: '00',
+                id: '01',
                 parent: ''
             }, {
                 id: '00-00',
@@ -96,121 +121,63 @@
             }];
 
 
-            $('a').on('click', function(e) {
+            $('a').on('click', function (e) {
                 click_this = $(this);
                 orgtoggle(click_this);
             });
 
             rowCount = table.length;
-            
+
             for (var i = 0; i < rowCount; i++) {
                 var strCount = table[i]['id'].length;
                 switch (strCount) {
-                    case 2:
-                        console.log('0');
-                        break;
-                    case 5:
-                        console.log('1');
-                        break;
-                    case 8:
-                        console.log('2');
-                        break;
-                    case 11:
-                        console.log('3');
-                        break;
-                    case 14:
-                        console.log('4');
-                        break;
-                    case 17:
-                        console.log('5');
-                        break;
-                    case 20:
-                        console.log('6');
-                        break;
-                    case 23:
-                        console.log('7');
-                        break;
-                    case 26:
-                        console.log('8');
-                        break;
-                    case 29:
-                        console.log('9');
-                        break;
-                    default:
-                        alert('Your hierarchy is more than 10!!');
+                case 2:
+                    first_Orgchart(NumFormat(i));
+                    break;
+                case 5:
+                    console.log('1');
+                    break;
+                case 8:
+                    console.log('2');
+                    break;
+                case 11:
+                    console.log('3');
+                    break;
+                case 14:
+                    console.log('4');
+                    break;
+                case 17:
+                    console.log('5');
+                    break;
+                case 20:
+                    console.log('6');
+                    break;
+                case 23:
+                    console.log('7');
+                    break;
+                case 26:
+                    console.log('8');
+                    break;
+                case 29:
+                    console.log('9');
+                    break;
+                default:
+                    alert('Your hierarchy is more than 10!!');
                 }
             }
 
-
-            var str = $('ul').children();
+            var aaa = '00-00-00';
+            var bbb = aaa.split('-');
+            console.log(bbb);
+            var str = $('#tree').children();
             console.log(str);
         });
-
     </script>
 </head>
 
 <body>
     <div id="tree">
-        <ul id="first">
-            <li>
-                <a href="#" class="switch">
-                    <div class="row"></div>
-                </a>
-                <ul>
-                    <li>
-                        <a href="#" class="switch">
-                            <div class="row"></div>
-                        </a>
-                        <ul>
-                            <li>
-                                <a href="#" class="switch">
-                                    <div class="row"></div>
-                                </a>
-                                <ul>
-                                    <li>
-                                        <a href="#" href="#" class="no_plus_switch">
-                                            <div class="row"></div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" href="#" class="no_plus_switch">
-                                            <div class="row"></div>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="#" href="#" class="no_plus_switch">
-                                    <div class="row"></div>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="#" href="#" class="no_plus_switch">
-                            <div class="row"></div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" href="#" class="no_plus_switch">
-                            <div class="row"></div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" href="#" class="no_plus_switch">
-                            <div class="row"></div>
-                        </a>
 
-                    </li>
-                    <li>
-                        <a href="#" href="#" class="no_plus_switch">
-
-                            <div class="row"></div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        </ul>
     </div>
 </body>
 
