@@ -13,16 +13,7 @@
         //node
         function orgtoggle(e) {
             e.nextAll().toggle();
-        }
-
-        function add_no_plus_switch(e) {
-            var str_no_plus_switch = "<li>";
-            str_no_plus_switch += "<a href='#' href='#' class='no_plus_switch'>";
-            str_no_plus_switch += "<div class='row'></div>";
-            str_no_plus_switch += "</a>";
-            str_no_plus_switch += "</li>";
-            e.next().append(str_no_plus_switch);
-        }
+        }       
 
         function first_Orgchart(e) {
             $('#tree').append(
@@ -52,39 +43,7 @@
                 .attr('href', '#')
             );
         }
-
-        function add_first_element(e) {
-            $('#tree').append(
-                $('<ul/>')
-                .append(
-                    $('<li/>')
-                    .attr('id', e)
-                    .append(
-                        $('<a/>')
-                        .addClass('switch')
-                        .attr('href', '#')
-                    )
-                    //                    .append(
-                    //                        $('<ul/>')
-                    //                    )
-                )
-            );
-        }
-
-        function add_child_element(e1, e2) {
-            $('#' + e1).append(
-                $('<ul/>')
-                .append(
-                    $('<li/>')
-                    .attr('id', e2)
-                    .append(
-                        $('<a/>')
-                        .addClass('no_plus_switch')
-                        .attr('href', '#')
-                    )
-                )
-            );            
-        }
+        
         //show number= 01,02,...,09,10
         function NumFormat(e) {
             var num;
@@ -97,11 +56,17 @@
             }
             return num;
         }
+        
+//        function BuildOrgChart(){
+//            
+//        }
 
         $(document).ready(function () {
             var click_this;
             var rowCount;
-            var count = 0;            
+            var count = 0;
+            var numarray = [];
+            var getInfo = [];
             var table = [{
                 id: '00',
                 name:''
@@ -132,18 +97,9 @@
             }, {
                 id: '00-00-00-00-01',
                 name:''
-            }];
+            }];            
 
-
-            $('a').on('click', function (e) {
-                click_this = $(this);
-                orgtoggle(click_this);
-            });
-
-            rowCount = table.length;
-
-            var numarray = [];
-            var getInfo = [];
+            rowCount = table.length;            
 
             for (var i = 0; i < 10; i++) {
                 numarray[i] = 0;
@@ -159,7 +115,7 @@
 
                 switch (tablecount) {
                 case 1:                    
-                    getInfo[0][numarray[0]] = table[i]['id'];                    
+                    getInfo[0][numarray[0]] = table[i]['id'];
                     numarray[0]++;                    
                     break;
                 case 2:
@@ -212,81 +168,28 @@
                     for(var j = 0; j < getInfo[i].length; j++){
                         var array = getInfo[i][j].split('-');
                         var remove = array.pop();                        
-                        second_Orgchart(array.join('-'),getInfo[i][j]);  
-//                        console.log(getInfo[i][j]);
-//                        console.log(array.join('-'));
+                        second_Orgchart(array.join('-'),getInfo[i][j]);
                     }
                 }
-            }
-//            
-//            
-//           
+            } 
             
             for(var i = 0; i < table.length; i++){
                 Info_Insert(table[i]['id']);
-            }
-//            Info_Insert('00');
-//            Info_Insert('01');            
-//            Info_Insert('00-00');            
-//            Info_Insert('00-01');
-//            Info_Insert('00-00-00');  
+            } 
             
+            var str = $('ul:not(:has(*))');
+            str.remove();
             
-            var str = $('#00').parent();
-                
-            console.log(str);
+            $('a').on('click', function () {
+                click_this = $(this);
+                orgtoggle(click_this);
+            });
         });
     </script>
 </head>
 
 <body>
     <div id="tree">
-
-<!--
-        <ul id="00">
-            <li>
-                <a href=""></a>
-                <ul id="00">
-                    <li>
-                        <a href=""></a>
-                        <ul id="00-00">
-                            <li>
-                                <a href=""></a>
-                            </li>
-                            <li>
-                                <a href=""></a>
-                            </li>                    
-                        </ul>   
-                    </li>
-                    <li>
-                        <a href=""></a>
-                    </li>                    
-                </ul>                
-            </li>
-        </ul>
-        <ul id="01">
-            <li>
-                <a href=""></a>
-                <ul id="01-00">
-                    <li>
-                        <a href=""></a>
-                        <ul id="01-01-00">
-                            <li>
-                                <a href=""></a>
-                            </li>
-                            <li>
-                                <a href=""></a>
-                            </li>                    
-                        </ul> 
-                    </li>
-                    <li>
-                        <a href=""></a>
-                    </li>                    
-                </ul>                
-            </li>
-        </ul>
--->
-
     </div>
 </body>
 
