@@ -28,45 +28,28 @@
             $('#tree').append(
                 $('<ul/>')
                 .append(
-                    $('<li/>')
-                    .append(
-                        $('<a/>')
-                        .addClass('')
-                        .attr('href', '#')
-                    )
-                    .append(
+                    $('<li/>').append(
                         $('<ul/>')
-                        .attr('id', e)
-                    )
-                )
+                        .attr('id',e)
+                    )                                 
+                )                
             );
         }
 
-        function second_Orgchart1(e1, e2) {
+        function second_Orgchart(e1, e2) {
             $('#' + e1).append(
-                $('<li/>')
+                $('<li/>')                
                 .append(
-                    $('<a/>')
-                    .addClass('')
-                    .attr('href', '#')
-                )
-                .append(
-                    $('<ul/>')
+                    $('<ul/>') 
                     .attr('id', e2)
-                )
+                )                
             );
         }
 
-        function second_Orgchart2(e) {
-            $('#' + e).append(
-
-                $('<li/>')
-                .append(
-                    $('<a/>')
-                    .addClass('')
-                    .attr('href', '#')
-                )
-
+        function Info_Insert(e) {
+            $('#'+ e).parent().prepend(
+                $('<a/>')
+                .attr('href', '#')
             );
         }
 
@@ -100,8 +83,7 @@
                         .attr('href', '#')
                     )
                 )
-            );
-            //            console.log(e2);
+            );            
         }
         //show number= 01,02,...,09,10
         function NumFormat(e) {
@@ -116,35 +98,44 @@
             return num;
         }
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             var click_this;
             var rowCount;
-            var count = 0;
-            var array = [];
+            var count = 0;            
             var table = [{
-                id: '00'
+                id: '00',
+                name:''
             }, {
-                id: '01'
+                id: '01',
+                name:''
             }, {
-                id: '02'
+                id: '02',
+                name:''
             }, {
-                id: '03'
+                id: '00-00',
+                name:''
             }, {
-                id: ''
+                id: '00-01',
+                name:''
             }, {
-                id: '00-01-00'
+                id: '00-00-00',
+                name:''
             }, {
-                id: '04'
+                id: '00-00-01',
+                name:''
             }, {
-                id: '00-00-00-02-01'
+                id: '00-00-00-00',
+                name:''
             }, {
-                id: '00-00-00-02-01-01'
+                id: '00-00-00-00-00',
+                name:''
             }, {
-                id: '00-00-00-02-01-01-01'
+                id: '00-00-00-00-01',
+                name:''
             }];
 
 
-            $('a').on('click', function(e) {
+            $('a').on('click', function (e) {
                 click_this = $(this);
                 orgtoggle(click_this);
             });
@@ -156,7 +147,7 @@
 
             for (var i = 0; i < 10; i++) {
                 numarray[i] = 0;
-                getInfo[i] = [];
+                getInfo[i] = [];                
             }
 
             for (var i = 0; i < rowCount; i++) {
@@ -167,49 +158,82 @@
                 }
 
                 switch (tablecount) {
-                    case 1:
-                        numarray[0]++;
-                        break;
-                    case 2:
-                        numarray[1]++;
-                        break;
-                    case 3:
-                        numarray[2]++;
-                        break;
-                    case 4:
-                        numarray[3]++;
-                        break;
-                    case 5:
-                        numarray[4]++;
-                        break;
-                    case 6:
-                        numarray[5]++;
-                        break;
-                    case 7:
-                        numarray[6]++;
-                        break;
-                    case 8:
-                        numarray[7]++;
-                        break;
-                    case 9:
-                        numarray[8]++;
-                        break;
-                    case 10:
-                        numarray[9]++;
-                        break;
-                    default:
-                        alert('Your hierarchy is more than 10!!');
+                case 1:                    
+                    getInfo[0][numarray[0]] = table[i]['id'];                    
+                    numarray[0]++;                    
+                    break;
+                case 2:
+                    getInfo[1][numarray[1]] = table[i]['id']; 
+                    numarray[1]++;                        
+                    break;
+                case 3:
+                    getInfo[2][numarray[2]] = table[i]['id']; 
+                    numarray[2]++;
+                    break;
+                case 4:
+                    getInfo[3][numarray[3]] = table[i]['id']; 
+                    numarray[3]++;
+                    break;
+                case 5:
+                    getInfo[4][numarray[4]] = table[i]['id']; 
+                    numarray[4]++;
+                    break;
+                case 6:
+                    getInfo[5][numarray[5]] = table[i]['id'];
+                    numarray[5]++;
+                    break;
+                case 7:
+                    getInfo[6][numarray[6]] = table[i]['id'];
+                    numarray[6]++;
+                    break;
+                case 8:
+                    getInfo[7][numarray[7]] = table[i]['id'];
+                    numarray[7]++;
+                    break;
+                case 9:
+                    getInfo[8][numarray[8]] = table[i]['id'];
+                    numarray[8]++;
+                    break;
+                case 10:
+                    getInfo[9][numarray[9]] = table[i]['id'];
+                    numarray[9]++;
+                    break;
+                default:
+                    alert('Your hierarchy is more than 10!!');
+                }
+            }           
+            
+            for(var i = 0; i < getInfo[0].length; i++){
+                first_Orgchart(getInfo[0][i]);
+            }
+           
+            for(var i= 1; i < 10; i++){
+                if(getInfo[i].length > 0){                
+                    for(var j = 0; j < getInfo[i].length; j++){
+                        var array = getInfo[i][j].split('-');
+                        var remove = array.pop();                        
+                        second_Orgchart(array.join('-'),getInfo[i][j]);  
+//                        console.log(getInfo[i][j]);
+//                        console.log(array.join('-'));
+                    }
                 }
             }
-
-
-
-            for (var i = 0; i < numarray[0]; i++) {
-                first_Orgchart(NumFormat(i));
+//            
+//            
+//           
+            
+            for(var i = 0; i < table.length; i++){
+                Info_Insert(table[i]['id']);
             }
-
-
-            var str = $('#tree').children();
+//            Info_Insert('00');
+//            Info_Insert('01');            
+//            Info_Insert('00-00');            
+//            Info_Insert('00-01');
+//            Info_Insert('00-00-00');  
+            
+            
+            var str = $('#00').parent();
+                
             console.log(str);
         });
     </script>
@@ -217,27 +241,52 @@
 
 <body>
     <div id="tree">
-        <ul>
+
+<!--
+        <ul id="00">
             <li>
                 <a href=""></a>
-                <ul>
+                <ul id="00">
                     <li>
                         <a href=""></a>
-                        <ul>
+                        <ul id="00-00">
                             <li>
                                 <a href=""></a>
-                                <ul>
-                                    <li>
-                                        <a href=""></a>
-                                    </li>
-                                </ul>
                             </li>
-                        </ul>
+                            <li>
+                                <a href=""></a>
+                            </li>                    
+                        </ul>   
                     </li>
+                    <li>
+                        <a href=""></a>
+                    </li>                    
                 </ul>                
             </li>
-            
         </ul>
+        <ul id="01">
+            <li>
+                <a href=""></a>
+                <ul id="01-00">
+                    <li>
+                        <a href=""></a>
+                        <ul id="01-01-00">
+                            <li>
+                                <a href=""></a>
+                            </li>
+                            <li>
+                                <a href=""></a>
+                            </li>                    
+                        </ul> 
+                    </li>
+                    <li>
+                        <a href=""></a>
+                    </li>                    
+                </ul>                
+            </li>
+        </ul>
+-->
+
     </div>
 </body>
 
