@@ -10,11 +10,12 @@
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script>
-        //node
+        //node(<a/>) Toggle
         function orgtoggle(e) {
             e.nextAll().toggle();
         }       
-
+        
+        //Insert First hierarchy
         function first_Orgchart(e) {
             $('#tree').append(
                 $('<ul/>')
@@ -26,7 +27,8 @@
                 )                
             );
         }
-
+        
+        //Insert 2's,3's,... hierarchy
         function second_Orgchart(e1, e2) {
             $('#' + e1).append(
                 $('<li/>')                
@@ -36,7 +38,8 @@
                 )                
             );
         }
-
+        
+        //Insert OrgChart's node
         function Info_Insert(e) {
             $('#'+ e).parent().prepend(
                 $('<a/>')
@@ -57,21 +60,18 @@
             return num;
         }
         
-//        function BuildOrgChart(){
-//            
-//        }
-
-        $(document).ready(function () {
-            var click_this;
-            var rowCount;
+        //BuildOrgChart
+        function BuildOrgChart(){
+            var rowCount = 0;
             var count = 0;
             var numarray = [];
             var getInfo = [];
+            var str_remove = '';
             var table = [{
-                id: '00',
+                id: '00-00-00',
                 name:''
             }, {
-                id: '01',
+                id: '00-01',
                 name:''
             }, {
                 id: '02',
@@ -80,10 +80,10 @@
                 id: '00-00',
                 name:''
             }, {
-                id: '00-01',
+                id: '01',
                 name:''
             }, {
-                id: '00-00-00',
+                id: '00',
                 name:''
             }, {
                 id: '00-00-01',
@@ -97,22 +97,24 @@
             }, {
                 id: '00-00-00-00-01',
                 name:''
-            }];            
-
-            rowCount = table.length;            
-
+            }];        
+            
+            //Declare 2's dimension array
             for (var i = 0; i < 10; i++) {
                 numarray[i] = 0;
                 getInfo[i] = [];                
             }
-
+            
+            rowCount = table.length;
+            
             for (var i = 0; i < rowCount; i++) {
                 var tablecount = table[i]['id'].split('-').length;
 
                 if (tablecount >= count) {
                     count = tablecount;
                 }
-
+                
+                //OrgChart has 10 hierarchy
                 switch (tablecount) {
                 case 1:                    
                     getInfo[0][numarray[0]] = table[i]['id'];
@@ -177,8 +179,15 @@
                 Info_Insert(table[i]['id']);
             } 
             
-            var str = $('ul:not(:has(*))');
-            str.remove();
+            //Remove overage element
+            str_remove = $('ul:not(:has(*))');
+            str_remove.remove();
+        }
+
+        $(document).ready(function () {
+            var click_this;
+            
+            BuildOrgChart();
             
             $('a').on('click', function () {
                 click_this = $(this);
