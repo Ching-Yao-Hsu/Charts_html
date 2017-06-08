@@ -11,3 +11,67 @@ for (var i = 0; i < rowCount; i++) {
                     }
                 }
             }
+            
+            
+            
+            
+            
+            
+            for (var i = 0; i < rowCount; i++) {
+                var strCount = table[i]['id'].length;
+                switch (tablecount) {
+                case 1:
+                    first_Orgchart(table[i]['id']);                        
+                    break;
+                case 2:
+                    var getInfo = table[i]['id'].split('-');
+                    second_Orgchart1(getInfo,table[i]['id']);                   
+                    break;
+                case 3:
+                    var getInfo = table[i]['id'].split('-');
+                    var str = getInfo[0] + '-' + getInfo[1];
+                    second_Orgchart1(str,table[i]['id']);
+                    break;
+                case 4:
+                    var getInfo = table[i]['id'].split('-');
+                    var str = getInfo[0] + '-' + getInfo[1] + '-' + getInfo[2];
+                    second_Orgchart1(str,table[i]['id']);
+                    break;
+                case 5:
+                    var getInfo = table[i]['id'].split('-');
+                    var str = getInfo[0] + '-' + getInfo[1] + '-' + getInfo[2] + '-' + getInfo[3];
+                    second_Orgchart1(str,table[i]['id']);
+                    break;
+                case 6:
+                    var getInfo = table[i]['id'].split('-');
+                    var str = getInfo[0] + '-' + getInfo[1] + '-' + getInfo[2] + '-' + getInfo[3] + '-' + getInfo[4];
+                    second_Orgchart1(str,table[i]['id']);
+                    break;                    
+                case 7:
+                    var getInfo = table[i]['id'].split('-');
+                    var str = getInfo[0] + '-' + getInfo[1] + '-' + getInfo[2] + '-' + getInfo[3] + '-' + getInfo[4] + '-' + getInfo[5];
+                    second_Orgchart1(str,table[i]['id']);
+                    break;
+                case 8:
+                    var getInfo = table[i]['id'].split('-');
+                    var str = getInfo[0] + '-' + getInfo[1] + '-' + getInfo[2] + '-' + getInfo[3] + '-' + getInfo[4] + '-' + getInfo[5] + '-' + getInfo[6];
+                    second_Orgchart1(str,table[i]['id']);
+                    break;
+                case 9:
+                    var getInfo = table[i]['id'].split('-');
+                    var str = getInfo[0] + '-' + getInfo[1] + '-' + getInfo[2] + '-' + getInfo[3] + '-' + getInfo[4] + '-' + getInfo[5] + '-' + getInfo[6] + '-' + getInfo[7];
+                    second_Orgchart1(str,table[i]['id']);
+                    break;
+                case 10:
+                    var getInfo = table[i]['id'].split('-');
+                    var str = getInfo[0] + '-' + getInfo[1] + '-' + getInfo[2] + '-' + getInfo[3] + '-' + getInfo[4] + '-' + getInfo[5] + '-' + getInfo[6] + '-' + getInfo[7] + '-' + getInfo[8];
+                    second_Orgchart1(str,table[i]['id']);
+                    break;
+                default:
+                    alert('Your hierarchy is more than 10!!');
+                } 
+            }
+            }
+            
+            var aaa = '00-00-00';
+            var bbb = aaa.split('-');

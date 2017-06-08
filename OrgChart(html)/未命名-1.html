@@ -5,23 +5,33 @@
     <meta charset="UTF-8">
     <title>Document</title>
     <style>
-        #aaa{
+        #aaa {
             background-color: aqua;
         }
+
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
-    <script>    
-        $(document).ready(function () {
+    <script>
+        $(document).ready(function() {
+            var o = [{
+                "id": 0
+            },{
+                "id": 1
+            }]
             
-            $('#aaa').append('<div>aaa</div>');
+            var id = [{"id":5}];
+            
+            o[1].id.push(5);
+            
+            console.log(o);
         });
+
     </script>
 </head>
 
 <body>
-    <div id="aaa">132</div>
-    <table id="example" width="100%"></table>
+    <div id="test"></div>
 
 
 

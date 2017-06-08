@@ -34,23 +34,39 @@
                         .addClass('')
                         .attr('href', '#')
                     )
-                )
-                .attr('id', e)
-            );
-        }
-        
-        function second_Orgchart(e){
-            $('#tree').append(
-                $('<ul/>')
-                .append(
-                    $('<li/>')
                     .append(
-                        $('<a/>')
-                        .addClass('')
-                        .attr('href', '#')
+                        $('<ul/>')
+                        .attr('id', e)
                     )
                 )
-                .attr('id', e)
+            );
+        }
+
+        function second_Orgchart1(e1, e2) {
+            $('#' + e1).append(
+                $('<li/>')
+                .append(
+                    $('<a/>')
+                    .addClass('')
+                    .attr('href', '#')
+                )
+                .append(
+                    $('<ul/>')
+                    .attr('id', e2)
+                )
+            );
+        }
+
+        function second_Orgchart2(e) {
+            $('#' + e).append(
+
+                $('<li/>')
+                .append(
+                    $('<a/>')
+                    .addClass('')
+                    .attr('href', '#')
+                )
+
             );
         }
 
@@ -100,75 +116,99 @@
             return num;
         }
 
-        $(document).ready(function () {
+        $(document).ready(function() {
             var click_this;
             var rowCount;
+            var count = 0;
+            var array = [];
             var table = [{
-                id: '00',
-                parent: ''
+                id: '00'
             }, {
-                id: '01',
-                parent: ''
+                id: '01'
             }, {
-                id: '00-00',
-                parent: '01'
+                id: '02'
             }, {
-                id: '00-01',
-                parent: '00'
+                id: '03'
             }, {
-                id: '00-00-00',
-                parent: '00-00'
+                id: ''
+            }, {
+                id: '00-01-00'
+            }, {
+                id: '04'
+            }, {
+                id: '00-00-00-02-01'
+            }, {
+                id: '00-00-00-02-01-01'
+            }, {
+                id: '00-00-00-02-01-01-01'
             }];
 
 
-            $('a').on('click', function (e) {
+            $('a').on('click', function(e) {
                 click_this = $(this);
                 orgtoggle(click_this);
             });
 
             rowCount = table.length;
 
+            var numarray = [];
+            var getInfo = [];
+
+            for (var i = 0; i < 10; i++) {
+                numarray[i] = 0;
+                getInfo[i] = [];
+            }
+
             for (var i = 0; i < rowCount; i++) {
-                var strCount = table[i]['id'].length;
-                switch (strCount) {
-                case 2:
-                    first_Orgchart(NumFormat(i));
-                    break;
-                case 5:
-                    console.log('1');
-                    break;
-                case 8:
-                    console.log('2');
-                    break;
-                case 11:
-                    console.log('3');
-                    break;
-                case 14:
-                    console.log('4');
-                    break;
-                case 17:
-                    console.log('5');
-                    break;
-                case 20:
-                    console.log('6');
-                    break;
-                case 23:
-                    console.log('7');
-                    break;
-                case 26:
-                    console.log('8');
-                    break;
-                case 29:
-                    console.log('9');
-                    break;
-                default:
-                    alert('Your hierarchy is more than 10!!');
+                var tablecount = table[i]['id'].split('-').length;
+
+                if (tablecount >= count) {
+                    count = tablecount;
+                }
+
+                switch (tablecount) {
+                    case 1:
+                        numarray[0]++;
+                        break;
+                    case 2:
+                        numarray[1]++;
+                        break;
+                    case 3:
+                        numarray[2]++;
+                        break;
+                    case 4:
+                        numarray[3]++;
+                        break;
+                    case 5:
+                        numarray[4]++;
+                        break;
+                    case 6:
+                        numarray[5]++;
+                        break;
+                    case 7:
+                        numarray[6]++;
+                        break;
+                    case 8:
+                        numarray[7]++;
+                        break;
+                    case 9:
+                        numarray[8]++;
+                        break;
+                    case 10:
+                        numarray[9]++;
+                        break;
+                    default:
+                        alert('Your hierarchy is more than 10!!');
                 }
             }
 
-            var aaa = '00-00-00';
-            var bbb = aaa.split('-');
-            console.log(bbb);
+
+
+            for (var i = 0; i < numarray[0]; i++) {
+                first_Orgchart(NumFormat(i));
+            }
+
+
             var str = $('#tree').children();
             console.log(str);
         });
@@ -177,7 +217,27 @@
 
 <body>
     <div id="tree">
-
+        <ul>
+            <li>
+                <a href=""></a>
+                <ul>
+                    <li>
+                        <a href=""></a>
+                        <ul>
+                            <li>
+                                <a href=""></a>
+                                <ul>
+                                    <li>
+                                        <a href=""></a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>                
+            </li>
+            
+        </ul>
     </div>
 </body>
 
