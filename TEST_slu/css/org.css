@@ -1,10 +1,10 @@
 /*#region Organizational Chart*/
 #tree {
     margin: auto;
-    width: 1200px;    
+    
 }
 
-#tree * {
+#tree *{
     margin: 0;
     padding: 0;
 }
@@ -112,13 +112,13 @@ right connector from last child*/
     height: 20px;
     padding: 5px 10px;
     text-decoration: none;
-/*    background-color: azure;*/
+    /*background-color: azure;*/
 /*    color: #8b8b8b;*/
     font-family: arial, verdana, tahoma;
     font-size: 11px;
     display: inline-block;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    transition: all 5s;
+    transition: all 0.5s;
     -webkit-transition: all 0.5s;
     -moz-transition: all 0.5s;
     border: 1px solid;
@@ -131,17 +131,16 @@ right connector from last child*/
 /*We will apply the hover effect the the lineage of the element also*/
 
 #tree li a:hover,
-#tree li a:hover+ul li a{
-    background: #cbcbcb;    
-    background-image: url(img/no_plus_switch.png);
+#tree li a:hover + ul li a{
+    background: red;    
+    /*background-image: url(img/no_plus_switch.png);*/
     background-size: cover;
 }
 
 #tree li .switch:hover{
-    background-image: url(img/switch.png);
+    /*background-image: url(img/switch.png);*/
     background-size: cover;
 }
-
 
 /*Connector styles on hover*/
 
@@ -149,9 +148,8 @@ right connector from last child*/
 #tree li a:hover+ul li::before,
 #tree li a:hover+ul::before,
 #tree li a:hover+ul ul::before {
-    border-color: #94a0b4;
+    border-color: red;
 }
-
 
 /*#endregion*/
 
@@ -163,4 +161,12 @@ ul li .switch {
 ul li .no_plus_switch {
     background-image: url(img/no_plus_switch.png);
     background-size: cover;
+}
+
+.red {
+    background-color: red;
+}
+
+.azure {
+    background-color: azure;
 }

@@ -1,12 +1,19 @@
 //node(<a/>) Toggle
 function orgtoggle() {
-    $('#tree a').click(function () {
-        $(this).nextAll().slideToggle(500);
+    $('#tree ul a').click(function () {
+        $(this).nextAll().slideToggle(200);
         
     });
-    $('#tree li a').click(function(){
-        $(this).toggleClass('red');
-        
+
+    $('#tree a').click(function () {
+        if ($(this).hasClass('') || $(this).hasClass('azure')) {
+            $(this).removeClass('azure');
+            $(this).addClass("red");
+        }
+        else if ($(this).hasClass('red')) {
+            $(this).removeClass('red');
+            $(this).toggleClass("azure");
+        }
     });
 }
 
@@ -61,22 +68,23 @@ function NumFormat(e) {
 
 
 //Do OrgChart_DataTable's data be repeated? 
-function OrgChart_DataTable_CheckRepeater() {
-    var table = OrgChart_DataTable();
-    var tableRowCount = table.length;
-    var boolcount = 0;
+function OrgChart_DataTable_CheckRepeater(e) {
+    var table = e;
+    var tableRowCount = table.length;    
     var repeatarray = [];
     var repeatCount = 0;
+
+    
 
     for (var i = 0; i < tableRowCount; i++) {
         var str = table[i]['id'];
         var boolcount = 0;
-
+        
         for (var j = 0; j < tableRowCount; j++) {
-            if (str == table[j]['id']) {
+            if (str === table[j]['id']) {
                 boolcount++;
             }
-            if (boolcount == 2) {
+            if (boolcount === 2) {
                 repeatarray[repeatCount] = table[j]['id'];
                 repeatCount++;
                 break;
@@ -84,7 +92,7 @@ function OrgChart_DataTable_CheckRepeater() {
         }
     }
 
-    if (repeatCount > 0) {
+    if (repeatCount > 0) {        
         var ShowRepeater = repeatarray.join();
         alert('Your dataID[{ ' + ShowRepeater + ' }] has already repeated!!');
         return false;
@@ -95,8 +103,8 @@ function OrgChart_DataTable_CheckRepeater() {
 }
 
 //Do OrgChart_DataTable's data conform format?
-function OrgChart_DataTable_CheckFormat() {
-    var table = OrgChart_DataTable();
+function OrgChart_DataTable_CheckFormat(e) {
+    var table = e;
     var tableRowCount = table.length;
     var str = [];
     var ErrorCount = 0;
@@ -106,7 +114,7 @@ function OrgChart_DataTable_CheckFormat() {
     for (var i = 0; i < tableRowCount; i++) {
         str[i] = table[i]['id'].split('-');
         for (var j = 0; j < str[i].length; j++) {
-            if (str[i][j].length != 2) {
+            if (str[i][j].length !== 2) {
                 ShowError[ErrorCount] = table[i]['id'];
                 ErrorCount++;
             }
@@ -126,7 +134,7 @@ function OrgChart_DataTable_CheckFormat() {
 //BuildOrgChart   
 (function ($) {
     $.fn.BuildOrgChart = function (e) {
-        var table = OrgChart_DataTable();
+        var table = e;
         var tableRowCount = table.length;
         var count = 0;
         var numarray = [];
@@ -134,13 +142,13 @@ function OrgChart_DataTable_CheckFormat() {
         var str_remove = '';
 
         //Declare 2's dimension array
-        for (var i = 0; i < 10; i++) {
+        for (i = 0; i < 10; i++) {
             numarray[i] = 0;
             getInfo[i] = [];
         }
 
         //Check DataTable hierarchy
-        for (var i = 0; i < tableRowCount; i++) {
+        for (i = 0; i < tableRowCount; i++) {
             var tablecount = table[i]['id'].split('-').length;
 
             if (tablecount >= count) {
@@ -200,7 +208,7 @@ function OrgChart_DataTable_CheckFormat() {
         }
 
         //Build root node children
-        for (var i = 1; i < 10; i++) {
+        for (i = 1; i < 10; i++) {
             if (getInfo[i].length > 0) {
                 for (var j = 0; j < getInfo[i].length; j++) {
                     var array = getInfo[i][j].split('-');
@@ -211,7 +219,7 @@ function OrgChart_DataTable_CheckFormat() {
         }
 
         //Insert data into node
-        for (var i = 0; i < table.length; i++) {
+        for (i = 0; i < table.length; i++) {
             Info_Insert(table[i]['id']);
         }
 
@@ -223,9 +231,10 @@ function OrgChart_DataTable_CheckFormat() {
 
 (function ($) {
     $.fn.EzOrgChart = function (e) {
-        if (OrgChart_DataTable_CheckFormat() && OrgChart_DataTable_CheckRepeater()) {
-            $(this).BuildOrgChart();
+        if (OrgChart_DataTable_CheckFormat(e) && OrgChart_DataTable_CheckRepeater(e)) {
+            $(this).BuildOrgChart(e);
+            $('#tree a').addClass('azure');
             orgtoggle();
         }
-    }
+    };
 })(jQuery);

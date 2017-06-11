@@ -4,34 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <title>Document</title>
-    <link rel="stylesheet" href="org.css">
+    <link rel="stylesheet" href="org.css">   
     <style>
-
-
-    </style>
+        .red{
+            background: red;
+        }
+    </style> 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="org.js"></script>
-
+<!--    注意dataTable.js與org.js順序-->
+    <script src="orgDataTable.js"></script>
+    <script src="org.js"></script>    
     <script>
-        (function($) {
-            $.fn.MyBlah = function(blah) {
-                $(this).html('aaaa');
-                console.log('blah class added');
-            };
-        })(jQuery);
-
-        $(document).ready(function() {
-            $('#one').MyBlah();
+        $(document).ready(function () {
+            $('#tree').EzOrgChart();
         });
-
     </script>
-
 </head>
 
 <body>
-    <div id="tree"></div>
-    <div id="blahElementId"></div>
-    <div id="one">123</div>
+    <div id="tree"></div>    
 </body>
 
 </html>
