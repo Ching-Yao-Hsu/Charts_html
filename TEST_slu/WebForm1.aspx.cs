@@ -15,7 +15,7 @@ namespace Test
         {
             string str_conn = "Data Source=.;Initial Catalog=ChartTest;Persist Security Info=True;User ID=sa;Password=1qaz@wsx";
             string str_cmd = "SELECT * FROM ChartTest.dbo.MeterInfo WHERE lineNum != '' ORDER BY lineNum";
-            string json = "";
+            StringBuilder json = new StringBuilder();
             int count = 0;
             using (SqlConnection conn = new SqlConnection(str_conn))
             {
