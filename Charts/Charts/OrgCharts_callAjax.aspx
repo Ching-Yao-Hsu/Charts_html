@@ -38,11 +38,8 @@
                             }
                         }
                     }
-                }
-
-                var aaa = '00-00';
-                var bbb = aaa.split('-');
-                console.log(bbb);
+                }              
+                
             }
 
             $.ajax({
