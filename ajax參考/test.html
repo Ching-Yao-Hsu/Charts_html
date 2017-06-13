@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="map" width="600" height="600"></div>
+    <script>
+        function test() {
+            var geocoder = new google.maps.Geocoder();
+            console.log(geocoder.geocode);
+            geocoder.geocode({
+                "address": "桃園市桃園區中正路61號5樓"
+            }, function(req, res) {
+                console.log(res);
+                console.log(req[0].geometry.location.lat());
+                console.log(req[0].geometry.location.lng());
+                console.log(req[0].formatted_address);
+                var LATLNG = new google.maps.LatLng();
+                console.log(LATLNG);
+            })
+        }
+
+        //test();
+
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDfAXGVLM1Z5vysV4yeFBr2IGpq_3fdy58&callback=test"></script>
+</body>
+
+</html>
