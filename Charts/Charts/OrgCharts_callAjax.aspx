@@ -4,48 +4,67 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title></title>
     <link href="css/org.css" rel="stylesheet" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script type="text/JavaScript"  src="js/org.js"></script>
+    <script type="text/JavaScript" src="js/org.js"></script>
     <script type="text/JavaScript">
         $(document).ready(function () {
             function OrgCharts_recursion(e) {
                 var table = [];
                 var strArray = [];
                 var bool;
+                var booltable;
                 var count = 0;
                 for (i = e.length - 1; i >= 0; i--) {
-                    bool = true;
+                    bool = false;
                     strArray[i] = e[i]['id'].split('-');
                     strArray[i].pop();
                     for (j = i - 1; j >= 0; j--) {
-                        bool = (strArray[i].join('-') !== e[j]['id']) ? false : true;
-                        if (bool)
+                        bool = (strArray[i].join('-') !== e[j]['id']) ? true : false;
+                        if (!bool)
                             break;
                     }
 
-                    if (!bool) {
+                    if (bool) {
                         if (table.length === 0) {
                             table.push({ id: strArray[i].join('-') });
-                            count++;
                         } else {
-                            for (k = 0; k < count; k++) {
-                                if (strArray[i].join('-') !== table[k] && strArray[i].join('-') != '') {
-                                    table.push({ id: strArray[i].join('-') });
-                                }
+                            booltable = true;
+                            for (k = 0; k < table.length; k++) {
+                                booltable = (strArray[i].join('-') === table[k]['id']) ? false : true;
+                            }
+                            if (booltable && strArray[i].join('-') != '') {
+                                table.push({ id: strArray[i].join('-') });
                             }
                         }
                     }
-                }              
-                
+                }
+                console.log(table);
             }
+
+            function recursion(e) {                
+                return function (check,num) {
+                    console.log(num);
+                    if (num <= 0)
+                    {
+                        check = true;
+                    }
+                    if (check) {
+                        return 1;
+                    }else                        
+                    return arguments.callee(check,num-1);
+                };
+            }
+
+            var result = recursion()(false, 6);
+            console.log(result);         
 
             $.ajax({
                 url: "OrgCharts_responseAjax.aspx",
                 dataType: "json",
-                type: "POST",                
+                type: "POST",
                 success: function (e) {
 
                     $('#tree').EzOrgChart(e);
@@ -89,13 +108,15 @@
                     //        }                                                     
                     //    }                       
                     //}
-                    
+
                     //for (i = 0; i < table.length ; i++) {
                     //    e.push(table[i]);
                     //}
                     //console.log(e);
                     //console.log(table);
                     OrgCharts_recursion(e);
+                    //for (i = 0; i < e.length; i++)
+                    //console.log(e[i]['id']);
                 },
                 error: function () {
                     alert("error");
