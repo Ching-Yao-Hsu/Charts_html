@@ -11,30 +11,25 @@
     <script type="text/JavaScript" src="js/org.js"></script>
     <script type="text/JavaScript" src="js/recursion.js"></script>
     <script type="text/JavaScript">
-        $(document).ready(function () {
-            
+        $(document).ready(function () {           
             $.ajax({
                 url: "OrgCharts_responseAjax.aspx",
                 dataType: "json",
                 type: "POST",
                 success: function (e) {
-                    var circle = new Circle();
-                    var table = circle.OrgCharts_recursion(e);
-                    circle.recursion(table);
-                    $('#tree').EzOrgChart(e);
-                    //e.splice(5, 0,
-                    //    { id: "02" }
-                    //);                    
+                    var rec = new Ezrecursion();
+                    var table = rec.init_recursion(e);
+                    rec.recursion(e)(table);
 
-                    //function SortByName(a, b) {
-                    //    var aName = a.id.toLowerCase();
-                    //    console.log(aName);
-                    //    var bName = b.id.toLowerCase();
-                    //    console.log(bName);
-                    //    return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
-                    //}
-                    //e.sort(SortByName);
+                    function SortByName(a, b) {
+                        var aName = a.id.toLowerCase();                        
+                        var bName = b.id.toLowerCase();                        
+                        return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+                    }
+
+                    e.sort(SortByName);
                     
+                    $('#tree').EzOrgChart(e);
                 },
                 error: function () {
                     alert("error");

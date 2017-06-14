@@ -91,11 +91,11 @@
 //    };
 //}
 
-var recursion = function () {
+var Ezrecursion = function () {
     
 }
 
-$.extend(recursion.prototype, {
+$.extend(Ezrecursion.prototype, {
     init_recursion: function (e) {
         var table = [];
         var strArray = [];
@@ -121,7 +121,7 @@ $.extend(recursion.prototype, {
                     for (k = 0; k < table.length; k++) {
                         booltable = (strArray[i].join('-') === table[k]['id']) ? false : true;
                     }
-                    if (booltable && strArray[i].join('-') != '') {
+                    if (booltable && strArray[i].join('-') !== '') {
                         table.push({ id: strArray[i].join('-') });
                     }
                 }
@@ -159,14 +159,14 @@ $.extend(recursion.prototype, {
                     }
 
                     if (bool) {
-                        if (newtable.length === 0 && strArray[i].join('-') != '') {
+                        if (newtable.length === 0 && strArray[i].join('-') !== '') {
                             newtable.push({ id: strArray[i].join('-') });
                         } else {
                             booltable = true;
                             for (k = 0; k < newtable.length; k++) {
                                 booltable = (strArray[i].join('-') === newtable[k]['id']) ? false : true;
                             }
-                            if (booltable && strArray[i].join('-') != '') {
+                            if (booltable && strArray[i].join('-') !== '') {
                                 newtable.push({ id: strArray[i].join('-') });
                             }
                         }
