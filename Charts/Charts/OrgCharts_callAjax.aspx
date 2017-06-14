@@ -17,7 +17,7 @@
                 var bool;
                 var booltable;
                 var count = 0;
-                
+
                 for (i = e.length - 1; i >= 0; i--) {
                     bool = false;
                     strArray[i] = e[i]['id'].split('-');
@@ -43,22 +43,20 @@
                     }
                 }
 
-                for (i = 0; i < table.length; i++) {                    
+                for (i = 0; i < table.length; i++) {
                     e.push(table[i]);
                 }
 
                 return table;
             }
 
-            function recursion(e) {
-                
+            function recursion(e) {                
                 return function (check, table) {
-                    
-                    if (check) {
-                        e.pop();
-                        return table;                        
+
+                    if (!check) {                        
+                        return table;
                     } else {
-                        
+
                         var newtable = [];
                         var strArray = [];
                         var bool;
@@ -76,8 +74,8 @@
                             }
 
                             if (bool) {
-                                if (newtable.length === 0) {
-                                    newtable.push({ id: strArray[i].join('-') });
+                                if (newtable.length === 0 && strArray[i].join('-') != '') {
+                                    newtable.push({ id: strArray[i].join('-') });                                    
                                 } else {
                                     booltable = true;
                                     for (k = 0; k < newtable.length; k++) {
@@ -88,19 +86,17 @@
                                     }
                                 }
                             }
-                        }                       
+                        }
 
                         if (newtable.length === 0) {
-                            check = true;
+                            check = false;
                         }
                         else {
-                            
                             for (i = 0; i < newtable.length; i++) {                                
-                                e.push(newtable[i]);
-                                console.log(newtable[i]);
+                                e.push(newtable[i]);                                
                             }
-                        }
-                        return arguments.callee(check,newtable);
+                        }                        
+                        return arguments.callee(check, newtable);
                     }
                 };
             }
@@ -128,7 +124,7 @@
                 type: "POST",
                 success: function (e) {
                     var table = OrgCharts_recursion(e);
-                    recursion(e)(false, table);
+                    recursion(e)(true, table);
                     console.log(e);
                     $('#tree').EzOrgChart(e);
                     //e.splice(5, 0,
