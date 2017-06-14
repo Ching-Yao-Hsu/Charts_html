@@ -7,6 +7,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title></title>
     <link href="css/org.css" rel="stylesheet" />
+    
     <script type="text/JavaScript" src="scripts/jquery-3.1.1.min.js"></script>
     <script type="text/JavaScript" src="js/org.js"></script>
     <script type="text/JavaScript" src="js/recursion.js"></script>
@@ -37,6 +38,11 @@
             })
         });
     </script>
+    <style>
+        .a {
+            width:50px;
+        }
+    </style>
 </head>
 <body>
     <form id="form1" runat="server">

@@ -36,9 +36,9 @@ namespace Charts
                         json = "[{\"id\":\"" + dt.Rows[0]["lineNum"] + "\",\"remark\":\"" + dt.Rows[0]["meterId"] + "\"}";
                         for (int i = 1; i < count - 1; i++)
                         {
-                            json += ",{\"id\":\"" + dt.Rows[i]["lineNum"] + "\",\"remark\":\"" + dt.Rows[0]["meterId"] + "\"}";
+                            json += ",{\"id\":\"" + dt.Rows[i]["lineNum"] + "\",\"remark\":\"" + dt.Rows[i]["meterId"] + "\"}";
                         }
-                        json += ",{\"id\":\"" + dt.Rows[count - 1]["lineNum"] + "\",\"remark\":\"" + dt.Rows[0]["meterId"] + "\"}]";
+                        json += ",{\"id\":\"" + dt.Rows[count-1]["lineNum"] + "\",\"remark\":\"" + dt.Rows[count - 1]["meterId"] + "\"}]";
                         Response.Write(json);
                         Response.End();
                     }
