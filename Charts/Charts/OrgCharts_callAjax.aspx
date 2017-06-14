@@ -50,44 +50,59 @@
                 return table;
             }
 
-            function recursion(e, table) {
-                var newtable = [];
-                var strArray = [];
-                var bool;
-                var booltable;
+            function recursion(e) {
                 
-                for (i = 0; i < table.length; i++) {
-                    strArray[i] = table[i]['id'].split('-');
-                    strArray[i].pop();
+                return function (check, table) {
                     
-                    for (j = 0; j < e.length; j++) {                        
-                        bool = (strArray[i].join('-') === e[j]['id']) ? false : true;
-                        if (!bool) {
-                            break;
-                        }
-                    }
+                    if (check) {
+                        e.pop();
+                        return table;                        
+                    } else {
+                        
+                        var newtable = [];
+                        var strArray = [];
+                        var bool;
+                        var booltable;
 
-                    if (bool) {
+                        for (i = 0; i < table.length; i++) {
+                            strArray[i] = table[i]['id'].split('-');
+                            strArray[i].pop();
+
+                            for (j = 0; j < e.length; j++) {
+                                bool = (strArray[i].join('-') === e[j]['id']) ? false : true;
+                                if (!bool) {
+                                    break;
+                                }
+                            }
+
+                            if (bool) {
+                                if (newtable.length === 0) {
+                                    newtable.push({ id: strArray[i].join('-') });
+                                } else {
+                                    booltable = true;
+                                    for (k = 0; k < newtable.length; k++) {
+                                        booltable = (strArray[i].join('-') === newtable[k]['id']) ? false : true;
+                                    }
+                                    if (booltable && strArray[i].join('-') != '') {
+                                        newtable.push({ id: strArray[i].join('-') });
+                                    }
+                                }
+                            }
+                        }                       
+
                         if (newtable.length === 0) {
-                            newtable.push({ id: strArray[i].join('-') });                            
-                        } else {
-                            booltable = true;
-                            for (k = 0; k < newtable.length; k++) {
-                                booltable = (strArray[i].join('-') === newtable[k]['id']) ? false : true;
-                            }
-                            if (booltable && strArray[i].join('-') != '') {
-                                newtable.push({ id: strArray[i].join('-') });
+                            check = true;
+                        }
+                        else {
+                            
+                            for (i = 0; i < newtable.length; i++) {                                
+                                e.push(newtable[i]);
+                                console.log(newtable[i]);
                             }
                         }
+                        return arguments.callee(check,newtable);
                     }
-                }
-
-                
-                for (i = 0; i < newtable.length; i++) {                    
-                    e.push(newtable[i]);
-                }
-
-                return newtable;
+                };
             }
 
 
@@ -100,7 +115,7 @@
             //        if (check) {
             //            return 1;
             //        } else
-            //            return arguments.callee(check, num - 1);
+            //            return arguments.callee(check,num - 1);
             //    };
             //}
 
@@ -113,10 +128,7 @@
                 type: "POST",
                 success: function (e) {
                     var table = OrgCharts_recursion(e);
-
-                    var newtable = recursion(e, table);
-                    var lasttable = recursion(e, newtable);
-                    recursion(e, lasttable);
+                    recursion(e)(false, table);
                     console.log(e);
                     $('#tree').EzOrgChart(e);
                     //e.splice(5, 0,
