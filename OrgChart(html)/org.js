@@ -229,3 +229,7 @@ function OrgChart_DataTable_CheckFormat() {
         }
     }
 })(jQuery);
+
+function abc(){
+    console.log('aaaaaaa');
+}

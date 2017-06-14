@@ -233,9 +233,11 @@ function OrgChart_DataTable_CheckFormat(e) {
     $.fn.EzOrgChart = function (e) {
         
         if (OrgChart_DataTable_CheckFormat(e) && OrgChart_DataTable_CheckRepeater(e)) {
+            
             $(this).BuildOrgChart(e);            
             $('#tree a').addClass('azure');
             orgtoggle();
         }
     };
 })(jQuery);
+
