@@ -50,8 +50,9 @@
                 return table;
             }
 
-            function recursion(e) {                
-                return function (check, table) {
+            function recursion(e) {
+                var check = true;
+                return function (table) {
 
                     if (!check) {                        
                         return table;
@@ -96,7 +97,7 @@
                                 e.push(newtable[i]);                                
                             }
                         }                        
-                        return arguments.callee(check, newtable);
+                        return arguments.callee(newtable);
                     }
                 };
             }
@@ -124,8 +125,7 @@
                 type: "POST",
                 success: function (e) {
                     var table = OrgCharts_recursion(e);
-                    recursion(e)(true, table);
-                    console.log(e);
+                    recursion(e)(table);                    
                     $('#tree').EzOrgChart(e);
                     //e.splice(5, 0,
                     //    { id: "02" }
