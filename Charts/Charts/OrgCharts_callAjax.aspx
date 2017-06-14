@@ -17,6 +17,7 @@
                 var bool;
                 var booltable;
                 var count = 0;
+                
                 for (i = e.length - 1; i >= 0; i--) {
                     bool = false;
                     strArray[i] = e[i]['id'].split('-');
@@ -41,32 +42,82 @@
                         }
                     }
                 }
-                console.log(table);
+
+                for (i = 0; i < table.length; i++) {                    
+                    e.push(table[i]);
+                }
+
+                return table;
             }
 
-            function recursion(e) {                
-                return function (check,num) {
-                    console.log(num);
-                    if (num <= 0)
-                    {
-                        check = true;
+            function recursion(e, table) {
+                var newtable = [];
+                var strArray = [];
+                var bool;
+                var booltable;
+                
+                for (i = 0; i < table.length; i++) {
+                    strArray[i] = table[i]['id'].split('-');
+                    strArray[i].pop();
+                    
+                    for (j = 0; j < e.length; j++) {                        
+                        bool = (strArray[i].join('-') === e[j]['id']) ? false : true;
+                        if (!bool) {
+                            break;
+                        }
                     }
-                    if (check) {
-                        return 1;
-                    }else                        
-                    return arguments.callee(check,num-1);
-                };
+
+                    if (bool) {
+                        if (newtable.length === 0) {
+                            newtable.push({ id: strArray[i].join('-') });                            
+                        } else {
+                            booltable = true;
+                            for (k = 0; k < newtable.length; k++) {
+                                booltable = (strArray[i].join('-') === newtable[k]['id']) ? false : true;
+                            }
+                            if (booltable && strArray[i].join('-') != '') {
+                                newtable.push({ id: strArray[i].join('-') });
+                            }
+                        }
+                    }
+                }
+
+                
+                for (i = 0; i < newtable.length; i++) {                    
+                    e.push(newtable[i]);
+                }
+
+                return newtable;
             }
 
-            var result = recursion()(false, 6);
-            console.log(result);         
+
+            //function recursion(e) {
+            //    return function (check, num) {
+            //        console.log(num);
+            //        if (num <= 0) {
+            //            check = true;
+            //        }
+            //        if (check) {
+            //            return 1;
+            //        } else
+            //            return arguments.callee(check, num - 1);
+            //    };
+            //}
+
+            //var result = recursion()(false, 6);
+            //console.log(result);
 
             $.ajax({
                 url: "OrgCharts_responseAjax.aspx",
                 dataType: "json",
                 type: "POST",
                 success: function (e) {
+                    var table = OrgCharts_recursion(e);
 
+                    var newtable = recursion(e, table);
+                    var lasttable = recursion(e, newtable);
+                    recursion(e, lasttable);
+                    console.log(e);
                     $('#tree').EzOrgChart(e);
                     //e.splice(5, 0,
                     //    { id: "02" }
@@ -80,43 +131,6 @@
                     //    return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
                     //}
                     //e.sort(SortByName);
-
-                    //var table = [];  
-                    //var strArray = [];
-                    //var bool;
-                    //var count = 0;
-                    //for (i = e.length - 1; i >= 0; i--) {                        
-                    //    bool = true;
-                    //    strArray[i] = e[i]['id'].split('-');
-                    //    strArray[i].pop();
-                    //    for (j = i - 1; j >= 0; j--) {
-                    //        bool = (strArray[i].join('-') !== e[j]['id']) ? false : true;
-                    //        if (bool)
-                    //            break;
-                    //    }                        
-
-                    //    if (!bool) {
-                    //        if (table.length === 0) {
-                    //            table.push({ id: strArray[i].join('-') });
-                    //            count++;
-                    //        } else {
-                    //            for (k = 0; k < count; k++) {
-                    //                if (strArray[i].join('-') !== table[k] && strArray[i].join('-') != '') {
-                    //                    table.push({ id: strArray[i].join('-') });
-                    //                }
-                    //            }
-                    //        }                                                     
-                    //    }                       
-                    //}
-
-                    //for (i = 0; i < table.length ; i++) {
-                    //    e.push(table[i]);
-                    //}
-                    //console.log(e);
-                    //console.log(table);
-                    OrgCharts_recursion(e);
-                    //for (i = 0; i < e.length; i++)
-                    //console.log(e[i]['id']);
                 },
                 error: function () {
                     alert("error");
