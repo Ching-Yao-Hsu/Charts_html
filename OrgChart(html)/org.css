@@ -46,6 +46,7 @@
 #tree li::after {
     right: auto;
     left: 50%;
+    height: 40px;
     border-left: 1px solid #696969;
 }
 
@@ -79,6 +80,7 @@ right connector from last child*/
 
 #tree li:last-child::before {
     border-right: 1px solid #696969;
+    height: 40px;
     /*
     border-radius: 0 5px 0 0;
     -webkit-border-radius: 0 5px 0 0;

@@ -44,10 +44,14 @@ function second_Orgchart(e1, e2) {
 }
 
 //Insert data into node
-function Info_Insert(e1, e2) {
-    $('#' + e1).parent().prepend(
+function Info_Insert(e1,e2) {
+    $('#' + e1).parent().prepend(        
         $('<a/>')
             .attr('href', '#')            
+    );
+    $('#' + e1).parent().prepend(
+        $('<div/>')
+            .text(e2)
     );
 
 }

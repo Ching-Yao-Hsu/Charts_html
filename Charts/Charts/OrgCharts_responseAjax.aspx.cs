@@ -15,8 +15,8 @@ namespace Charts
         protected void Page_Load(object sender, EventArgs e)
         {
             //string str_conn = WebConfigurationManager.ConnectionStrings["ECOSMARTConnectionString"].ConnectionString;
-            //string str_cmd = "SELECT ms.ECO_Account,ms.CtrlNr,ms.MeterID,ms.LineNum FROM ECOSMART.dbo.MeterSetup as ms WHERE ms.LineNum != '' AND ms.ECO_Account LIKE 'twenergy%' ORDER BY ms.LineNum";
-            string str_conn = WebConfigurationManager.ConnectionStrings["ChartTestConnectionString"].ConnectionString;
+            //string str_cmd = "SELECT ms.ECO_Account,ms.CtrlNr,ms.MeterID,ms.LineNum,ms.InstallPosition FROM ECOSMART.dbo.MeterSetup as ms WHERE ms.LineNum != '' AND ms.ECO_Account LIKE 'twenergy%' ORDER BY ms.LineNum";
+            string str_conn = WebConfigurationManager.ConnectionStrings["TESTConnectionString"].ConnectionString;
             string str_cmd = "SELECT mi.meterId,mi.lineNum from dbo.MeterInfo as mi where mi.lineNum !='' order by mi.lineNum";
 
             //StringBuilder json = new StringBuilder();

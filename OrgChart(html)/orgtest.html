@@ -4,18 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Document</title>
-    <link rel="stylesheet" href="org.css">   
+    <link rel="stylesheet" href="org.css">
     <style>
-        .red{
+        .red {
             background: red;
         }
-    </style> 
+        
+        a div{
+                        
+        }
+    </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-<!--    注意dataTable.js與org.js順序-->
+    <!--    注意dataTable.js與org.js順序-->
     <script src="orgDataTable.js"></script>
-    <script src="org.js"></script>    
+    <script src="org.js"></script>
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             $('#tree').EzOrgChart();
             abc();
         });
@@ -23,7 +27,27 @@
 </head>
 
 <body>
-    <div id="tree"></div>    
+    <div id="tree">
+
+        <ul>
+            <li>
+                <a href=""></a>
+                <ul>
+                    <li>
+                       <div>1233213321</div>
+                        <a href="">
+                            
+                        </a>
+                        
+                    </li>
+                    <li>
+                       <div>12654646543</div>
+                        <a href=""></a>
+                    </li>
+                </ul>
+            </li>            
+        </ul>
+    </div>
 </body>
 
 </html>
