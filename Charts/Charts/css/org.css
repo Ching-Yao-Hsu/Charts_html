@@ -1,7 +1,6 @@
 /*#region Organizational Chart*/
 #tree {
     margin: auto;
-    
 }
 
 #tree *{
@@ -36,7 +35,7 @@
 #tree li::after {
     content: '';
     position: absolute;
-    top: -1px;
+    top: 0px;
     right: 50%;
     border-top: 2px solid #696969;
     width: 50%;

@@ -1,0 +1,912 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+ElectricBill
+</name>
+</assembly>
+<members>
+<member name="F:ElectricBillCal.ElectricBill.Bill.Basic">
+	<summary>
+ 基本電費
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.Bill.OverDemand">
+	<summary>
+ 超約附加費
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.Bill.PF_Improve">
+	<summary>
+ 功因補償費
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.Bill.Used">
+	<summary>
+ 流動電費
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.Bill.Total">
+	<summary>
+ 總電費
+ </summary>
+	<remarks></remarks>
+</member><member name="T:ElectricBillCal.ElectricBill.Bill">
+	<summary>
+ 電費單
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.Month.Jan">
+	<summary>
+ 一月
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.Month.Feb">
+	<summary>
+ 二月
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.Month.Mar">
+	<summary>
+ 三月
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.Month.Apr">
+	<summary>
+ 四月
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.Month.May">
+	<summary>
+ 五月
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.Month.Jun">
+	<summary>
+ 六月
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.Month.Jul">
+	<summary>
+ 七月
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.Month.Aug">
+	<summary>
+ 八月
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.Month.Sep">
+	<summary>
+ 九月
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.Month.Oct">
+	<summary>
+ 十月
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.Month.Nov">
+	<summary>
+ 十一月
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.Month.Dec">
+	<summary>
+ 十二月
+ </summary>
+	<remarks></remarks>
+</member><member name="T:ElectricBillCal.ElectricBill.Month">
+	<summary>
+ 月份
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.Home_Mode.Range1">
+	<summary>
+ 第一段用電量
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Home_Mode.Range2">
+	<summary>
+ 第二段用電量
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Home_Mode.Range3">
+	<summary>
+ 第三段用電量
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Home_Mode.Range4">
+	<summary>
+ 第四段用電量
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Home_Mode.Range5">
+	<summary>
+ 第五段用電量
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Home_Mode.Cost1">
+	<summary>
+ 第1段電價
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Home_Mode.Cost2">
+	<summary>
+ 第2段電價
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Home_Mode.Cost3">
+	<summary>
+ 第3段電價
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Home_Mode.Cost4">
+	<summary>
+ 第4段電價
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Home_Mode.Cost5">
+	<summary>
+ 第5段電價
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Home_Mode.Cost6">
+	<summary>
+ 第6段電價
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Home_Mode.Cost1S">
+	<summary>
+ 第1段電價(夏季)
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Home_Mode.Cost2S">
+	<summary>
+ 第2段電價(夏季)
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Home_Mode.Cost3S">
+	<summary>
+ 第3段電價(夏季)
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Home_Mode.Cost4S">
+	<summary>
+ 第4段電價(夏季)
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Home_Mode.Cost5S">
+	<summary>
+ 第5段電價(夏季)
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Home_Mode.Cost6S">
+	<summary>
+ 第6段電價(夏季)
+ </summary>
+</member><member name="M:ElectricBillCal.ElectricBill.Home_Mode.Init">
+	<summary>
+ 初始化數值
+ </summary>
+	<remarks></remarks>
+</member><member name="T:ElectricBillCal.ElectricBill.Home_Mode">
+	<summary>
+ 非營業用表燈電價結構
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.DefaultHome">
+	<summary>
+ 非營業用表燈非時間電價
+ </summary>
+	<remarks>預設值 電價表104/10/1</remarks>
+</member><member name="M:ElectricBillCal.ElectricBill.表燈非營業(System.Int32,ElectricBillCal.ElectricBill.Month,System.Nullable{ElectricBillCal.ElectricBill.Home_Mode})">
+	<summary>
+ 表燈非營業用電費計算/單月電費計算
+ </summary>
+	<param name="KWh">電量</param>
+	<param name="Month">月份</param>
+	<param name="Mode">表燈電價結構</param>
+	<returns>電費</returns>
+	<remarks></remarks>
+</member><member name="M:ElectricBillCal.ElectricBill.表燈非營業(System.Int32,System.Int32,System.Int32,System.Int32,ElectricBillCal.ElectricBill.Month,System.Nullable{ElectricBillCal.ElectricBill.Home_Mode})">
+	<summary>
+ 表燈非營業用電費計算/單月電費計算
+ </summary>
+	<param name="R_KWh">尖峰用電量</param>
+	<param name="H_KWh">半尖峰用電量</param>
+	<param name="S_KWh">週六半尖峰用電量</param>
+	<param name="O_KWh">離峰用電量</param>
+	<param name="Month">月份</param>
+	<param name="Mode">表燈電價結構</param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ElectricBillCal.ElectricBill.表燈非營業(System.Int32,ElectricBillCal.ElectricBill.Month,System.Nullable{ElectricBillCal.ElectricBill.Home_Mode},System.Boolean)">
+	<summary>
+ 表燈非營業用電費計算/單月電費計算
+ </summary>
+	<param name="KWh">電量</param>
+	<param name="Month">月份</param>
+	<param name="Mode">表燈電價結構</param>
+	<param name="Nothing">無意義</param>
+	<returns>電費單</returns>
+	<remarks></remarks>
+</member><member name="M:ElectricBillCal.ElectricBill.表燈非營業(System.Int32,System.Int32,System.Int32,System.Int32,ElectricBillCal.ElectricBill.Month,System.Nullable{ElectricBillCal.ElectricBill.Home_Mode},System.Boolean)">
+	<summary>
+ 表燈非營業用電費計算/單月電費計算
+ </summary>
+	<param name="R_KWh">尖峰用電量</param>
+	<param name="H_KWh">半尖峰用電量</param>
+	<param name="S_KWh">週六半尖峰用電量</param>
+	<param name="O_KWh">離峰用電量</param>
+	<param name="Month">月份</param>
+	<param name="Mode">表燈電價結構</param>
+	<param name="Nothing">無意義</param>
+	<returns>電費單</returns>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.Business_Mode.Range1">
+	<summary>
+ 第一段用電量
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Business_Mode.Range2">
+	<summary>
+ 第二段用電量
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Business_Mode.Range3">
+	<summary>
+ 第三段用電量
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Business_Mode.Cost1">
+	<summary>
+ 第1段電價
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Business_Mode.Cost2">
+	<summary>
+ 第2段電價
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Business_Mode.Cost3">
+	<summary>
+ 第3段電價
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Business_Mode.Cost4">
+	<summary>
+ 第4段電價
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Business_Mode.Cost1S">
+	<summary>
+ 第1段電價(夏季)
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Business_Mode.Cost2S">
+	<summary>
+ 第2段電價(夏季)
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Business_Mode.Cost3S">
+	<summary>
+ 第3段電價(夏季)
+ </summary>
+</member><member name="F:ElectricBillCal.ElectricBill.Business_Mode.Cost4S">
+	<summary>
+ 第4段電價(夏季)
+ </summary>
+</member><member name="T:ElectricBillCal.ElectricBill.Business_Mode">
+	<summary>
+ 營業用表燈電價結構
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.DefaultBusiness">
+	<summary>
+ 營業用表燈非時間電價
+ </summary>
+	<remarks>預設值 電價表104/10/1</remarks>
+</member><member name="M:ElectricBillCal.ElectricBill.表燈營業用(System.Int32,ElectricBillCal.ElectricBill.Month,System.Nullable{ElectricBillCal.ElectricBill.Business_Mode})">
+	<summary>
+ 營業用表燈電費計算
+ </summary>
+	<param name="KWh">電量</param>
+	<param name="Month">月份</param>
+	<param name="Mode">表燈電價結構</param>
+	<returns>電費</returns>
+	<remarks></remarks>
+</member><member name="M:ElectricBillCal.ElectricBill.表燈營業用(System.Int32,System.Int32,System.Int32,System.Int32,ElectricBillCal.ElectricBill.Month,System.Nullable{ElectricBillCal.ElectricBill.Business_Mode})">
+	<summary>
+ 營業用表燈電費計算
+ </summary>
+	<param name="R_KWh">尖峰用電量</param>
+	<param name="H_KWh">半尖峰用電量</param>
+	<param name="S_KWh">週六半尖峰用電量</param>
+	<param name="O_KWh">離峰用電量</param>
+	<param name="Month">月份</param>
+	<param name="Mode">表燈電價結構</param>
+	<returns>電費</returns>
+	<remarks></remarks>
+</member><member name="M:ElectricBillCal.ElectricBill.表燈營業用(System.Int32,ElectricBillCal.ElectricBill.Month,System.Nullable{ElectricBillCal.ElectricBill.Business_Mode},System.Boolean)">
+	<summary>
+ 營業用表燈電費計算
+ </summary>
+	<param name="KWh">電量</param>
+	<param name="Month">月份</param>
+	<param name="Mode">表燈電價結構</param>
+	<param name="Nothing">無意義</param>
+	<returns>電費單</returns>
+	<remarks></remarks>
+</member><member name="M:ElectricBillCal.ElectricBill.表燈營業用(System.Int32,System.Int32,System.Int32,System.Int32,ElectricBillCal.ElectricBill.Month,System.Nullable{ElectricBillCal.ElectricBill.Business_Mode},System.Boolean)">
+	<summary>
+ 營業用表燈電費計算
+ </summary>
+	<param name="R_KWh">尖峰用電量</param>
+	<param name="H_KWh">半尖峰用電量</param>
+	<param name="S_KWh">週六半尖峰用電量</param>
+	<param name="O_KWh">離峰用電量</param>
+	<param name="Month">月份</param>
+	<param name="Mode">表燈電價結構</param>
+	<param name="Nothing">無意義</param>
+	<returns>電費單</returns>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU0.CostSingle">
+	<summary>
+ 按戶計收-單相費用
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU0.CostThree">
+	<summary>
+ 按戶計收-三相費用
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU0.CostDmd">
+	<summary>
+ 經常契約單價
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU0.CostDmdnonSumm">
+	<summary>
+ 非夏月契約單價
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU0.CostDmdSat">
+	<summary>
+ 周六半尖峰契約單價
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU0.CostDmdOff">
+	<summary>
+ 離峰契約單價
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU0.CostDmdSumm">
+	<summary>
+ 經常契約單價(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU0.CostDmdSatSumm">
+	<summary>
+ 周六半尖峰契約單價(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU0.CostDmdOffSumm">
+	<summary>
+ 離峰契約單價(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU0.CostRush">
+	<summary>
+ 流動電費-尖峰
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU0.CostSat">
+	<summary>
+ 流動電費-周六半尖峰
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU0.CostOff">
+	<summary>
+ 流動電費-離峰
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU0.CostRushSumm">
+	<summary>
+ 流動電費-尖峰(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU0.CostSatSumm">
+	<summary>
+ 流動電費-周六半尖峰(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU0.CostOffSumm">
+	<summary>
+ 流動電費-離峰(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="T:ElectricBillCal.ElectricBill.TOU0">
+	<summary>
+ 時間電價結構-表燈
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.DefaultTOU0">
+	<summary>
+ 表燈時間電價設定
+ </summary>
+	<remarks>預設值 電價表104/10/1</remarks>
+</member><member name="M:ElectricBillCal.ElectricBill.表燈時間電價(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,ElectricBillCal.ElectricBill.Month,System.Nullable{ElectricBillCal.ElectricBill.TOU0},System.Boolean)">
+	<summary>
+ 表燈時間電價(二段式)電費計算
+ </summary>
+	<param name="Dmd">經常契約容量</param>
+	<param name="DmdNonSumm">非夏月契約容量</param>
+	<param name="DmdSat">週六半尖峰契約容量</param>
+	<param name="DmdOff">離峰契約容量</param>
+	<param name="MaxDmd">經常最大需量</param>
+	<param name="MaxDmdNonSumm">非夏月(半尖峰)最大需量</param>
+	<param name="MaxDmdSat">周六半尖峰最大需量</param>
+	<param name="MaxDmdOff">離峰最大需量</param>
+	<param name="R_KWh">尖峰用電量</param>
+	<param name="H_KWh">半尖峰用電量</param>
+	<param name="S_KWh">週六半尖峰用電量</param>
+	<param name="O_KWh">離峰用電量</param>
+	<param name="Month">月份</param>
+	<param name="Mode">時間電價定義</param>
+	<param name="SinglePhase">按戶計收-單相/三相</param>
+	<returns>電費單</returns>
+	<remarks></remarks>
+</member><member name="M:ElectricBillCal.ElectricBill.表燈時間電價(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,ElectricBillCal.ElectricBill.Month,System.Nullable{ElectricBillCal.ElectricBill.TOU0},System.Boolean,System.Boolean)">
+	<summary>
+ 表燈時間電價(二段式)電費計算
+ </summary>
+	<param name="Dmd">經常契約容量</param>
+	<param name="DmdNonSumm">非夏月契約容量</param>
+	<param name="DmdSat">週六半尖峰契約容量</param>
+	<param name="DmdOff">離峰契約容量</param>
+	<param name="MaxDmd">經常最大需量</param>
+	<param name="MaxDmdNonSumm">非夏月(半尖峰)最大需量</param>
+	<param name="MaxDmdSat">周六半尖峰最大需量</param>
+	<param name="MaxDmdOff">離峰最大需量</param>
+	<param name="R_KWh">尖峰用電量</param>
+	<param name="H_KWh">半尖峰用電量</param>
+	<param name="S_KWh">週六半尖峰用電量</param>
+	<param name="O_KWh">離峰用電量</param>
+	<param name="Month">月份</param>
+	<param name="Mode">時間電價定義</param>
+	<param name="SinglePhase">按戶計收-單相/三相</param>
+	<param name="Nothing">無意義</param>
+	<returns>總電費</returns>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.LVnonTOU.CostDmd">
+	<summary>
+ 經常契約單價
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.LVnonTOU.CostDmdnonSumm">
+	<summary>
+ 非夏月契約單價
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.LVnonTOU.CostDmdSumm">
+	<summary>
+ 經常契約單價(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.LVnonTOU.Cost">
+	<summary>
+ 流動電費
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.LVnonTOU.CostSumm">
+	<summary>
+ 流動電費-夏月
+ </summary>
+	<remarks></remarks>
+</member><member name="T:ElectricBillCal.ElectricBill.LVnonTOU">
+	<summary>
+ 低壓電力非時間電價結構
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.DefaultLVnonTOU">
+	<summary>
+ 低壓電力非時間電價設定
+ </summary>
+	<remarks>預設值 電價表104/10/1</remarks>
+</member><member name="M:ElectricBillCal.ElectricBill.低壓非時間電價(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,ElectricBillCal.ElectricBill.Month,System.Nullable{ElectricBillCal.ElectricBill.LVnonTOU})">
+	<summary>
+ 低壓非時間電價電費計算
+ </summary>
+	<param name="Dmd">經常契約容量</param>
+	<param name="DmdNonSumm">非夏月契約容量</param>
+	<param name="MaxDmd">經常最大需量</param>
+	<param name="MaxDmdNonSumm">非夏月(半尖峰)最大需量</param>
+	<param name="KWh">用電度數</param>
+	<param name="Month">月份</param>
+	<param name="Mode">電價結構設定值</param>
+	<returns>電費單</returns>
+	<remarks></remarks>
+</member><member name="M:ElectricBillCal.ElectricBill.低壓非時間電價(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,ElectricBillCal.ElectricBill.Month,System.Nullable{ElectricBillCal.ElectricBill.LVnonTOU},System.Boolean)">
+	<summary>
+ 低壓非時間電價電費計算
+ </summary>
+	<param name="Dmd">經常契約容量</param>
+	<param name="DmdNonSumm">非夏月契約容量</param>
+	<param name="MaxDmd">經常最大需量</param>
+	<param name="MaxDmdNonSumm">非夏月(半尖峰)最大需量</param>
+	<param name="KWh">用電度數</param>
+	<param name="Month">月份</param>
+	<param name="Mode">電價結構設定值</param>
+	<param name="Nothing">無意義</param>
+	<returns>總電費</returns>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_LV2.CostThree">
+	<summary>
+ 按戶計收
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_LV2.CostDmd">
+	<summary>
+ 經常契約單價
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_LV2.CostDmdnonSumm">
+	<summary>
+ 非夏月契約單價
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_LV2.CostDmdSat">
+	<summary>
+ 周六半尖峰契約單價
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_LV2.CostDmdOff">
+	<summary>
+ 離峰契約單價
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_LV2.CostDmdSumm">
+	<summary>
+ 經常契約單價(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_LV2.CostDmdSatSumm">
+	<summary>
+ 周六半尖峰契約單價(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_LV2.CostDmdOffSumm">
+	<summary>
+ 離峰契約單價(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_LV2.CostRush">
+	<summary>
+ 流動電費-尖峰
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_LV2.CostSat">
+	<summary>
+ 流動電費-周六半尖峰
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_LV2.CostOff">
+	<summary>
+ 流動電費-離峰
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_LV2.CostRushSumm">
+	<summary>
+ 流動電費-尖峰(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_LV2.CostSatSumm">
+	<summary>
+ 流動電費-周六半尖峰(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_LV2.CostOffSumm">
+	<summary>
+ 流動電費-離峰(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="T:ElectricBillCal.ElectricBill.TOU_LV2">
+	<summary>
+ 低壓電力時間電價結構
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.DefaultTOU_LV2">
+	<summary>
+ 低壓電力時間電價設定
+ </summary>
+	<remarks>預設值 電價表104/10/1</remarks>
+</member><member name="M:ElectricBillCal.ElectricBill.低壓電力時間電價(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,ElectricBillCal.ElectricBill.Month,System.Nullable{ElectricBillCal.ElectricBill.TOU_LV2})">
+	<summary>
+ 低壓電力時間電價(二段式)計算
+ </summary>
+	<param name="Dmd">經常契約容量</param>
+	<param name="DmdNonSumm">非夏月契約容量</param>
+	<param name="DmdSat">週六半尖峰契約容量</param>
+	<param name="DmdOff">離峰契約容量</param>
+	<param name="MaxDmd">經常最大需量</param>
+	<param name="MaxDmdNonSumm">非夏月(半尖峰)最大需量</param>
+	<param name="MaxDmdSat">周六半尖峰最大需量</param>
+	<param name="MaxDmdOff">離峰最大需量</param>
+	<param name="R_KWh">尖峰用電量</param>
+	<param name="H_KWh">半尖峰用電量</param>
+	<param name="S_KWh">週六半尖峰用電量</param>
+	<param name="O_KWh">離峰用電量</param>
+	<param name="Month">月份</param>
+	<param name="Mode">時間電價定義</param>
+	<returns>電費單</returns>
+	<remarks></remarks>
+</member><member name="M:ElectricBillCal.ElectricBill.低壓電力時間電價(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,ElectricBillCal.ElectricBill.Month,System.Nullable{ElectricBillCal.ElectricBill.TOU_LV2},System.Boolean)">
+	<summary>
+ 低壓電力時間電價(二段式)計算
+ </summary>
+	<param name="Dmd">經常契約容量</param>
+	<param name="DmdNonSumm">非夏月契約容量</param>
+	<param name="DmdSat">週六半尖峰契約容量</param>
+	<param name="DmdOff">離峰契約容量</param>
+	<param name="MaxDmd">經常最大需量</param>
+	<param name="MaxDmdNonSumm">非夏月(半尖峰)最大需量</param>
+	<param name="MaxDmdSat">周六半尖峰最大需量</param>
+	<param name="MaxDmdOff">離峰最大需量</param>
+	<param name="R_KWh">尖峰用電量</param>
+	<param name="H_KWh">半尖峰用電量</param>
+	<param name="S_KWh">週六半尖峰用電量</param>
+	<param name="O_KWh">離峰用電量</param>
+	<param name="Month">月份</param>
+	<param name="Mode">時間電價定義</param>
+	<param name="Nothing">無意義</param>
+	<returns>總電費</returns>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV2.CostDmd">
+	<summary>
+ 經常契約單價
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV2.CostDmdnonSumm">
+	<summary>
+ 非夏月契約單價
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV2.CostDmdSat">
+	<summary>
+ 周六半尖峰契約單價
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV2.CostDmdOff">
+	<summary>
+ 離峰契約單價
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV2.CostDmdSumm">
+	<summary>
+ 經常契約單價(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV2.CostDmdSatSumm">
+	<summary>
+ 周六半尖峰契約單價(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV2.CostDmdOffSumm">
+	<summary>
+ 離峰契約單價(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV2.CostRush">
+	<summary>
+ 流動電費-尖峰
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV2.CostSat">
+	<summary>
+ 流動電費-周六半尖峰
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV2.CostOff">
+	<summary>
+ 流動電費-離峰
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV2.CostRushSumm">
+	<summary>
+ 流動電費-尖峰(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV2.CostSatSumm">
+	<summary>
+ 流動電費-周六半尖峰(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV2.CostOffSumm">
+	<summary>
+ 流動電費-離峰(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="T:ElectricBillCal.ElectricBill.TOU_HV2">
+	<summary>
+ 高壓電力時間電價結構(二段式)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.DefaultTOU_HV2">
+	<summary>
+ 高壓電力時間電價設定(二段式)
+ </summary>
+	<remarks>預設值 電價表104/10/1</remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.DefaultTOU_UHV2">
+	<summary>
+ 特高壓電力時間電價設定(二段式)
+ </summary>
+	<remarks>預設值 電價表104/10/1</remarks>
+</member><member name="M:ElectricBillCal.ElectricBill.高壓電力時間電價二段式(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,ElectricBillCal.ElectricBill.Month,System.Nullable{ElectricBillCal.ElectricBill.TOU_HV2})">
+	<summary>
+ 高壓電力時間電價(二段式)計算
+ </summary>
+	<param name="Dmd">經常契約容量</param>
+	<param name="DmdNonSumm">非夏月契約容量</param>
+	<param name="DmdSat">週六半尖峰契約容量</param>
+	<param name="DmdOff">離峰契約容量</param>
+	<param name="MaxDmd">經常最大需量</param>
+	<param name="MaxDmdNonSumm">非夏月(半尖峰)最大需量</param>
+	<param name="MaxDmdSat">周六半尖峰最大需量</param>
+	<param name="MaxDmdOff">離峰最大需量</param>
+	<param name="R_KWh">尖峰用電量</param>
+	<param name="H_KWh">半尖峰用電量</param>
+	<param name="S_KWh">週六半尖峰用電量</param>
+	<param name="O_KWh">離峰用電量</param>
+	<param name="Month">月份</param>
+	<param name="Mode">時間電價定義</param>
+	<returns>電費單</returns>
+	<remarks></remarks>
+</member><member name="M:ElectricBillCal.ElectricBill.高壓電力時間電價二段式(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,ElectricBillCal.ElectricBill.Month,System.Nullable{ElectricBillCal.ElectricBill.TOU_HV2},System.Boolean)">
+	<summary>
+ 高壓電力時間電價(二段式)計算
+ </summary>
+	<param name="Dmd">經常契約容量</param>
+	<param name="DmdNonSumm">非夏月契約容量</param>
+	<param name="DmdSat">週六半尖峰契約容量</param>
+	<param name="DmdOff">離峰契約容量</param>
+	<param name="MaxDmd">經常最大需量</param>
+	<param name="MaxDmdNonSumm">非夏月(半尖峰)最大需量</param>
+	<param name="MaxDmdSat">周六半尖峰最大需量</param>
+	<param name="MaxDmdOff">離峰最大需量</param>
+	<param name="R_KWh">尖峰用電量</param>
+	<param name="H_KWh">半尖峰用電量</param>
+	<param name="S_KWh">週六半尖峰用電量</param>
+	<param name="O_KWh">離峰用電量</param>
+	<param name="Month">月份</param>
+	<param name="Mode">時間電價定義</param>
+	<param name="Nothing">無意義</param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV3.CostDmd">
+	<summary>
+ 經常契約單價
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV3.CostDmdHalf">
+	<summary>
+ 半尖峰契約單價
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV3.CostDmdSat">
+	<summary>
+ 周六半尖峰契約單價
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV3.CostDmdOff">
+	<summary>
+ 離峰契約單價
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV3.CostDmdSumm">
+	<summary>
+ 經常契約單價(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV3.CostDmdHalfSumm">
+	<summary>
+ 半尖峰契約單價(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV3.CostDmdSatSumm">
+	<summary>
+ 周六半尖峰契約單價(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV3.CostDmdOffSumm">
+	<summary>
+ 離峰契約單價(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV3.CostHalf">
+	<summary>
+ 流動電費-半尖峰
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV3.CostSat">
+	<summary>
+ 流動電費-周六半尖峰
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV3.CostOff">
+	<summary>
+ 流動電費-離峰
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV3.CostRushSumm">
+	<summary>
+ 流動電費-尖峰(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV3.CostHalfSumm">
+	<summary>
+ 流動電費-半尖峰(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV3.CostSatSumm">
+	<summary>
+ 流動電費-周六半尖峰(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.TOU_HV3.CostOffSumm">
+	<summary>
+ 流動電費-離峰(夏月)
+ </summary>
+	<remarks></remarks>
+</member><member name="T:ElectricBillCal.ElectricBill.TOU_HV3">
+	<summary>
+ 高壓電力時間電價結構(三段式)
+ </summary>
+	<remarks></remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.DefaultTOU_HV3">
+	<summary>
+ 高壓電力時間電價設定(三段式)
+ </summary>
+	<remarks>預設值 電價表104/10/1</remarks>
+</member><member name="F:ElectricBillCal.ElectricBill.DefaultTOU_UHV3">
+	<summary>
+ 特高壓電力時間電價設定(三段式)
+ </summary>
+	<remarks>預設值 電價表104/10/1</remarks>
+</member><member name="M:ElectricBillCal.ElectricBill.高壓電力時間電價三段式(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,ElectricBillCal.ElectricBill.Month,System.Nullable{ElectricBillCal.ElectricBill.TOU_HV3})">
+	<summary>
+ 高壓電力時間電價(三段式)計算
+ </summary>
+	<param name="Dmd">經常契約容量</param>
+	<param name="DmdHalf">半尖峰契約容量</param>
+	<param name="DmdSat">週六半尖峰契約容量</param>
+	<param name="DmdOff">離峰契約容量</param>
+	<param name="MaxDmd">經常最大需量</param>
+	<param name="MaxDmdHalf">半尖峰最大需量</param>
+	<param name="MaxDmdSat">周六半尖峰最大需量</param>
+	<param name="MaxDmdOff">離峰最大需量</param>
+	<param name="R_KWh">尖峰用電量</param>
+	<param name="H_KWh">半尖峰用電量</param>
+	<param name="S_KWh">週六半尖峰用電量</param>
+	<param name="O_KWh">離峰用電量</param>
+	<param name="Month">月份</param>
+	<param name="Mode">時間電價定義</param>
+	<returns>電費單</returns>
+	<remarks></remarks>
+</member><member name="M:ElectricBillCal.ElectricBill.高壓電力時間電價三段式(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,ElectricBillCal.ElectricBill.Month,System.Nullable{ElectricBillCal.ElectricBill.TOU_HV3},System.Boolean)">
+	<summary>
+ 高壓電力時間電價(三段式)計算
+ </summary>
+	<param name="Dmd">經常契約容量</param>
+	<param name="DmdHalf">半尖峰契約容量</param>
+	<param name="DmdSat">週六半尖峰契約容量</param>
+	<param name="DmdOff">離峰契約容量</param>
+	<param name="MaxDmd">經常最大需量</param>
+	<param name="MaxDmdHalf">半尖峰最大需量</param>
+	<param name="MaxDmdSat">周六半尖峰最大需量</param>
+	<param name="MaxDmdOff">離峰最大需量</param>
+	<param name="R_KWh">尖峰用電量</param>
+	<param name="H_KWh">半尖峰用電量</param>
+	<param name="S_KWh">週六半尖峰用電量</param>
+	<param name="O_KWh">離峰用電量</param>
+	<param name="Month">月份</param>
+	<param name="Mode">時間電價定義</param>
+	<param name="Nothing">無意義</param>
+	<returns>總電費</returns>
+	<remarks></remarks>
+</member><member name="T:ElectricBillCal.ElectricBill">
+	<summary>
+ 計算各類型電價電費
+ </summary>
+	<remarks></remarks>
+</member><member name="P:ElectricBillCal.My.Resources.Resources.ResourceManager">
+	<summary>
+  傳回這個類別使用的快取的 ResourceManager 執行個體。
+</summary>
+</member><member name="P:ElectricBillCal.My.Resources.Resources.Culture">
+	<summary>
+  覆寫目前執行緒的 CurrentUICulture 屬性，對象是所有
+  使用這個強類型資源類別的資源查閱。
+</summary>
+</member><member name="T:ElectricBillCal.My.Resources.Resources">
+	<summary>
+  用於查詢當地語系化字串等的強類型資源類別。
+</summary>
+</member>
+</members>
+</doc>

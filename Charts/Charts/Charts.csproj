@@ -94,6 +94,8 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="css\org.css" />
+    <Content Include="js\org.js" />
     <Content Include="js\recursion.js" />
     <Content Include="packages.config" />
     <Content Include="ApplicationInsights.config">
@@ -110,9 +112,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="css\org.css" />
     <Content Include="Global.asax" />
-    <Content Include="js\org.js" />
     <Content Include="OrgCharts_callAjax.aspx" />
     <Content Include="OrgCharts_responseAjax.aspx" />
     <Content Include="scripts\ai.0.15.0-build58334.js" />

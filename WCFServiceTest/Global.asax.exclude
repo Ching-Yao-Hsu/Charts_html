@@ -1,0 +1,2888 @@
+﻿<%@ Application Language="VB" %>
+<%@ Import Namespace="System.Threading" %>
+<%@ Import Namespace="System.Net.Mail" %>
+<%@ Import Namespace="System.Data" %>
+<%@ Import Namespace="System.IO" %>
+<%@ Import Namespace="System.Net" %>
+<%@ Import Namespace="System.Data.OleDb" %>
+
+<script RunAt="server">
+    Dim WithEvents TCP_Server As New TCPServer
+    Dim aTimer As New System.Timers.Timer
+    Dim bTimer As New System.Timers.Timer
+    Dim cTimer As New System.Timers.Timer
+    Dim dTimer As New System.Timers.Timer
+    Sub Application_Start(ByVal sender As Object, ByVal e As EventArgs)
+        ' 應用程式啟動時執行的程式碼
+        MailState("Work")   '紀錄
+        
+        Dim interval As Integer = 3600000   '每1小時執行一次
+        '更新資料庫
+        EcoUpdate()     '第一次執行後，每1小時執行一次
+        If aTimer.Interval <> interval Then
+            aTimer.Interval = interval
+            aTimer.AutoReset = True
+            AddHandler aTimer.Elapsed, AddressOf EcoUpdate
+            aTimer.Start()
+        Else
+            aTimer.Start()
+        End If
+        
+        '自動發信，夾帶附件 日月報表
+        If bTimer.Interval <> interval Then
+            bTimer.Interval = interval
+            bTimer.AutoReset = True
+            AddHandler bTimer.Elapsed, AddressOf SendMail
+            bTimer.Start()
+        Else
+            bTimer.Start()
+        End If
+
+        '記錄電表彙總資訊
+        If cTimer.Interval <> interval Then
+            cTimer.Interval = interval
+            cTimer.AutoReset = True
+            AddHandler cTimer.Elapsed, AddressOf MeterCollection
+            cTimer.Start()
+        Else
+            cTimer.Start()
+        End If
+        
+        '自動發信，夾帶附件 總表
+        If dTimer.Interval <> interval Then
+            dTimer.Interval = interval
+            dTimer.AutoReset = True
+            AddHandler dTimer.Elapsed, AddressOf SendSumMail
+            dTimer.Start()
+        Else
+            dTimer.Start()
+        End If
+
+        TCP_Server.Start()
+    End Sub
+    
+    Sub Application_End(ByVal sender As Object, ByVal e As EventArgs)
+        ' 應用程式關閉時執行的程式碼
+        MailState("End")
+        
+        TCP_Server.Stop()   '先關閉執行緒
+        aTimer.Stop()
+        bTimer.Stop()
+        cTimer.Stop()
+        dTimer.Stop()
+
+        '當應用程序結束時，如IIS的應用程序池回收，讓asp.net去訪問當前的這個web地址，重新激活應用程序
+        System.Threading.Thread.Sleep(1000)
+        Dim ip As String = Dns.GetHostEntry(Dns.GetHostName()).AddressList.First(Function(o) o.AddressFamily = System.Net.Sockets.AddressFamily.InterNetwork).ToString()
+        Dim url As String = "http://" & ip & "/WCFService/home.aspx"
+        Dim myHttpWebRequest As HttpWebRequest = DirectCast(WebRequest.Create(url), HttpWebRequest)
+        Dim myHttpWebResponse As HttpWebResponse = DirectCast(myHttpWebRequest.GetResponse(), HttpWebResponse)
+        Dim receiveStream As Stream = myHttpWebResponse.GetResponseStream()
+        
+        'TCP_Server.Start()  '關閉後再開啟
+    End Sub
+        
+    Sub Application_Error(ByVal sender As Object, ByVal e As EventArgs)
+        ' 發生未處理錯誤時執行的程式碼
+    End Sub
+
+    Sub Session_Start(ByVal sender As Object, ByVal e As EventArgs)
+        ' 啟動新工作階段時執行的程式碼       
+    End Sub
+
+    Sub Session_End(ByVal sender As Object, ByVal e As EventArgs)
+        ' 工作階段結束時執行的程式碼。 
+        ' 注意: 只有在 Web.config 檔將 sessionstate 模式設定為 InProc 時，
+        ' 才會引發 Session_End 事件。如果將工作階段模式設定為 StateServer 
+        ' 或 SQLServer，就不會引發這個事件。
+    End Sub
+    
+    Dim count As Integer = 0
+    Dim ECOdata(count, 3) As String
+    Dim dt As New DataTable
+    '定時更新資料庫
+    Sub EcoUpdate()
+        dt = New DataTable
+        count = 0
+        Dim strcon As String = System.Configuration.ConfigurationManager.ConnectionStrings("ECOConnectionString").ToString()
+        Dim sql As String = "select Account,ECO_Account,ECO_Password,CtrlNr from ControllerSetup where Enabled = 1"
+        Using conn As New OleDbConnection(strcon)
+            If conn.State = 0 Then conn.Open()
+            Dim da As OleDbDataAdapter = New OleDbDataAdapter(sql, strcon)
+            da.Fill(dt)
+            '將會員帳號、ECO5帳號、密碼、控制器編號存入陣列
+            count = dt.Rows.Count - 1
+            ReDim ECOdata(count, 4)
+            For i = 0 To count
+                ECOdata(i, 0) = dt.Rows(i).Item(0)  'Account
+                ECOdata(i, 1) = dt.Rows(i).Item(1)  'ECO_Account
+                ECOdata(i, 2) = dt.Rows(i).Item(2)  'ECO_Password
+                ECOdata(i, 3) = dt.Rows(i).Item(3)  'CtrlNr
+            Next
+            Application("count") = count
+            Application("dt") = dt
+        End Using
+        
+        MailState("Update")     '紀錄
+    End Sub
+    
+    '將接收值存入Applation變數，傳值至網頁上
+    Sub GetTransfer(ByVal Index As Integer, ByVal Legal As Boolean, ByVal TransferData As Object) Handles TCP_Server.TransToECOsData
+        If TransferData.MeterEnabled Then
+            If TransferData.RecLegal Then
+                '判斷ECO5帳號、密碼
+                'Dim find_rows As DataRow() = dt.Select("ECO_Account='" & TransferData.Account & "' AND ECO_Password = '" & TransferData.Password & "'")
+                'If find_rows.Count > 0 Then
+                '    Dim dr As DataRow = find_rows(0)
+                '    'PowerRecord變數
+                '    Application("Account") = dr("Account")
+                '    Application("ECO_Account") = TransferData.Account
+                '    Application("CtrlNr") = dr("CtrlNr")
+                '    Application("MeterID") = TransferData.MeterID
+                '    Application("RecDate") = TransferData.RecDate & " " & TransferData.RecTime
+                '    '電流
+                '    Application("I1") = TransferData.Value(0)
+                '    Application("I2") = TransferData.Value(1)
+                '    Application("I3") = TransferData.Value(2)
+                '    Application("Iavg") = TransferData.Value(3)
+                '    '電壓
+                '    Application("V1") = TransferData.Value(4)
+                '    Application("V2") = TransferData.Value(5)
+                '    Application("V3") = TransferData.Value(6)
+                '    Application("Vavg") = TransferData.Value(7)
+                '    'KW
+                '    Application("W") = TransferData.Value(8)
+                '    'KVAR
+                '    Application("V_ar") = TransferData.Value(9)
+                '    'KVA
+                '    Application("VA") = TransferData.Value(10)
+                '    'PF
+                '    Application("PF") = TransferData.Value(11)
+                '    'KWH
+                '    Application("KWh") = TransferData.Value(12)
+                '    'Mode1~Mode4
+                '    Application("Mode1") = TransferData.Value(13)
+                '    Application("Mode2") = TransferData.Value(14)
+                '    Application("Mode3") = TransferData.Value(15)
+                '    Application("Mode4") = TransferData.Value(16)
+                '    'Max
+                '    Application("DeMand") = TransferData.Value(17)
+                '    Application("DemandHalf") = TransferData.Value(18)
+                '    Application("DemandSatHalf") = TransferData.Value(19)
+                '    Application("DemandOff") = TransferData.Value(20)
+                '    'KWH Period
+                '    Application("RushHour") = TransferData.Value(21)
+                '    Application("HalfHour") = TransferData.Value(22)
+                '    Application("SatHalfHour") = TransferData.Value(23)
+                '    Application("OffHour") = TransferData.Value(24)
+                'End If
+            End If
+        End If
+    End Sub
+    
+    'ECO5連線中斷事件
+    Sub ConnectBroken(ByVal Index As Integer, ByVal RemoteIP As String, ByVal PortNr As Integer, ByVal ex As String) Handles TCP_Server.ConnectBroken
+        Dim strcon As String = System.Configuration.ConfigurationManager.ConnectionStrings("ECOConnectionString").ToString()
+        Using connEvent As New OleDbConnection(strcon)
+            If connEvent.State = 0 Then connEvent.Open()
+            Try
+                Dim sql As String = "select * from ControllerSetup where IP_Address = ?"
+                Using cmd As New OleDbCommand(sql, connEvent)
+                    cmd.Parameters.AddWithValue("?IP_Address", RemoteIP)
+                    Using dr As OleDbDataReader = cmd.ExecuteReader()
+                        If dr.Read() Then
+                            Dim RecDate As String = Now.ToString("yyyy/MM/dd HH:mm:ss")
+                            'If dr("SMSSentEnabled") = True Then   'SMS發送
+                            Dim val As String = " '" & dr("ECO_Account").ToString & "',0,'" & RecDate & "','" & dr("InstallPosition").ToString & "',1,'ECO5連線中斷','" & dr("Num").ToString & "','" & dr("Mail").ToString & "',0,0"
+                            Dim sqlstr As String = "insert into EventRecord(ECO_Account,MeterID,RecDate,InstallPosition,ErrType,ErrContent,Num,Mail,SMSSent,EmailSent) values (" & val & ")"
+                            EventDB(sqlstr)
+                            'Else
+                            'Dim val As String = " '" & dr("ECO_Account").ToString & "',0,'" & RecDate & "','" & dr("InstallPosition").ToString & "',1,'ECO5連線中斷','" & dr("Num").ToString & "','" & dr("Mail").ToString & "',0 "
+                            'Dim sqlstr As String = "insert into EventRecord(ECO_Account,MeterID,RecDate,InstallPosition,ErrType,ErrContent,Num,Mail,EmailSent) values (" & val & ")"
+                            'EventDB(sqlstr)
+                            'End If
+                            If dr("EmailSentEnabled") = True Then   'Email發送
+                                If dr("Mail").ToString <> "" And dr("Mail") IsNot Nothing Then
+                                    Dim sqlstr2 As String = "select top 1 * from EventRecord order by EventIndex desc"
+                                    Dim cmd2 As OleDbCommand = New OleDbCommand(sqlstr2, connEvent)
+                                    Dim dr2 As OleDbDataReader = cmd2.ExecuteReader()
+                                    If dr2.Read() Then
+                                        If dr2("EMailSent") = False Then
+                                            ECOMailSent(dr2("EventIndex").ToString, dr2("RecDate").ToString, dr2("InstallPosition").ToString, dr2("Mail").ToString, 1, "ECO5連線中斷")
+                                        End If
+                                    End If
+                                End If
+                            End If
+                        End If
+                    End Using
+                End Using
+            Catch exstr As Exception
+                MailState("ECO5連線中斷事件錯誤")   '紀錄
+            End Try
+        End Using
+    End Sub
+    
+    'ECO5錯誤事件
+    'Sub OnError(ByVal Index As Integer, ByVal ex As Exception, ByVal RemoteIP As String, ByVal PortNr As Integer) Handles TCP_Server.OnError
+    'Dim strcon As String = System.Configuration.ConfigurationManager.ConnectionStrings("ECOConnectionString").ToString()
+    'Dim connEvent As OleDbConnection = New OleDbConnection(strcon)
+    'connEvent.Open()
+    'Dim sql As String = "select * from ControllerSetup where IP_Address = ? "
+    'Dim cmd As OleDbCommand = New OleDbCommand(sql, connEvent)
+    'cmd.Parameters.AddWithValue("?IP_Address", RemoteIP)
+    'Dim dr As OleDbDataReader = cmd.ExecuteReader()
+    'If dr.Read() Then
+    'Dim RecDate As String = Now.ToString("yyyy/MM/dd HH:mm:ss")
+    'Dim val As String = " 0,'" & RecDate & "',2,'ECO5錯誤',0,0"
+    'Dim sqlstr As String = "insert into EventRecord(MeterID,RecDate,ErrType,ErrContent,SMSSent,EmailSent) values (" & val & ")"
+    'EventDB(sqlstr)
+    'If dr("EmailSentEnabled") = True Then   'Email發送
+    'Dim sqlstr2 As String = "select top 1 EventIndex from EventRecord order by EventIndex desc"
+    'Dim cmd2 As OleDbCommand = New OleDbCommand(sqlstr2, connEvent)
+    'Dim dr2 As OleDbDataReader = cmd2.ExecuteReader()
+    'If dr2.Read() Then
+    '    ECOMailSent(dr2("EventIndex").ToString, RecDate, "", "", 1, "ECO5錯誤")
+    'End If
+    'End If
+    'End If
+    'connEvent.Close()
+    'End Sub
+    
+    '超約事件
+    Sub OverDemand(ByVal Index As Integer, ByVal ECO_Account As String, ByVal MeterID As Byte, ByVal RecDate As String, ByVal RecTime As String) Handles TCP_Server.CommError
+        Dim strcon As String = System.Configuration.ConfigurationManager.ConnectionStrings("ECOConnectionString").ToString()
+        Using connEvent As New OleDbConnection(strcon)
+            If connEvent.State = 0 Then connEvent.Open()
+            Try
+                Dim sql As String = "select MS.*,CS.SMSSentEnabled,CS.EmailSentEnabled,CS.Num,CS.Mail from ControllerSetup AS CS,MeterSetup AS MS where CS.ECO_Account = ? and MS.MeterID = ? and CS.ECO_Account = MS.ECO_Account"
+                Using cmd As New OleDbCommand(sql, connEvent)
+                    cmd.Parameters.AddWithValue("?ECO_Account", ECO_Account)
+                    cmd.Parameters.AddWithValue("?MeterID", MeterID)
+                    Using dr As OleDbDataReader = cmd.ExecuteReader()
+                        If dr.Read() Then
+                            'If dr("SMSSentEnabled") = True Then   'SMS發送
+                            Dim val As String = " '" & ECO_Account & "'," & MeterID & ",'" & RecDate & " " & RecTime & "','" & dr("InstallPosition").ToString & "',3,'超約','" & dr("Num").ToString & "','" & dr("Mail").ToString & "',0,0 "
+                            Dim sqlstr As String = "insert into EventRecord(ECO_Account,MeterID,RecDate,InstallPosition,ErrType,ErrContent,Num,Mail,SMSSent,EmailSent) values (" & val & ")"
+                            EventDB(sqlstr)
+                            'Else
+                            '    Dim val As String = " '" & ECO_Account & "'," & MeterID & ",'" & RecDate & " " & RecTime & "','" & dr("InstallPosition").ToString & "',3,'超約','" & dr("Num").ToString & "','" & dr("Mail").ToString & "',0 "
+                            '    Dim sqlstr As String = "insert into EventRecord(ECO_Account,MeterID,RecDate,InstallPosition,ErrType,ErrContent,Num,Mail,EMailSent) values (" & val & ")"
+                            '    EventDB(sqlstr)
+                            'End If
+                            If dr("EmailSentEnabled") = True Then   'Email發送
+                                If dr("Mail").ToString <> "" And dr("Mail") IsNot Nothing Then
+                                    Dim sqlstr2 As String = "select top 1 * from EventRecord order by EventIndex desc"
+                                    Dim cmd2 As OleDbCommand = New OleDbCommand(sqlstr2, connEvent)
+                                    Dim dr2 As OleDbDataReader = cmd2.ExecuteReader()
+                                    If dr2.Read() Then
+                                        MailSent(dr2("EventIndex").ToString, dr2("ECO_Account").ToString, dr2("MeterID").ToString, dr2("RecDate").ToString, dr2("InstallPosition").ToString, dr2("Mail").ToString, "超約")
+                                    End If
+                                End If
+                            End If
+                        End If
+                    End Using
+                End Using
+            Catch ex As Exception
+                MailState("超約事件錯誤")     '紀錄
+            End Try
+        End Using
+    End Sub
+    
+    '電流異常事件
+    Sub CurrentAlarm(ByVal Index As Integer, ByVal ECO_Account As String, ByVal MeterID As Byte, ByVal RecDate As String, ByVal RecTime As String) Handles TCP_Server.CommError
+        Dim strcon As String = System.Configuration.ConfigurationManager.ConnectionStrings("ECOConnectionString").ToString()
+        Using connEvent As New OleDbConnection(strcon)
+            If connEvent.State = 0 Then connEvent.Open()
+            Try
+                Dim sql As String = "select MS.*,CS.SMSSentEnabled,CS.EmailSentEnabled,CS.Num,CS.Mail from ControllerSetup AS CS,MeterSetup AS MS where CS.ECO_Account = ? and MS.MeterID = ? and CS.ECO_Account = MS.ECO_Account"
+                Using cmd As New OleDbCommand(sql, connEvent)
+                    cmd.Parameters.AddWithValue("?ECO_Account", ECO_Account)
+                    cmd.Parameters.AddWithValue("?MeterID", MeterID)
+                    Using dr As OleDbDataReader = cmd.ExecuteReader()
+                        If dr.Read() Then
+                            'If dr("SMSSentEnabled") = True Then   'SMS發送
+                            Dim val As String = " '" & ECO_Account & "'," & MeterID & ",'" & RecDate & " " & RecTime & "','" & dr("InstallPosition").ToString & "',4,'電流異常','" & dr("Num").ToString & "','" & dr("Mail").ToString & "',0,0 "
+                            Dim sqlstr As String = "insert into EventRecord(ECO_Account,MeterID,RecDate,InstallPosition,ErrType,ErrContent,Num,Mail,SMSSent,EmailSent) values (" & val & ")"
+                            EventDB(sqlstr)
+                            'Else
+                            '    Dim val As String = " '" & ECO_Account & "'," & MeterID & ",'" & RecDate & " " & RecTime & "','" & dr("InstallPosition").ToString & "',4,'電流異常','" & dr("Num").ToString & "','" & dr("Mail").ToString & "',0 "
+                            '    Dim sqlstr As String = "insert into EventRecord(ECO_Account,MeterID,RecDate,InstallPosition,ErrType,ErrContent,Num,Mail,EMailSent) values (" & val & ")"
+                            '    EventDB(sqlstr)
+                            'End If
+                            If dr("EmailSentEnabled") = True Then   'Email發送
+                                If dr("Mail").ToString <> "" And dr("Mail") IsNot Nothing Then
+                                    Dim sqlstr2 As String = "select top 1 * from EventRecord order by EventIndex desc"
+                                    Dim cmd2 As OleDbCommand = New OleDbCommand(sqlstr2, connEvent)
+                                    Dim dr2 As OleDbDataReader = cmd2.ExecuteReader()
+                                    If dr2.Read() Then
+                                        MailSent(dr2("EventIndex").ToString, dr2("ECO_Account").ToString, dr2("MeterID").ToString, dr2("RecDate").ToString, dr2("InstallPosition").ToString, dr2("Mail").ToString, "電流異常")
+                                    End If
+                                End If
+                            End If
+                        End If
+                    End Using
+                End Using
+            Catch ex As Exception
+                MailState("電流異常事件錯誤")   '紀錄
+            End Try
+        End Using
+    End Sub
+    
+    '電壓異常事件
+    Sub VotageAlarm(ByVal Index As Integer, ByVal ECO_Account As String, ByVal MeterID As Byte, ByVal RecDate As String, ByVal RecTime As String) Handles TCP_Server.CommError
+        Dim strcon As String = System.Configuration.ConfigurationManager.ConnectionStrings("ECOConnectionString").ToString()
+        Using connEvent As New OleDbConnection(strcon)
+            If connEvent.State = 0 Then connEvent.Open()
+            Try
+                Dim sql As String = "select MS.*,CS.SMSSentEnabled,CS.EmailSentEnabled,CS.Num,CS.Mail from ControllerSetup AS CS,MeterSetup AS MS where CS.ECO_Account = ? and MS.MeterID = ? and CS.ECO_Account = MS.ECO_Account"
+                Using cmd As New OleDbCommand(sql, connEvent)
+                    cmd.Parameters.AddWithValue("?ECO_Account", ECO_Account)
+                    cmd.Parameters.AddWithValue("?MeterID", MeterID)
+                    Using dr As OleDbDataReader = cmd.ExecuteReader()
+                        If dr.Read() Then
+                            'If dr("SMSSentEnabled") = True Then   'SMS發送
+                            Dim val As String = " '" & ECO_Account & "'," & MeterID & ",'" & RecDate & " " & RecTime & "','" & dr("InstallPosition").ToString & "',5,'電壓異常','" & dr("Num").ToString & "','" & dr("Mail").ToString & "',0,0 "
+                            Dim sqlstr As String = "insert into EventRecord(ECO_Account,MeterID,RecDate,InstallPosition,ErrType,ErrContent,Num,Mail,SMSSent,EmailSent) values (" & val & ")"
+                            EventDB(sqlstr)
+                            'Else
+                            '    Dim val As String = " '" & ECO_Account & "'," & MeterID & ",'" & RecDate & " " & RecTime & "','" & dr("InstallPosition").ToString & "',5,'電壓異常','" & dr("Num").ToString & "','" & dr("Mail").ToString & "',0 "
+                            '    Dim sqlstr As String = "insert into EventRecord(ECO_Account,MeterID,RecDate,InstallPosition,ErrType,ErrContent,Num,Mail,EMailSent) values (" & val & ")"
+                            '    EventDB(sqlstr)
+                            'End If
+                            If dr("EmailSentEnabled") = True Then   'Email發送
+                                If dr("Mail").ToString <> "" And dr("Mail") IsNot Nothing Then
+                                    Dim sqlstr2 As String = "select top 1 * from EventRecord order by EventIndex desc"
+                                    Dim cmd2 As OleDbCommand = New OleDbCommand(sqlstr2, connEvent)
+                                    Dim dr2 As OleDbDataReader = cmd2.ExecuteReader()
+                                    If dr2.Read() Then
+                                        MailSent(dr2("EventIndex").ToString, dr2("ECO_Account").ToString, dr2("MeterID").ToString, dr2("RecDate").ToString, dr2("InstallPosition").ToString, dr2("Mail").ToString, "電壓異常")
+                                    End If
+                                End If
+                            End If
+                        End If
+                    End Using
+                End Using
+            Catch ex As Exception
+                MailState("電壓異常事件錯誤")   '紀錄
+            End Try
+        End Using
+    End Sub
+    
+    '超過指定用電量事件
+    Sub EnergyOverUse(ByVal Index As Integer, ByVal ECO_Account As String, ByVal MeterID As Byte, ByVal RecDate As String, ByVal RecTime As String) Handles TCP_Server.CommError
+        Dim strcon As String = System.Configuration.ConfigurationManager.ConnectionStrings("ECOConnectionString").ToString()
+        Using connEvent As New OleDbConnection(strcon)
+            If connEvent.State = 0 Then connEvent.Open()
+            Try
+                Dim sql As String = "select MS.*,CS.SMSSentEnabled,CS.EmailSentEnabled,CS.Num,CS.Mail from ControllerSetup AS CS,MeterSetup AS MS where CS.ECO_Account = ? and MS.MeterID = ? and CS.ECO_Account = MS.ECO_Account"
+                Using cmd As New OleDbCommand(sql, connEvent)
+                    cmd.Parameters.AddWithValue("?ECO_Account", ECO_Account)
+                    cmd.Parameters.AddWithValue("?MeterID", MeterID)
+                    Using dr As OleDbDataReader = cmd.ExecuteReader()
+                        If dr.Read() Then
+                            'If dr("SMSSentEnabled") = True Then   'SMS發送
+                            Dim val As String = " '" & ECO_Account & "'," & MeterID & ",'" & RecDate & " " & RecTime & "','" & dr("InstallPosition").ToString & "',6,'超過指定用電量','" & dr("Num").ToString & "','" & dr("Mail").ToString & "',0,0 "
+                            Dim sqlstr As String = "insert into EventRecord(ECO_Account,MeterID,RecDate,InstallPosition,ErrType,ErrContent,Num,Mail,SMSSent,EmailSent) values (" & val & ")"
+                            EventDB(sqlstr)
+                            'Else
+                            '    Dim val As String = " '" & ECO_Account & "'," & MeterID & ",'" & RecDate & " " & RecTime & "','" & dr("InstallPosition").ToString & "',6,'超過指定用電量','" & dr("Num").ToString & "','" & dr("Mail").ToString & "',0 "
+                            '    Dim sqlstr As String = "insert into EventRecord(ECO_Account,MeterID,RecDate,InstallPosition,ErrType,ErrContent,Num,Mail,EMailSent) values (" & val & ")"
+                            '    EventDB(sqlstr)
+                            'End If
+                            If dr("EmailSentEnabled") = True Then   'Email發送
+                                If dr("Mail").ToString <> "" And dr("Mail") IsNot Nothing Then
+                                    Dim sqlstr2 As String = "select top 1 * from EventRecord order by EventIndex desc"
+                                    Dim cmd2 As OleDbCommand = New OleDbCommand(sqlstr2, connEvent)
+                                    Dim dr2 As OleDbDataReader = cmd2.ExecuteReader()
+                                    If dr2.Read() Then
+                                        MailSent(dr2("EventIndex").ToString, dr2("ECO_Account").ToString, dr2("MeterID").ToString, dr2("RecDate").ToString, dr2("InstallPosition").ToString, dr2("Mail").ToString, "超過指定用電量")
+                                    End If
+                                End If
+                            End If
+                        End If
+                    End Using
+                End Using
+            Catch ex As Exception
+                MailState("超過指定用電量事件錯誤")    '紀錄
+            End Try
+        End Using
+        
+    End Sub
+    
+    '電表通訊異常事件
+    Sub CommError(ByVal Index As Integer, ByVal ECO_Account As String, ByVal MeterID As Byte, ByVal RecDate As String, ByVal RecTime As String) Handles TCP_Server.CommError
+        Dim strcon As String = System.Configuration.ConfigurationManager.ConnectionStrings("ECOConnectionString").ToString()
+        Using connEvent As New OleDbConnection(strcon)
+            If connEvent.State = 0 Then connEvent.Open()
+            Try
+                Dim sql As String = "select MS.*,CS.SMSSentEnabled,CS.EmailSentEnabled,CS.Num,CS.Mail from ControllerSetup AS CS,MeterSetup AS MS where CS.ECO_Account = ? and MS.MeterID = ? and CS.ECO_Account = MS.ECO_Account"
+                Using cmd As New OleDbCommand(sql, connEvent)
+                    cmd.Parameters.AddWithValue("?ECO_Account", ECO_Account)
+                    cmd.Parameters.AddWithValue("?MeterID", MeterID)
+                    Using dr As OleDbDataReader = cmd.ExecuteReader()
+                        If dr.Read() Then
+                            'If dr("SMSSentEnabled") = True Then   'SMS發送
+                            Dim val As String = " '" & ECO_Account & "'," & MeterID & ",'" & RecDate & " " & RecTime & "','" & dr("InstallPosition").ToString & "',7,'電表通訊異常','" & dr("Num").ToString & "','" & dr("Mail").ToString & "',0,0 "
+                            Dim sqlstr As String = "insert into EventRecord(ECO_Account,MeterID,RecDate,InstallPosition,ErrType,ErrContent,Num,Mail,SMSSent,EmailSent) values (" & val & ")"
+                            EventDB(sqlstr)
+                            'Else
+                            '    Dim val As String = " '" & ECO_Account & "'," & MeterID & ",'" & RecDate & " " & RecTime & "','" & dr("InstallPosition").ToString & "',7,'電表通訊異常','" & dr("Num").ToString & "','" & dr("Mail").ToString & "',0 "
+                            '    Dim sqlstr As String = "insert into EventRecord(ECO_Account,MeterID,RecDate,InstallPosition,ErrType,ErrContent,Num,Mail,EMailSent) values (" & val & ")"
+                            '    EventDB(sqlstr)
+                            'End If
+                            If dr("EmailSentEnabled") = True Then   'Email發送
+                                If dr("Mail").ToString <> "" And dr("Mail") IsNot Nothing Then
+                                    Dim sqlstr2 As String = "select top 1 * from EventRecord order by EventIndex desc"
+                                    Dim cmd2 As OleDbCommand = New OleDbCommand(sqlstr2, connEvent)
+                                    Dim dr2 As OleDbDataReader = cmd2.ExecuteReader()
+                                    If dr2.Read() Then
+                                        MailSent(dr2("EventIndex").ToString, dr2("ECO_Account").ToString, dr2("MeterID").ToString, dr2("RecDate").ToString, dr2("InstallPosition").ToString, dr2("Mail").ToString, "電表通訊異常")
+                                    End If
+                                End If
+                            End If
+                        End If
+                    End Using
+                End Using
+            Catch ex As Exception
+                MailState("電表通訊異常事件錯誤")    '紀錄
+            End Try
+        End Using
+        
+    End Sub
+    
+    Sub EventDB(ByVal sqlstr As String)
+        Dim strcon As String = System.Configuration.ConfigurationManager.ConnectionStrings("ECOConnectionString").ToString()
+        Try
+            Using conn As New OleDbConnection(strcon)
+                If conn.State = 0 Then conn.Open()
+                Using cmd As New OleDbCommand(sqlstr, conn)
+                    cmd.ExecuteNonQuery()
+                End Using
+            End Using
+        Catch ex As Exception
+            MailState("事件insert錯誤")     '紀錄
+        End Try
+    End Sub
+    
+    Sub ECOMailSent(ByVal Index As Integer, ByVal Recdate As String, ByVal Position As String, ByVal Email As String, ByVal Type As Integer, ByVal content As String)
+        Dim strcon As String = System.Configuration.ConfigurationManager.ConnectionStrings("ECOConnectionString").ToString()
+        Using conn_mail As New OleDbConnection(strcon)
+            If conn_mail.State = 0 Then conn_mail.Open()
+            '發送E_Mail
+            Dim sql As String = "SELECT * FROM MailSetup"
+            Using cmd_send As New OleDbCommand(sql, conn_mail)
+                Using dr As OleDbDataReader = cmd_send.ExecuteReader()
+                    If dr.Read() Then
+                        Try
+                            '發送郵件的郵件服務器
+                            Dim mailserver As SmtpClient = New SmtpClient(dr("SmtpServer").ToString)
+                            mailserver.Credentials = New NetworkCredential(dr("MailServer_Account").ToString, dr("MailServer_Password").ToString)
+                            mailserver.DeliveryMethod = System.Net.Mail.SmtpDeliveryMethod.Network
+
+                            'mail郵件設置
+                            Dim mail As MailMessage = New MailMessage()
+                            Dim mfrom As MailAddress = Nothing
+                            If dr("MailName") IsNot DBNull.Value And dr("MailName").ToString <> "" Then
+                                mfrom = New MailAddress(dr("MailAddress").ToString, dr("MailName").ToString) '必須和SmtpServer相同
+                            Else
+                                mfrom = New MailAddress(dr("MailAddress").ToString)
+                            End If
+
+                            mail.From = mfrom
+                            Dim mails() As String = Email.Split(";")
+                            For j = 0 To mails.Count - 1
+                                mail.To.Add(mails(j))
+                            Next
+
+                            If dr("Bcc") IsNot DBNull.Value And dr("Bcc").ToString <> "" Then
+                                mail.Bcc.Add(dr("Bcc").ToString)
+                            End If
+
+                            Select Case Type
+                                Case 1
+                                    mail.Subject = "電力分析系統事件通知信"
+                                    mail.Body = "" & Recdate & " 位於" & Position & " " & content & "<br/><br/>"
+                                    mail.Body &= "<font color=red>注意：本信件是由系統自動產生與發送，請勿直接回覆</font>" & "<br/><br/>"
+                                    'Case 1
+                                    '    mail.Subject = "電力分析系統事件通知信"
+                                    '    mail.Body = "" & Recdate & " " & content & "<br/><br/>"
+                                    '    mail.Body &= "<font color=red>注意：本信件是由系統自動產生與發送，請勿直接回覆</font>" & "<br/><br/>"
+                            End Select
+
+                            mail.SubjectEncoding = System.Text.Encoding.GetEncoding("BIG5")
+                            mail.BodyEncoding = System.Text.Encoding.GetEncoding("BIG5")
+                            mail.IsBodyHtml = True
+                            mailserver.Send(mail)
+                
+                            '更新發送狀態
+                            Dim sql_m As String = "update EventRecord set EmailSent = ? where EventIndex = ?"
+                            Dim cmd_m As OleDbCommand = New OleDbCommand(sql_m, conn_mail)
+                            cmd_m.Parameters.AddWithValue("?EmailSent", True)
+                            cmd_m.Parameters.AddWithValue("?EventIndex", Index)
+                            cmd_m.ExecuteNonQuery()
+                        Catch ex As Exception
+                            MailState("事件信件發送錯誤")   '紀錄
+                        End Try
+                    End If
+                End Using
+            End Using
+        End Using
+    End Sub
+    
+    Sub MailSent(ByVal Index As Integer, ByVal ECO_Account As String, ByVal MeterID As String, ByVal Recdate As String, ByVal Position As String, ByVal Email As String, ByVal content As String)
+        Dim strcon As String = System.Configuration.ConfigurationManager.ConnectionStrings("ECOConnectionString").ToString()
+        Using conn_mail As New OleDbConnection(strcon)
+            If conn_mail.State = 0 Then conn_mail.Open()
+            '發送E_Mail
+            Dim sql As String = "SELECT * FROM MailSetup"
+            Using cmd_send As New OleDbCommand(sql, conn_mail)
+                Using dr As OleDbDataReader = cmd_send.ExecuteReader()
+                    If dr.Read() Then
+                        Try
+                            '發送郵件的郵件服務器
+                            Dim mailserver As SmtpClient = New SmtpClient(dr("SmtpServer").ToString)
+                            mailserver.Credentials = New NetworkCredential(dr("MailServer_Account").ToString, dr("MailServer_Password").ToString)
+                            mailserver.DeliveryMethod = System.Net.Mail.SmtpDeliveryMethod.Network
+
+                            'mail郵件設置
+                            Dim mail As MailMessage = New MailMessage()
+                            Dim mfrom As MailAddress = Nothing
+                            If dr("MailName") IsNot DBNull.Value And dr("MailName").ToString <> "" Then
+                                mfrom = New MailAddress(dr("MailAddress").ToString, dr("MailName").ToString) '必須和SmtpServer相同
+                            Else
+                                mfrom = New MailAddress(dr("MailAddress").ToString)
+                            End If
+
+                            mail.From = mfrom
+                            Dim mails() As String = Email.Split(";")
+                            For j = 0 To mails.Count - 1
+                                mail.To.Add(mails(j))
+                            Next
+
+                            If dr("Bcc") IsNot DBNull.Value And dr("Bcc").ToString <> "" Then
+                                mail.Bcc.Add(dr("Bcc").ToString)
+                            End If
+
+                            mail.Subject = "電力分析系統事件通知信"
+                            mail.Body = "ECO5帳號：" & ECO_Account & "<br/><br/>"
+                            mail.Body &= "電表編號：" & MeterID & "<br/><br/>"
+                            mail.Body &= "安裝位置：" & Position & "<br/><br/>"
+                            mail.Body &= "於 " & Recdate & " 發生" & content & "事件<br/><br/>"
+                            mail.Body &= "<font color=red>注意：本信件是由系統自動產生與發送，請勿直接回覆</font>" & "<br/><br/>"
+
+                            mail.SubjectEncoding = System.Text.Encoding.GetEncoding("BIG5")
+                            mail.BodyEncoding = System.Text.Encoding.GetEncoding("BIG5")
+                            mail.IsBodyHtml = True
+                            mailserver.Send(mail)
+                
+                            '更新發送狀態
+                            Dim sql_m As String = "update EventRecord set EmailSent = ? where EventIndex = ?"
+                            Dim cmd_m As OleDbCommand = New OleDbCommand(sql_m, conn_mail)
+                            cmd_m.Parameters.AddWithValue("?EmailSent", True)
+                            cmd_m.Parameters.AddWithValue("?EventIndex", Index)
+                            cmd_m.ExecuteNonQuery()
+                        Catch ex As Exception
+                            ex.ToString()
+                        End Try
+                    End If
+                End Using
+            End Using
+        End Using
+    End Sub
+    
+    '每分鐘收值
+    Sub WriteToDataBase(ByVal Index As Integer, ByVal TransferData As Object) Handles TCP_Server.RecTimeUp
+        If TransferData.MeterEnabled Then
+            If TransferData.RecLegal Then
+                '判斷ECO5帳號、密碼
+                Dim find_rows As DataRow() = Application("dt").Select("ECO_Account='" & TransferData.Account & "' AND ECO_Password = '" & TransferData.Password & "'")
+                If find_rows.Count > 0 Then
+                    Dim dr As DataRow = find_rows(0)
+                    data(dr("CtrlNr").ToString, dr("Account").ToString, TransferData)
+                End If
+            End If
+        End If
+    End Sub
+    
+    '寫入資料庫
+    Sub data(ByVal Index As Integer, ByVal Account As String, ByVal TransferData As Object)
+        'PowerRecord變數
+        Dim CtrlNr, MeterID, KWh, DeMand, DemandHalf, DemandSatHalf, DemandOff, RushHour, OffHour, HalfHour, SatHalfHour As Integer
+        Dim I1, I2, I3, Iavg, V1, V2, V3, Vavg, W, V_ar, VA, PF, Mode1, Mode2, Mode3, Mode4 As Single
+        Dim State As String = Nothing
+        Dim RecDate As String
+        
+        CtrlNr = Index
+        MeterID = TransferData.MeterID
+        RecDate = TransferData.RecDate & " " & TransferData.RecTime
+        '電流
+        I1 = TransferData.Value(0)
+        I2 = TransferData.Value(1)
+        I3 = TransferData.Value(2)
+        Iavg = TransferData.Value(3)
+        '電壓
+        V1 = TransferData.Value(4)
+        V2 = TransferData.Value(5)
+        V3 = TransferData.Value(6)
+        Vavg = TransferData.Value(7)
+        'KW
+        W = TransferData.Value(8)
+        'KVAR
+        V_ar = TransferData.Value(9)
+        'KVA
+        VA = TransferData.Value(10)
+        'PF
+        PF = TransferData.Value(11)
+        'KWH
+        KWh = TransferData.Value(12)
+        'Mode1~Mode4
+        Mode1 = TransferData.Value(13)
+        Mode2 = TransferData.Value(14)
+        Mode3 = TransferData.Value(15)
+        Mode4 = TransferData.Value(16)
+        'Max
+        DeMand = TransferData.Value(17)
+        DemandHalf = TransferData.Value(18)
+        DemandSatHalf = TransferData.Value(19)
+        DemandOff = TransferData.Value(20)
+        'KWH Period
+        RushHour = TransferData.Value(21)
+        HalfHour = TransferData.Value(22)
+        SatHalfHour = TransferData.Value(23)
+        OffHour = TransferData.Value(24)
+        'State
+        State = TransferData.RecState
+        
+        Dim val As String = " " & CtrlNr & "," & MeterID & ",'" & RecDate & "'," & I1 & "," & I2 & "," & I3 & "," & Iavg & "," & V1 & "," & V2 & "," & V3 & "," & Vavg & ", "
+        val &= " " & W & "," & V_ar & "," & VA & "," & PF & "," & KWh & "," & Mode1 & "," & Mode2 & "," & Mode3 & "," & Mode4 & ", "
+        val &= " " & DeMand & "," & DemandHalf & "," & DemandSatHalf & "," & DemandOff & "," & RushHour & "," & HalfHour & "," & SatHalfHour & "," & OffHour & ",'" & State & "'"
+        '根據Account來決定存入的資料庫
+        Try
+            Dim strcon As String = System.Configuration.ConfigurationManager.ConnectionStrings("DBConnectionString").ToString() & ";Initial Catalog=ECO_" & Account & ""
+            Dim strSQL As String = "insert into PowerRecord(CtrlNr,MeterID,RecDate,I1,I2,I3,Iavg,V1,V2,V3,Vavg,W,V_ar,VA,PF,KWh,Mode1,Mode2,Mode3,Mode4,DeMand,DemandHalf,DemandSatHalf,DemandOff,RushHour,HalfHour,SatHalfHour,OffHour,State) values (" & val & ")"
+            Using conn As New OleDbConnection(strcon)
+                If conn.State = ConnectionState.Closed Then conn.Open()
+                Using cmd As New OleDbCommand(strSQL, conn)
+                    cmd.ExecuteNonQuery()
+                End Using
+            End Using
+        Catch ex As Exception
+
+        End Try
+    End Sub
+    
+    '時間判斷
+    Public Function TimePick(ByVal t As String) As Boolean
+        Select Case t
+            Case "Collect"  '每天0點彙總資料
+                If Now.ToString("HH") = "00" Then
+                    Return True
+                Else
+                    Return False
+                End If
+            Case "Month"    '每月月初1點寄送總月報表、月報表
+                If Now.ToString("dd") = "01" And Now.ToString("HH") = "01" Then
+                    Return True
+                Else
+                    Return False
+                End If
+            Case "Day"      '每天1點寄送總日報表、日報表
+                If Now.ToString("HH") = "01" Then
+                    Return True
+                Else
+                    Return False
+                End If
+            Case Else
+                Return False
+        End Select
+    End Function
+    
+    '紀錄電表彙總資訊
+    Public Sub MeterCollection()
+        If TimePick("Collect") = True Then
+            Dim account() As String = Nothing
+            Dim k As Integer = 0
+            Dim strcon As String = System.Configuration.ConfigurationManager.ConnectionStrings("ECOConnectionString").ToString()
+            Using conn As New OleDbConnection(strcon)
+                If conn.State = 0 Then conn.Open()
+                Dim sql2 As String = "select COUNT(DISTINCT Account) AS AccountCount from ControllerSetup"
+                Using cmd As New OleDbCommand(sql2, conn)
+                    Using dr As OleDbDataReader = cmd.ExecuteReader
+                        If dr.Read() Then
+                            k = dr("AccountCount")
+                        End If
+                    End Using
+                End Using
+                
+                ReDim account(k)
+                Dim sql As String = "select DISTINCT Account from ControllerSetup"
+                Dim i As Integer = 0
+                Using cmd As New OleDbCommand(sql, conn)
+                    Using dr As OleDbDataReader = cmd.ExecuteReader
+                        While dr.Read()
+                            account(i) = dr("Account").ToString
+                            i += 1
+                        End While
+                    End Using
+                End Using
+            End Using
+        
+            For i = 0 To account.Length - 1
+                Using conn As New OleDbConnection(strcon)
+                    If conn.State = 0 Then conn.Open()
+                    Dim sql_meter As String = "SELECT MS.* FROM ControllerSetup AS CS,MeterSetup AS MS " & _
+                    "WHERE CS.Account= '" & account(i) & "' and MS.Enabled = 1 and CS.ECO_Account = MS.ECO_Account"
+                    Using cmd_meter As New OleDbCommand(sql_meter, conn)
+                        Using dr_meter As OleDbDataReader = cmd_meter.ExecuteReader
+                            While dr_meter.Read()
+                                Dim strcon2 As String = System.Configuration.ConfigurationManager.ConnectionStrings("DBConnectionString").ToString() & ";Initial Catalog=ECO_" & account(i) & ""
+                                Using conn2 As New OleDbConnection(strcon2)
+                                    If conn2.State = 0 Then conn2.Open()
+                                    Dim ctrlnr As String = dr_meter("CtrlNr").ToString
+                                    Dim meterid As String = dr_meter("MeterID").ToString
+                                    Dim datetime As String = DateAdd(DateInterval.Day, -1, Now.Date).ToString("yyyy/MM/dd")
+                                
+                                    '判斷前一天是否有資料
+                                    Dim sql As String = "select top 1 * from PowerRecord WHERE CtrlNr = " & ctrlnr & " AND MeterID = " & meterid & " AND substring(RecDate,1,10) = '" & datetime & "'"
+                                    Using cmd As New OleDbCommand(sql, conn2)
+                                        Using dr As OleDbDataReader = cmd.ExecuteReader()
+                                            If dr.Read() Then
+                                                Try
+                                                    '若有當天已有資料，刪除重新insert
+                                                    Dim sql_exist As String = "SELECT * FROM PowerRecordCollection WHERE CtrlNr = " & ctrlnr & " AND MeterID = " & meterid & " AND RecDate = '" & datetime & "'"
+                                                    Using cmd_exist As New OleDbCommand(sql_exist, conn2)
+                                                        Using dr_exist As OleDbDataReader = cmd_exist.ExecuteReader()
+                                                            If dr_exist.Read() Then
+                                                                Dim sql_delete As String = "DELETE FROM PowerRecordCollection WHERE CtrlNr = " & ctrlnr & " AND MeterID = " & meterid & " AND RecDate = '" & datetime & "'"
+                                                                Using cmd_delete As New OleDbCommand(sql_delete, conn2)
+                                                                    cmd_delete.ExecuteNonQuery()
+                                                                End Using
+                                                            End If
+                                                        End Using
+                                                    End Using
+                                                    
+                                                    '預存程序
+                                                    'Dim sql_sp As String = "Exec [ECO_" & account(i) & "].[dbo].[Usp_Day_Record] " & ctrlnr & "," & meterid & "," & datetime & ""
+                                                    Using cmd_sp As New OleDbCommand("Usp_Day_Record", conn2)
+                                                        cmd_sp.CommandType = CommandType.StoredProcedure
+                                                        Dim CtrlNrParam As New OleDbParameter("@CtrlNr", ctrlnr)
+                                                        Dim MeterIDParam As New OleDbParameter("@MeterID", meterid)
+                                                        Dim RecDateParam As New OleDbParameter("@RecDate", datetime)
+                                                        cmd_sp.Parameters.Add(CtrlNrParam)
+                                                        cmd_sp.Parameters.Add(MeterIDParam)
+                                                        cmd_sp.Parameters.Add(RecDateParam)
+                                                        cmd_sp.ExecuteNonQuery()
+                                                    End Using
+                                                    MailState("彙總成功")   '紀錄
+                                                Catch ex As Exception
+                                                    MailState("彙總錯誤")   '紀錄
+                                                End Try
+                                            End If
+                                        End Using
+                                    End Using
+                                End Using
+                            End While
+                        End Using
+                    End Using
+                End Using
+            Next
+        End If
+    End Sub
+    
+    '寄送總報
+    Public Sub SendSumMail()
+        '每月月初寄送前一月之總月報表
+        If TimePick("Month") = True Then
+            Dim strcon As String = System.Configuration.ConfigurationManager.ConnectionStrings("ECOConnectionString").ToString()
+            Dim sql_ad As String = "select * from AdminSetup where Enabled = 1 and CreateDB = 1 and Rank <> 0"
+            Dim dt_ad As New DataTable
+            Dim da As New OleDbDataAdapter(sql_ad, strcon)
+            da.Fill(dt_ad)
+            Dim count_ad As Integer = dt_ad.Rows.Count - 1
+            Dim account(count_ad) As String
+            Dim company(count_ad) As String
+            Dim email(count_ad) As String
+            Dim summonth_sent(count_ad) As Boolean
+            Dim datetime As String = DateAdd(DateInterval.Month, -1, Now.Date).ToString("yyyy/MM")
+            'Dim datetime As String = "2014/02"
+            Dim stream As String     '儲存報表stringWrite
+            Dim k As Integer = 0
+            Using conn As New OleDbConnection(strcon)
+                If conn.State = 0 Then conn.Open()
+                Using cmd_ad As New OleDbCommand(sql_ad, conn)
+                    Using dr_ad As OleDbDataReader = cmd_ad.ExecuteReader
+                        While (dr_ad.Read() = True)
+                            If dr_ad("Account").ToString <> "admin" Then
+                                account(k) = dr_ad("Account").ToString
+                                company(k) = dr_ad("Company").ToString
+                                email(k) = dr_ad("SumMonthMail").ToString
+                                summonth_sent(k) = dr_ad("SumMonthMailSent").ToString
+                                k += 1
+                            End If
+                        End While
+                    End Using
+                End Using
+            End Using
+            For i = 0 To count_ad - 1
+                If summonth_sent(i) = True Then
+                    Dim ReportTable As Table = New Table()
+                    Dim row As TableRow = New TableRow()
+                    Dim headerCell As TableHeaderCell = New TableHeaderCell()
+                    '---標題---
+                    headerCell.Text = "電力監管系統用電紀錄表"
+                    headerCell.ColumnSpan = 17
+                    headerCell.Font.Size = 16
+                    headerCell.Height = 35
+                    row.Controls.Add(headerCell)
+                    ReportTable.Controls.Add(row)
+                    row = New TableRow()
+                    
+                    Dim cell_D As TableCell = New TableCell()
+                    cell_D.Text = "月份：" & datetime
+                    cell_D.Font.Size = 10
+                    'cell_D.Style("padding-left") = "50px"
+                    cell_D.ColumnSpan = 17
+                    cell_D.HorizontalAlign = 1
+                    row.Controls.Add(cell_D)
+                    ReportTable.Controls.Add(row)
+                    row = New TableRow()
+                    
+                    Dim ReportTable2 As Table = New Table()
+                    ReportTable2.Attributes.Remove("border")
+                    ReportTable2.Attributes("border") = "1"
+                    ReportTable2.Style("border-collapse") = "collapse"
+                    ReportTable2.BorderStyle = BorderStyle.Solid
+                    ReportTable2.BorderWidth = 1
+                    Dim cell_meter As TableCell = New TableCell()
+                    cell_meter.Text = "電表資訊"
+                    cell_meter.Font.Size = 10
+                    cell_meter.Font.Bold = True
+                    cell_meter.ColumnSpan = 2
+                    cell_meter.HorizontalAlign = 2
+                    cell_meter.Style("border-left") = "1px solid #000000"
+                    row.Controls.Add(cell_meter)
+                    Dim cell_I As TableCell = New TableCell()
+                    cell_I.Text = "電流(A)"
+                    cell_I.Font.Size = 10
+                    cell_I.Font.Bold = True
+                    cell_I.ColumnSpan = 2
+                    cell_I.HorizontalAlign = 2
+                    row.Controls.Add(cell_I)
+                    Dim cell_V As TableCell = New TableCell()
+                    cell_V.Text = "電壓(V)"
+                    cell_V.Font.Size = 10
+                    cell_V.Font.Bold = True
+                    cell_V.ColumnSpan = 2
+                    cell_V.HorizontalAlign = 2
+                    row.Controls.Add(cell_V)
+                    Dim cell_W As TableCell = New TableCell()
+                    cell_W.Text = "功率(kw)"
+                    cell_W.Font.Size = 10
+                    cell_W.Font.Bold = True
+                    cell_W.ColumnSpan = 2
+                    cell_W.HorizontalAlign = 2
+                    row.Controls.Add(cell_W)
+                    Dim cell_De As TableCell = New TableCell()
+                    cell_De.Text = "最大需量(kw)"
+                    cell_De.Font.Size = 10
+                    cell_De.Font.Bold = True
+                    cell_De.ColumnSpan = 4
+                    cell_De.HorizontalAlign = 2
+                    row.Controls.Add(cell_De)
+                    Dim cell_E As TableCell = New TableCell()
+                    cell_E.Text = "用電量(KWH)"
+                    cell_E.Font.Size = 10
+                    cell_E.Font.Bold = True
+                    cell_E.ColumnSpan = 5
+                    cell_E.HorizontalAlign = 2
+                    cell_E.Style("border-right") = "1px solid #000000"
+                    row.Controls.Add(cell_E)
+                    ReportTable2.Controls.Add(row)
+                    row = New TableRow()
+                    
+                    Dim cell_index_t As TableCell = New TableCell()
+                    cell_index_t.Text = "編號"
+                    cell_index_t.Font.Size = 10
+                    cell_index_t.Font.Bold = True
+                    cell_index_t.ColumnSpan = 1
+                    cell_index_t.HorizontalAlign = 2
+                    cell_index_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_index_t.ForeColor = Drawing.Color.White
+                    cell_index_t.Style("border-left") = "1px solid #000000"
+                    row.Controls.Add(cell_index_t)
+                    Dim cell_position_t As TableCell = New TableCell()
+                    cell_position_t.Text = "配電盤"
+                    cell_position_t.Font.Size = 10
+                    cell_position_t.Font.Bold = True
+                    cell_position_t.ColumnSpan = 1
+                    cell_position_t.HorizontalAlign = 2
+                    cell_position_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_position_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_position_t)
+                    Dim cell_iavg_t As TableCell = New TableCell()
+                    cell_iavg_t.Text = "平均值"
+                    cell_iavg_t.Font.Size = 10
+                    cell_iavg_t.Font.Bold = True
+                    cell_iavg_t.ColumnSpan = 1
+                    cell_iavg_t.HorizontalAlign = 2
+                    cell_iavg_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_iavg_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_iavg_t)
+                    Dim cell_imax_t As TableCell = New TableCell()
+                    cell_imax_t.Text = "最大值"
+                    cell_imax_t.Font.Size = 10
+                    cell_imax_t.Font.Bold = True
+                    cell_imax_t.ColumnSpan = 1
+                    cell_imax_t.HorizontalAlign = 2
+                    cell_imax_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_imax_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_imax_t)
+                    Dim cell_vavg_t As TableCell = New TableCell()
+                    cell_vavg_t.Text = "平均值"
+                    cell_vavg_t.Font.Size = 10
+                    cell_vavg_t.Font.Bold = True
+                    cell_vavg_t.ColumnSpan = 1
+                    cell_vavg_t.HorizontalAlign = 2
+                    cell_vavg_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_vavg_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_vavg_t)
+                    Dim cell_vmax_t As TableCell = New TableCell()
+                    cell_vmax_t.Text = "最大值"
+                    cell_vmax_t.Font.Size = 10
+                    cell_vmax_t.Font.Bold = True
+                    cell_vmax_t.ColumnSpan = 1
+                    cell_vmax_t.HorizontalAlign = 2
+                    cell_vmax_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_vmax_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_vmax_t)
+                    Dim cell_wavg_t As TableCell = New TableCell()
+                    cell_wavg_t.Text = "平均值"
+                    cell_wavg_t.Font.Size = 10
+                    cell_wavg_t.Font.Bold = True
+                    cell_wavg_t.ColumnSpan = 1
+                    cell_wavg_t.HorizontalAlign = 2
+                    cell_wavg_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_wavg_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_wavg_t)
+                    Dim cell_wmax_t As TableCell = New TableCell()
+                    cell_wmax_t.Text = "最大值"
+                    cell_wmax_t.Font.Size = 10
+                    cell_wmax_t.Font.Bold = True
+                    cell_wmax_t.ColumnSpan = 1
+                    cell_wmax_t.HorizontalAlign = 2
+                    cell_wmax_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_wmax_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_wmax_t)
+                    Dim cell_demand_t As TableCell = New TableCell()
+                    cell_demand_t.Text = "尖峰"
+                    cell_demand_t.Font.Size = 10
+                    cell_demand_t.Font.Bold = True
+                    cell_demand_t.ColumnSpan = 1
+                    cell_demand_t.HorizontalAlign = 2
+                    cell_demand_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_demand_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_demand_t)
+                    Dim cell_demandhalf_t As TableCell = New TableCell()
+                    cell_demandhalf_t.Text = "半尖峰"
+                    cell_demandhalf_t.Font.Size = 10
+                    cell_demandhalf_t.Font.Bold = True
+                    cell_demandhalf_t.ColumnSpan = 1
+                    cell_demandhalf_t.HorizontalAlign = 2
+                    cell_demandhalf_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_demandhalf_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_demandhalf_t)
+                    Dim cell_demandsathalf_t As TableCell = New TableCell()
+                    cell_demandsathalf_t.Text = "週六半尖峰"
+                    cell_demandsathalf_t.Font.Size = 10
+                    cell_demandsathalf_t.Font.Bold = True
+                    cell_demandsathalf_t.ColumnSpan = 1
+                    cell_demandsathalf_t.HorizontalAlign = 2
+                    cell_demandsathalf_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_demandsathalf_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_demandsathalf_t)
+                    Dim cell_demandoff_t As TableCell = New TableCell()
+                    cell_demandoff_t.Text = "離峰"
+                    cell_demandoff_t.Font.Size = 10
+                    cell_demandoff_t.Font.Bold = True
+                    cell_demandoff_t.ColumnSpan = 1
+                    cell_demandoff_t.HorizontalAlign = 2
+                    cell_demandoff_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_demandoff_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_demandoff_t)
+                    Dim cell_rushhour_t As TableCell = New TableCell()
+                    cell_rushhour_t.Text = "尖峰"
+                    cell_rushhour_t.Font.Size = 10
+                    cell_rushhour_t.Font.Bold = True
+                    cell_rushhour_t.ColumnSpan = 1
+                    cell_rushhour_t.HorizontalAlign = 2
+                    cell_rushhour_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_rushhour_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_rushhour_t)
+                    Dim cell_halfhour_t As TableCell = New TableCell()
+                    cell_halfhour_t.Text = "半尖峰"
+                    cell_halfhour_t.Font.Size = 10
+                    cell_halfhour_t.Font.Bold = True
+                    cell_halfhour_t.ColumnSpan = 1
+                    cell_halfhour_t.HorizontalAlign = 2
+                    cell_halfhour_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_halfhour_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_halfhour_t)
+                    Dim cell_sathalfhour_t As TableCell = New TableCell()
+                    cell_sathalfhour_t.Text = "週六半尖峰"
+                    cell_sathalfhour_t.Font.Size = 10
+                    cell_sathalfhour_t.Font.Bold = True
+                    cell_sathalfhour_t.ColumnSpan = 1
+                    cell_sathalfhour_t.HorizontalAlign = 2
+                    cell_sathalfhour_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_sathalfhour_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_sathalfhour_t)
+                    Dim cell_offhour_t As TableCell = New TableCell()
+                    cell_offhour_t.Text = "離峰"
+                    cell_offhour_t.Font.Size = 10
+                    cell_offhour_t.Font.Bold = True
+                    cell_offhour_t.ColumnSpan = 1
+                    cell_offhour_t.HorizontalAlign = 2
+                    cell_offhour_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_offhour_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_offhour_t)
+                    Dim cell_sum_t As TableCell = New TableCell()
+                    cell_sum_t.Text = "總計"
+                    cell_sum_t.Font.Size = 10
+                    cell_sum_t.Font.Bold = True
+                    cell_sum_t.ColumnSpan = 1
+                    cell_sum_t.HorizontalAlign = 2
+                    cell_sum_t.Style("border-right") = "1px solid #000000"
+                    cell_sum_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_sum_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_sum_t)
+                    ReportTable2.Controls.Add(row)
+                    row = New TableRow()
+                    
+                    Dim strcon2 As String = System.Configuration.ConfigurationManager.ConnectionStrings("DBConnectionString").ToString() & ";Initial Catalog=ECO_" & Account_admin(account(i)) & ""
+                    Dim sql As String = "SELECT RTrim(PRC.CtrlNr) + '-' + RTrim(PRC.MeterID) AS 編號,MS.InstallPosition AS 配電盤, " & _
+                    "Round(AVG(Iavg),1) AS 平均值1,Round(MAX(Imax),1) AS 最大值1,Round(AVG(Vavg),0) AS 平均值2,Round(MAX(Vmax),0) AS 最大值2,Round(AVG(Wavg),1) AS 平均值3,Round(MAX(Wmax),1) AS 最大值3 into #T1 " & _
+                    "FROM PowerRecordCollection AS PRC,ECOSMART.dbo.ControllerSetup AS CS,ECOSMART.dbo.MeterSetup AS MS " & _
+                    "WHERE PRC.CtrlNr=MS.CtrlNr and PRC.MeterID=MS.MeterID and CS.ECO_Account=MS.ECO_Account and CS.Account='" & Account_admin(account(i)) & "' and SUBSTRING(RecDate,1,7)='" & datetime & "' " & _
+                    "GROUP BY SubString(RecDate,1,7),PRC.CtrlNr,PRC.MeterID,MS.InstallPosition;" & _
+                    "SELECT RTrim(PRC.CtrlNr) + '-' + RTrim(PRC.MeterID) AS 編號,isnull(MAX(Demand),0) AS 尖峰需量,isnull(MAX(DemandHalf),0) AS 半尖峰需量,isnull(MAX(DemandSatHalf),0) AS 週六半尖峰需量,isnull(MAX(DemandOff),0) AS 離峰需量 into #T2 " & _
+                    "FROM PowerRecordCollection AS PRC,ECOSMART.dbo.ControllerSetup AS CS,ECOSMART.dbo.MeterSetup AS MS " & _
+                    "WHERE PRC.CtrlNr=MS.CtrlNr and PRC.MeterID=MS.MeterID and CS.ECO_Account=MS.ECO_Account and CS.Account='" & Account_admin(account(i)) & "' and SUBSTRING(RecDate,1,7)='" & datetime & "' " & _
+                    "GROUP BY SubString(RecDate,1,7),PRC.CtrlNr,PRC.MeterID,MS.InstallPosition;" & _
+                    "SELECT RTrim(PR.CtrlNr) + '-' + RTrim(PR.MeterID) AS 編號,MAX(RushHourMax) AS 尖峰電量,MAX(HalfHourMax) AS 半尖峰電量,MAX(SatHalfHourMax) AS 週六半尖峰電量,MAX(OffHourMax) AS 離峰電量,MAX(RushHourMax)+MAX(HalfHourMax)+MAX(SatHalfHourMax)+MAX(OffHourMax) AS 總計 into #T3 " & _
+                    "FROM PowerRecordCollection AS PR,ECOSMART.dbo.ControllerSetup AS CS,ECOSMART.dbo.MeterSetup AS MS " & _
+                    "WHERE PR.CtrlNr=MS.CtrlNr and PR.MeterID=MS.MeterID and CS.ECO_Account=MS.ECO_Account and CS.Account='" & Account_admin(account(i)) & "' and SUBSTRING(RecDate,1,7)='" & datetime & "' " & _
+                    "GROUP BY SubString(RecDate,1,7),PR.CtrlNr,PR.MeterID,MS.InstallPosition;" & _
+                    "SELECT #T1.編號,#T1.配電盤,#T1.平均值1,#T1.最大值1,#T1.平均值2,#T1.最大值2,#T1.平均值3,#T1.最大值3," & _
+                    "#T2.尖峰需量,#T2.半尖峰需量,#T2.週六半尖峰需量,#T2.離峰需量,#T3.尖峰電量,#T3.半尖峰電量,#T3.週六半尖峰電量,#T3.離峰電量,#T3.總計 " & _
+                    "FROM #T1,#T2,#T3 WHERE #T1.編號=#T2.編號 and #T2.編號=#T3.編號;drop table #T1,#T2,#T3;"
+                    
+                    Dim database As New SqlDataSource
+                    database.ConnectionString = strcon2
+                    database.ProviderName = "System.Data.OleDb"
+                    database.SelectCommand = sql
+                    Dim dv As DataView = database.Select(New DataSourceSelectArguments)
+                    Dim dt_sum As DataTable = dv.ToTable()
+                    
+                    For n = 0 To dt_sum.Rows.Count - 1
+                        For m = 0 To dt_sum.Columns.Count - 1
+                            Dim cell_data As TableCell = New TableCell()
+                            cell_data.Text = dt_sum.Rows(n).Item(m).ToString
+                            Select Case m
+                                Case 0
+                                    cell_data.Attributes.Add("class", "text")
+                                    cell_data.Style("border-left") = "1px solid #000000"
+                                Case dt_sum.Columns.Count - 1
+                                    cell_data.Style("border-right") = "1px solid #000000"
+                            End Select
+                            If n = dt_sum.Rows.Count - 1 Then
+                                cell_data.Style("border-bottom") = "1px solid #000000"
+                            End If
+                            If n Mod 2 <> 0 Then
+                                cell_data.Style("background-color") = "#fafafa"
+                            End If
+                            cell_data.HorizontalAlign = 2
+                            row.Controls.Add(cell_data)
+                        Next
+                        ReportTable2.Controls.Add(row)
+                        row = New TableRow()
+                    Next
+                    
+                    Dim ReportTable3 As Table = New Table()
+                    Dim cell_footer As TableCell = New TableCell()
+                    cell_footer.Text = "表格編號：FHt-M-P-12-17A"
+                    cell_footer.Font.Size = 11
+                    cell_footer.ColumnSpan = 17
+                    cell_footer.HorizontalAlign = 1
+                    cell_footer.BorderStyle = BorderStyle.None
+                    row.Controls.Add(cell_footer)
+                    ReportTable3.Controls.Add(row)
+                    row = New TableRow()
+                    
+                    Dim cell_space As TableCell = New TableCell()
+                    cell_space.Text = ""
+                    cell_space.ColumnSpan = 5
+                    cell_space.BorderStyle = BorderStyle.None
+                    row.Controls.Add(cell_space)
+                    Dim cell_footer2 As TableCell = New TableCell()
+                    cell_footer2.Text = "部門主管："
+                    cell_footer2.Font.Size = 11
+                    cell_footer2.ColumnSpan = 4
+                    cell_footer2.HorizontalAlign = 1
+                    cell_footer2.BorderStyle = BorderStyle.None
+                    row.Controls.Add(cell_footer2)
+                    Dim cell_footer3 As TableCell = New TableCell()
+                    cell_footer3.Text = "審核："
+                    cell_footer3.Font.Size = 11
+                    cell_footer3.ColumnSpan = 4
+                    cell_footer3.HorizontalAlign = 1
+                    cell_footer3.BorderStyle = BorderStyle.None
+                    row.Controls.Add(cell_footer3)
+                    Dim cell_footer4 As TableCell = New TableCell()
+                    cell_footer4.Text = "製表："
+                    cell_footer4.Font.Size = 11
+                    cell_footer4.ColumnSpan = 4
+                    cell_footer4.HorizontalAlign = 1
+                    cell_footer4.BorderStyle = BorderStyle.None
+                    row.Controls.Add(cell_footer4)
+                    ReportTable3.Controls.Add(row)
+
+                    Dim stringWrite As StringWriter = New StringWriter
+                    Dim htmlWrite As HtmlTextWriter = New HtmlTextWriter(stringWrite)
+                    ReportTable.RenderControl(htmlWrite)
+                    ReportTable2.RenderControl(htmlWrite)
+                    ReportTable3.RenderControl(htmlWrite)
+                    stream = "<style> .text { mso-number-format:\@; } </style>" & stringWrite.ToString
+                        
+                    Using conn_mail As New OleDbConnection(strcon)
+                        If conn_mail.State = 0 Then conn_mail.Open()
+                        Dim sql_mail As String = "SELECT * FROM MailSetup"
+                        Using cmd_mail As New OleDbCommand(sql_mail, conn_mail)
+                            Using dr_mail As OleDbDataReader = cmd_mail.ExecuteReader
+                                If dr_mail.Read() Then
+                                    '發送郵件的郵件服務器
+                                    Dim mailserver As SmtpClient = New SmtpClient(dr_mail("SmtpServer").ToString)
+                                    mailserver.Credentials = New NetworkCredential(dr_mail("MailServer_Account").ToString, dr_mail("MailServer_Password").ToString)
+                                    mailserver.DeliveryMethod = System.Net.Mail.SmtpDeliveryMethod.Network
+                                    mailserver.Timeout = 50000 ' 送信若超過xx秒會停止送信, 以免佔用服務太多時間
+                       
+                                    If email(i) <> "" And email IsNot Nothing And summonth_sent(i) = True Then
+                                        'Dim datetime As String = DateAdd(DateInterval.Month, -1, Now.Date).ToString("yyyy/MM")
+                                        'mail郵件設置
+                                        Dim mail As MailMessage = New MailMessage()
+                                        Dim mfrom As MailAddress = Nothing
+
+                                        If dr_mail("MailName") IsNot DBNull.Value And dr_mail("MailName").ToString <> "" Then
+                                            mfrom = New MailAddress(dr_mail("MailAddress").ToString, dr_mail("MailName").ToString)
+                                        Else
+                                            mfrom = New MailAddress(dr_mail("MailAddress").ToString)
+                                        End If
+                                        mail.From = mfrom
+                                
+                                        Dim mails() As String = email(i).Split(";")
+                                        For j = 0 To mails.Count - 1
+                                            mail.To.Add(mails(j))
+                                        Next
+
+                                        If dr_mail("Bcc") IsNot DBNull.Value And dr_mail("Bcc").ToString <> "" Then
+                                            mail.Bcc.Add(dr_mail("Bcc").ToString)
+                                        End If
+
+                                        mail.Subject = "電力分析系統總月報表通知信"
+                                        mail.Body = "親愛的用戶，" & company(i) & " 您好：<br/><br/>"
+                                        mail.Body &= "附件為" & datetime & "之電力監管系統用電紀錄表<br/><br/>"
+                                        mail.Body &= "<font color=red>注意：本信件是由系統自動產生與發送，請勿直接回覆</font>" & "<br/><br/>"
+                            
+                                        Dim memoryStream As MemoryStream = New MemoryStream(Encoding.UTF8.GetBytes(stream))
+                                        memoryStream.Seek(0, SeekOrigin.Begin)
+                                        mail.Attachments.Add(New Attachment(memoryStream, "電力監管系統用電紀錄表_" & datetime & ".xls"))
+                            
+                                        If mail.Attachments.Count > 0 Then
+                                            mail.SubjectEncoding = System.Text.Encoding.GetEncoding("BIG5")
+                                            mail.BodyEncoding = System.Text.Encoding.GetEncoding("BIG5")
+                                            mail.IsBodyHtml = True
+                                            mailserver.Send(mail)
+                                            mail.Dispose()
+                                        
+                                            MailState(account(i) & "總月報表已發送")
+                                        Else
+                                            MailState(account(i) & "總月報表無附件")
+                                        End If
+                                        
+                                    Else
+                                        MailState(account(i) & "總月報表信箱無輸入或無啟用1")
+                                    End If
+                                Else
+                                    MailState("SMTP錯誤")
+                                End If
+                            End Using
+                        End Using
+                    End Using
+                Else
+                    MailState(account(i) & "總月報表信箱無輸入或無啟用2")
+                End If
+            Next
+        End If
+        
+        '每天1點寄送總日報表
+        If TimePick("Day") = True Then
+            Dim strcon As String = System.Configuration.ConfigurationManager.ConnectionStrings("ECOConnectionString").ToString()
+            Dim sql_ad As String = "select * from AdminSetup where Enabled = 1 and CreateDB = 1 and Rank <> 0"
+            Dim dt_ad As New DataTable
+            Dim da As New OleDbDataAdapter(sql_ad, strcon)
+            da.Fill(dt_ad)
+            Dim count_ad As Integer = dt_ad.Rows.Count - 1
+            Dim account(count_ad) As String
+            Dim company(count_ad) As String
+            Dim email(count_ad) As String
+            Dim summonth_sent(count_ad) As Boolean
+            Dim datetime As String = DateAdd(DateInterval.Day, -1, Now.Date).ToString("yyyy/MM/dd")
+            'Dim datetime As String = "2014/02/22"
+            Dim stream As String     '儲存報表stringWrite
+            Dim k As Integer = 0
+            Using conn As New OleDbConnection(strcon)
+                If conn.State = 0 Then conn.Open()
+                Using cmd_ad As New OleDbCommand(sql_ad, conn)
+                    Using dr_ad As OleDbDataReader = cmd_ad.ExecuteReader
+                        While (dr_ad.Read() = True)
+                            If dr_ad("Account").ToString <> "admin" Then
+                                account(k) = dr_ad("Account").ToString
+                                company(k) = dr_ad("Company").ToString
+                                email(k) = dr_ad("SumDayMail").ToString
+                                summonth_sent(k) = dr_ad("SumDayMailSent").ToString
+                                k += 1
+                            End If
+                        End While
+                    End Using
+                End Using
+            End Using
+            
+            For i = 0 To count_ad - 1
+                If summonth_sent(i) = True Then
+                    Dim ReportTable As Table = New Table()
+                    Dim row As TableRow = New TableRow()
+                    Dim headerCell As TableHeaderCell = New TableHeaderCell()
+                    '---標題---
+                    headerCell.Text = "總日報表"
+                    headerCell.ColumnSpan = 13
+                    headerCell.Font.Size = 16
+                    headerCell.Height = 35
+                    row.Controls.Add(headerCell)
+                    ReportTable.Controls.Add(row)
+                    row = New TableRow()
+                    
+                    Dim cell_D As TableCell = New TableCell()
+                    cell_D.Text = "日期：" & datetime
+                    cell_D.Font.Size = 10
+                    'cell_D.Style("padding-left") = "50px"
+                    cell_D.ColumnSpan = 13
+                    cell_D.HorizontalAlign = 1
+                    row.Controls.Add(cell_D)
+                    ReportTable.Controls.Add(row)
+                    row = New TableRow()
+                    
+                    Dim ReportTable2 As Table = New Table()
+                    ReportTable2.Attributes.Remove("border")
+                    ReportTable2.Attributes("border") = "1"
+                    ReportTable2.Style("border-collapse") = "collapse"
+                    ReportTable2.BorderStyle = BorderStyle.Solid
+                    ReportTable2.BorderWidth = 1
+                    Dim cell_meter As TableCell = New TableCell()
+                    cell_meter.Text = "電表資訊"
+                    cell_meter.Font.Size = 10
+                    cell_meter.Font.Bold = True
+                    cell_meter.ColumnSpan = 2
+                    cell_meter.HorizontalAlign = 2
+                    cell_meter.Style("border-left") = "1px solid #000000"
+                    row.Controls.Add(cell_meter)
+                    Dim cell_I As TableCell = New TableCell()
+                    cell_I.Text = "電流(A)"
+                    cell_I.Font.Size = 10
+                    cell_I.Font.Bold = True
+                    cell_I.ColumnSpan = 2
+                    cell_I.HorizontalAlign = 2
+                    row.Controls.Add(cell_I)
+                    Dim cell_V As TableCell = New TableCell()
+                    cell_V.Text = "電壓(V)"
+                    cell_V.Font.Size = 10
+                    cell_V.Font.Bold = True
+                    cell_V.ColumnSpan = 2
+                    cell_V.HorizontalAlign = 2
+                    row.Controls.Add(cell_V)
+                    Dim cell_W As TableCell = New TableCell()
+                    cell_W.Text = "功率(kw)"
+                    cell_W.Font.Size = 10
+                    cell_W.Font.Bold = True
+                    cell_W.ColumnSpan = 2
+                    cell_W.HorizontalAlign = 2
+                    row.Controls.Add(cell_W)
+                    Dim cell_E As TableCell = New TableCell()
+                    cell_E.Text = "用電量(KWH)"
+                    cell_E.Font.Size = 10
+                    cell_E.Font.Bold = True
+                    cell_E.ColumnSpan = 5
+                    cell_E.HorizontalAlign = 2
+                    cell_E.Style("border-right") = "1px solid #000000"
+                    row.Controls.Add(cell_E)
+                    ReportTable2.Controls.Add(row)
+                    row = New TableRow()
+                    
+                    Dim cell_index_t As TableCell = New TableCell()
+                    cell_index_t.Text = "編號"
+                    cell_index_t.Font.Size = 10
+                    cell_index_t.Font.Bold = True
+                    cell_index_t.ColumnSpan = 1
+                    cell_index_t.HorizontalAlign = 2
+                    cell_index_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_index_t.ForeColor = Drawing.Color.White
+                    cell_index_t.Style("border-left") = "1px solid #000000"
+                    row.Controls.Add(cell_index_t)
+                    Dim cell_position_t As TableCell = New TableCell()
+                    cell_position_t.Text = "配電盤"
+                    cell_position_t.Font.Size = 10
+                    cell_position_t.Font.Bold = True
+                    cell_position_t.ColumnSpan = 1
+                    cell_position_t.HorizontalAlign = 2
+                    cell_position_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_position_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_position_t)
+                    Dim cell_iavg_t As TableCell = New TableCell()
+                    cell_iavg_t.Text = "平均值"
+                    cell_iavg_t.Font.Size = 10
+                    cell_iavg_t.Font.Bold = True
+                    cell_iavg_t.ColumnSpan = 1
+                    cell_iavg_t.HorizontalAlign = 2
+                    cell_iavg_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_iavg_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_iavg_t)
+                    Dim cell_imax_t As TableCell = New TableCell()
+                    cell_imax_t.Text = "最大值"
+                    cell_imax_t.Font.Size = 10
+                    cell_imax_t.Font.Bold = True
+                    cell_imax_t.ColumnSpan = 1
+                    cell_imax_t.HorizontalAlign = 2
+                    cell_imax_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_imax_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_imax_t)
+                    Dim cell_vavg_t As TableCell = New TableCell()
+                    cell_vavg_t.Text = "平均值"
+                    cell_vavg_t.Font.Size = 10
+                    cell_vavg_t.Font.Bold = True
+                    cell_vavg_t.ColumnSpan = 1
+                    cell_vavg_t.HorizontalAlign = 2
+                    cell_vavg_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_vavg_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_vavg_t)
+                    Dim cell_vmax_t As TableCell = New TableCell()
+                    cell_vmax_t.Text = "最大值"
+                    cell_vmax_t.Font.Size = 10
+                    cell_vmax_t.Font.Bold = True
+                    cell_vmax_t.ColumnSpan = 1
+                    cell_vmax_t.HorizontalAlign = 2
+                    cell_vmax_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_vmax_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_vmax_t)
+                    Dim cell_wavg_t As TableCell = New TableCell()
+                    cell_wavg_t.Text = "平均值"
+                    cell_wavg_t.Font.Size = 10
+                    cell_wavg_t.Font.Bold = True
+                    cell_wavg_t.ColumnSpan = 1
+                    cell_wavg_t.HorizontalAlign = 2
+                    cell_wavg_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_wavg_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_wavg_t)
+                    Dim cell_wmax_t As TableCell = New TableCell()
+                    cell_wmax_t.Text = "最大值"
+                    cell_wmax_t.Font.Size = 10
+                    cell_wmax_t.Font.Bold = True
+                    cell_wmax_t.ColumnSpan = 1
+                    cell_wmax_t.HorizontalAlign = 2
+                    cell_wmax_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_wmax_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_wmax_t)
+                    Dim cell_rushhour_t As TableCell = New TableCell()
+                    cell_rushhour_t.Text = "尖峰"
+                    cell_rushhour_t.Font.Size = 10
+                    cell_rushhour_t.Font.Bold = True
+                    cell_rushhour_t.ColumnSpan = 1
+                    cell_rushhour_t.HorizontalAlign = 2
+                    cell_rushhour_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_rushhour_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_rushhour_t)
+                    Dim cell_halfhour_t As TableCell = New TableCell()
+                    cell_halfhour_t.Text = "半尖峰"
+                    cell_halfhour_t.Font.Size = 10
+                    cell_halfhour_t.Font.Bold = True
+                    cell_halfhour_t.ColumnSpan = 1
+                    cell_halfhour_t.HorizontalAlign = 2
+                    cell_halfhour_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_halfhour_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_halfhour_t)
+                    Dim cell_sathalfhour_t As TableCell = New TableCell()
+                    cell_sathalfhour_t.Text = "週六半尖峰"
+                    cell_sathalfhour_t.Font.Size = 10
+                    cell_sathalfhour_t.Font.Bold = True
+                    cell_sathalfhour_t.ColumnSpan = 1
+                    cell_sathalfhour_t.HorizontalAlign = 2
+                    cell_sathalfhour_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_sathalfhour_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_sathalfhour_t)
+                    Dim cell_offhour_t As TableCell = New TableCell()
+                    cell_offhour_t.Text = "離峰"
+                    cell_offhour_t.Font.Size = 10
+                    cell_offhour_t.Font.Bold = True
+                    cell_offhour_t.ColumnSpan = 1
+                    cell_offhour_t.HorizontalAlign = 2
+                    cell_offhour_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_offhour_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_offhour_t)
+                    Dim cell_sum_t As TableCell = New TableCell()
+                    cell_sum_t.Text = "總計"
+                    cell_sum_t.Font.Size = 10
+                    cell_sum_t.Font.Bold = True
+                    cell_sum_t.ColumnSpan = 1
+                    cell_sum_t.HorizontalAlign = 2
+                    cell_sum_t.Style("border-right") = "1px solid #000000"
+                    cell_sum_t.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                    cell_sum_t.ForeColor = Drawing.Color.White
+                    row.Controls.Add(cell_sum_t)
+                    ReportTable2.Controls.Add(row)
+                    row = New TableRow()
+                    
+                    Dim strcon2 As String = System.Configuration.ConfigurationManager.ConnectionStrings("DBConnectionString").ToString() & ";Initial Catalog=ECO_" & Account_admin(account(i)) & ""
+                    Dim sql As String = "SELECT RTrim(PRC.CtrlNr) + '-' + RTrim(PRC.MeterID) AS 編號,MS.InstallPosition AS 配電盤,Round(Iavg,1) AS 平均值,Round(Imax,1) AS 最大值," & _
+                    "Round(Vavg,0) AS 平均值,Round(Vmax,0) AS 最大值,Round(Wavg,1) AS 平均值,Round(Wmax,1) AS 最大值," & _
+                    "IsNull(RushHour,0) AS 尖峰,IsNull(HalfHour,0) AS 半尖峰,IsNull(SatHalfHour,0) AS 週六半尖峰,IsNull(OffHour,0) AS 離峰,IsNull(RushHour+HalfHour+SatHalfHour+OffHour,0) AS 總計 " & _
+                    "FROM PowerRecordCollection AS PRC,ECOSMART.dbo.ControllerSetup AS CS,ECOSMART.dbo.MeterSetup AS MS " & _
+                    "WHERE PRC.CtrlNr=MS.CtrlNr and PRC.MeterID=MS.MeterID and CS.ECO_Account=MS.ECO_Account and CS.Account='" & Account_admin(account(i)) & "' and RecDate='" & datetime & "' order by PRC.CtrlNr,PRC.MeterID"
+                    
+                    Dim database As New SqlDataSource
+                    database.ConnectionString = strcon2
+                    database.ProviderName = "System.Data.OleDb"
+                    database.SelectCommand = sql
+                    Dim dv As DataView = database.Select(New DataSourceSelectArguments)
+                    Dim dt_sum As DataTable = dv.ToTable()
+                    
+                    For n = 0 To dt_sum.Rows.Count - 1
+                        For m = 0 To dt_sum.Columns.Count - 1
+                            Dim cell_data As TableCell = New TableCell()
+                            cell_data.Text = dt_sum.Rows(n).Item(m).ToString
+                            Select Case m
+                                Case 0
+                                    cell_data.Attributes.Add("class", "text")
+                                    cell_data.Style("border-left") = "1px solid #000000"
+                                Case dt_sum.Columns.Count - 1
+                                    cell_data.Style("border-right") = "1px solid #000000"
+                            End Select
+                            If n = dt_sum.Rows.Count - 1 Then
+                                cell_data.Style("border-bottom") = "1px solid #000000"
+                            End If
+                            If n Mod 2 <> 0 Then
+                                cell_data.Style("background-color") = "#fafafa"
+                            End If
+                            cell_data.HorizontalAlign = 2
+                            row.Controls.Add(cell_data)
+                        Next
+                        ReportTable2.Controls.Add(row)
+                        row = New TableRow()
+                    Next
+                        
+                    Dim stringWrite As StringWriter = New StringWriter
+                    Dim htmlWrite As HtmlTextWriter = New HtmlTextWriter(stringWrite)
+                    ReportTable.RenderControl(htmlWrite)
+                    ReportTable2.RenderControl(htmlWrite)
+                    stream = "<style> .text { mso-number-format:\@; } </style>" & stringWrite.ToString
+                    
+                    Using conn_mail As New OleDbConnection(strcon)
+                        If conn_mail.State = 0 Then conn_mail.Open()
+                        Dim sql_mail As String = "SELECT * FROM MailSetup"
+                        Using cmd_mail As New OleDbCommand(sql_mail, conn_mail)
+                            Using dr_mail As OleDbDataReader = cmd_mail.ExecuteReader
+                                If dr_mail.Read() Then
+                                    '發送郵件的郵件服務器
+                                    Dim mailserver As SmtpClient = New SmtpClient(dr_mail("SmtpServer").ToString)
+                                    mailserver.Credentials = New NetworkCredential(dr_mail("MailServer_Account").ToString, dr_mail("MailServer_Password").ToString)
+                                    mailserver.DeliveryMethod = System.Net.Mail.SmtpDeliveryMethod.Network
+                                    mailserver.Timeout = 50000 ' 送信若超過xx秒會停止送信, 以免佔用服務太多時間
+                       
+                                    If email(i) <> "" And email IsNot Nothing And summonth_sent(i) = True Then
+                                        'Dim datetime As String = DateAdd(DateInterval.Month, -1, Now.Date).ToString("yyyy/MM")
+                                        'mail郵件設置
+                                        Dim mail As MailMessage = New MailMessage()
+                                        Dim mfrom As MailAddress = Nothing
+
+                                        If dr_mail("MailName") IsNot DBNull.Value And dr_mail("MailName").ToString <> "" Then
+                                            mfrom = New MailAddress(dr_mail("MailAddress").ToString, dr_mail("MailName").ToString)
+                                        Else
+                                            mfrom = New MailAddress(dr_mail("MailAddress").ToString)
+                                        End If
+                                        mail.From = mfrom
+                                
+                                        Dim mails() As String = email(i).Split(";")
+                                        For j = 0 To mails.Count - 1
+                                            mail.To.Add(mails(j))
+                                        Next
+
+                                        If dr_mail("Bcc") IsNot DBNull.Value And dr_mail("Bcc").ToString <> "" Then
+                                            mail.Bcc.Add(dr_mail("Bcc").ToString)
+                                        End If
+
+                                        mail.Subject = "電力分析系統總日報表通知信"
+                                        mail.Body = "親愛的用戶，" & company(i) & " 您好：<br/><br/>"
+                                        mail.Body &= "附件為" & datetime & "之總日報表<br/><br/>"
+                                        mail.Body &= "<font color=red>注意：本信件是由系統自動產生與發送，請勿直接回覆</font>" & "<br/><br/>"
+                            
+                                        Dim memoryStream As MemoryStream = New MemoryStream(Encoding.UTF8.GetBytes(stream))
+                                        memoryStream.Seek(0, SeekOrigin.Begin)
+                                        mail.Attachments.Add(New Attachment(memoryStream, "總日報表_" & datetime & ".xls"))
+                            
+                                        If mail.Attachments.Count > 0 Then
+                                            mail.SubjectEncoding = System.Text.Encoding.GetEncoding("BIG5")
+                                            mail.BodyEncoding = System.Text.Encoding.GetEncoding("BIG5")
+                                            mail.IsBodyHtml = True
+                                            mailserver.Send(mail)
+                                            mail.Dispose()
+                                        
+                                            MailState(account(i) & "總日報表已發送")
+                                        Else
+                                            MailState(account(i) & "總日報表無附件")
+                                        End If
+                                        
+                                    Else
+                                        MailState(account(i) & "總日報表信箱無輸入或無啟用1")
+                                    End If
+                                Else
+                                    MailState("SMTP錯誤")
+                                End If
+                            End Using
+                        End Using
+                    End Using
+                Else
+                    MailState(account(i) & "總日報表信箱無輸入或無啟用2")
+                End If
+            Next
+        End If
+    End Sub
+    
+    '寄送報表
+    Public Sub SendMail()
+        '每月月初寄送前一月之月報表
+        If TimePick("Month") = True Then
+            Dim account, eco_account, email, eco_position As String
+            Dim stream(9) As String     '儲存報表stringWrite
+            Dim k As Integer = 0    '紀錄stream實際數量
+        
+            For i = 0 To Application("count")
+                If eco_account IsNot Nothing Then   '如果帳號變更 清空stream
+                    If eco_account <> ECOdata(i, 1) Then
+                        ReDim stream(9)
+                        k = 0
+                    End If
+                End If
+                account = ECOdata(i, 0)  'Account
+                eco_account = ECOdata(i, 1)  'ECO_Account
+                Dim company As String = ""
+                Dim monthsent_enabled As Boolean = False
+                Dim strcon As String = System.Configuration.ConfigurationManager.ConnectionStrings("ECOConnectionString").ToString()
+                Using conn As New OleDbConnection(strcon)
+                    If conn.State = 0 Then conn.Open()
+                    Dim sql_eco5 As String = "select * from ControllerSetup where Account = ? and ECO_Account = ? "
+                    Using cmd_eco5 As New OleDbCommand(sql_eco5, conn)
+                        cmd_eco5.Parameters.AddWithValue("?Account", account)
+                        cmd_eco5.Parameters.AddWithValue("?ECO_Account", eco_account)
+                        Using dr_eco5 As OleDbDataReader = cmd_eco5.ExecuteReader
+                            If dr_eco5.Read() Then
+                                email = dr_eco5("MonthMail").ToString
+                                monthsent_enabled = dr_eco5("MonthMailSentEnabled")
+                                eco_position = dr_eco5("InstallPosition").ToString
+                            Else
+                                email = ""
+                                monthsent_enabled = False
+                                eco_position = ""
+                            End If
+                        End Using
+                    End Using
+
+                    Dim datetime As String = DateAdd(DateInterval.Month, -1, Now.Date).ToString("yyyy/MM")
+                    Dim meter_position(9) As String
+                    If email IsNot Nothing And email <> "" And monthsent_enabled = True Then
+                        '依序跑每個已啟用電表
+                        Dim sql_meter As String = "SELECT AD.Company as Company,MS.* FROM AdminSetup As AD, ControllerSetup AS CS,MeterSetup AS MS " & _
+                        "WHERE CS.Account=? and CS.ECO_Account = ? and MS.Enabled = 1 and cs.MonthMailSentEnabled = 1 and Ad.Account = CS.Account and CS.ECO_Account = MS.ECO_Account"
+                        Using cmd_meter As New OleDbCommand(sql_meter, conn)
+                            cmd_meter.Parameters.AddWithValue("?Account", account)
+                            cmd_meter.Parameters.AddWithValue("?ECO_Account", eco_account)
+                            Using dr_meter As OleDbDataReader = cmd_meter.ExecuteReader
+                                While dr_meter.Read()
+                                    meter_position(k) = dr_meter("InstallPosition").ToString
+                                    Dim ctrlnr As String = dr_meter("CtrlNr").ToString
+                                    Dim meterid As String = dr_meter("MeterID").ToString
+                                    company = dr_meter("Company").ToString
+                                    Dim ReportTable As Table = New Table()
+                                    Dim row As TableRow = New TableRow()
+                                    Dim headerCell As TableHeaderCell = New TableHeaderCell()
+                                    'If monthsent_enabled = True Then
+                                    '---標題---
+                                    headerCell.Text = "月報表"
+                                    headerCell.ColumnSpan = 8
+                                    headerCell.Font.Size = 16
+                                    headerCell.Height = 35
+                                    row.Controls.Add(headerCell)
+                                    ReportTable.Controls.Add(row)
+                                    '---報表內容---
+                                    Dim strcon2 As String = System.Configuration.ConfigurationManager.ConnectionStrings("DBConnectionString").ToString() & ";Initial Catalog=ECO_" & Account_admin(account) & ""
+                                    Using conn2 As New OleDbConnection(strcon2)
+                                        If conn2.State = 0 Then conn2.Open()
+                                        row = New TableRow()
+                                        Dim cell_D As TableCell = New TableCell()
+                                        cell_D.Text = "月份：" & datetime
+                                        cell_D.Font.Size = 11
+                                        'cell_D.Font.Bold = True
+                                        cell_D.Style("padding-left") = "50px"
+                                        cell_D.ColumnSpan = 8
+                                        cell_D.HorizontalAlign = 1
+                                        row.Controls.Add(cell_D)
+                                        ReportTable.Controls.Add(row)
+                                            
+                                        row = New TableRow()
+                                        Dim cell_Nr As TableCell = New TableCell()
+                                        cell_Nr.Text = "編號：" & ctrlnr & "-" & meterid
+                                        'cell_Nr.Font.Bold = True
+                                        cell_Nr.Font.Size = 11
+                                        cell_Nr.Style("padding-left") = "50px"
+                                        cell_Nr.ColumnSpan = 4
+                                        cell_Nr.HorizontalAlign = 1
+                                        row.Controls.Add(cell_Nr)
+                                        Dim cell_de As TableCell = New TableCell()
+                                        cell_de.Text = "最大需量"
+                                        cell_de.Font.Size = 11
+                                        cell_de.ColumnSpan = 4
+                                        cell_de.HorizontalAlign = 2
+                                        cell_de.Font.Bold = True
+                                        cell_de.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                                        cell_de.ForeColor = Drawing.Color.White
+                                        cell_de.Style("border-left") = "1px solid #000000"
+                                        cell_de.Style("border-right") = "1px solid #000000"
+                                        row.Controls.Add(cell_de)
+                                        ReportTable.Controls.Add(row)
+                                            
+                                        row = New TableRow()
+                                        Dim cell_P As TableCell = New TableCell()
+                                        cell_P.Text = "位置：" & dr_meter("InstallPosition").ToString
+                                        'cell_P.Font.Bold = True
+                                        cell_P.Font.Size = 11
+                                        cell_P.Style("padding-left") = "50px"
+                                        cell_P.ColumnSpan = 4
+                                        cell_P.HorizontalAlign = 1
+                                        row.Controls.Add(cell_P)
+                                            
+                                        '最大需量
+                                        Dim demand, halfdemand, sathalfdemand, offdemand As String
+                                        Dim sql_de As String = "SELECT MAX(Demand) AS Demand,MAX(DemandHalf) AS DemandHalf,MAX(DemandSatHalf) AS DemandSatHalf,MAX(DemandOff) AS DemandOff FROM PowerRecordCollection " & _
+                                        "WHERE CtrlNr = " & ctrlnr & " AND MeterID = " & meterid & " AND substring(RecDate,1,7) = '" & datetime & "'"
+                                        Using cmd As New OleDbCommand(sql_de, conn2)
+                                            Using dr As OleDbDataReader = cmd.ExecuteReader()
+                                                If dr.Read() Then
+                                                    demand = CInt(dr("Demand")).ToString("#,0") & "　"
+                                                    halfdemand = CInt(dr("DemandHalf")).ToString("#,0") & "　"
+                                                    sathalfdemand = CInt(dr("DemandSatHalf")).ToString("#,0") & "　"
+                                                    offdemand = CInt(dr("DemandOff")).ToString("#,0") & "　"
+                                                Else
+                                                    demand = 0
+                                                    halfdemand = 0
+                                                    sathalfdemand = 0
+                                                    offdemand = 0
+                                                End If
+                                            End Using
+                                        End Using
+                                            
+                                        Dim cell_demand As TableCell = New TableCell()
+                                        cell_demand.Text = "尖峰"
+                                        cell_demand.ColumnSpan = 2
+                                        cell_demand.HorizontalAlign = 1
+                                        cell_demand.Style("padding-left") = "20px"
+                                        cell_demand.Style("border-left") = "1px solid #000000"
+                                        row.Controls.Add(cell_demand)
+                                        cell_demand = New TableCell()
+                                        cell_demand.Text = demand & "　KW"
+                                        cell_demand.ColumnSpan = 2
+                                        cell_demand.HorizontalAlign = 3
+                                        cell_demand.Font.Bold = True
+                                        cell_demand.Style("padding-right") = "20px"
+                                        cell_demand.Style("border-right") = "1px solid #000000"
+                                        row.Controls.Add(cell_demand)
+                                        ReportTable.Controls.Add(row)
+                                            
+                                        row = New TableRow()
+                                        Dim cell_KW As TableCell = New TableCell()
+                                        cell_KW.Text = "功率"
+                                        cell_KW.Font.Size = 11
+                                        cell_KW.ColumnSpan = 4
+                                        cell_KW.HorizontalAlign = 2
+                                        cell_KW.Font.Bold = True
+                                        cell_KW.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                                        cell_KW.ForeColor = Drawing.Color.White
+                                        cell_KW.Style("border-left") = "1px solid #000000"
+                                        cell_KW.Style("border-right") = "1px solid #000000"
+                                        row.Controls.Add(cell_KW)
+                                        ReportTable.Controls.Add(row)
+                                        Dim cell_halfdemand As TableCell = New TableCell()
+                                        cell_halfdemand.Text = "半尖峰"
+                                        cell_halfdemand.ColumnSpan = 2
+                                        cell_halfdemand.HorizontalAlign = 1
+                                        cell_halfdemand.Style("padding-left") = "20px"
+                                        cell_halfdemand.Style("border-left") = "1px solid #000000"
+                                        row.Controls.Add(cell_halfdemand)
+                                        cell_halfdemand = New TableCell()
+                                        cell_halfdemand.Text = halfdemand & "　KW"
+                                        cell_halfdemand.ColumnSpan = 2
+                                        cell_halfdemand.HorizontalAlign = 3
+                                        cell_halfdemand.Font.Bold = True
+                                        cell_halfdemand.Style("padding-right") = "20px"
+                                        cell_halfdemand.Style("border-right") = "1px solid #000000"
+                                        row.Controls.Add(cell_halfdemand)
+                                        ReportTable.Controls.Add(row)
+                                
+                                        '功率平均值最大值
+                                        Dim avgW, maxW As String
+                                        Dim sql_W As String = "SELECT Round(AVG(Wavg),2) AS 平均值,MAX(Wmax) AS 最大值 FROM PowerRecordCollection " & _
+                                        "WHERE CtrlNr = " & ctrlnr & " AND MeterID = " & meterid & " AND substring(RecDate,1,7) = '" & datetime & "'"
+                                        Using cmd_W As New OleDbCommand(sql_W, conn2)
+                                            Using dr_W As OleDbDataReader = cmd_W.ExecuteReader
+                                                If dr_W.Read() Then
+                                                    avgW = String.Format("{0:N}", dr_W("平均值")) & "　"
+                                                    maxW = String.Format("{0:N}", dr_W("最大值")) & "　"
+                                                Else
+                                                    avgW = ""
+                                                    maxW = ""
+                                                End If
+                                            End Using
+                                        End Using
+
+                                        row = New TableRow()
+                                        Dim cell_KWAVG As TableCell = New TableCell()
+                                        cell_KWAVG.Text = "平均值"
+                                        cell_KWAVG.ColumnSpan = 2
+                                        cell_KWAVG.HorizontalAlign = 1
+                                        cell_KWAVG.Style("padding-left") = "20px"
+                                        cell_KWAVG.Style("border-left") = "1px solid #000000"
+                                        row.Controls.Add(cell_KWAVG)
+                                        cell_KWAVG = New TableCell()
+                                        cell_KWAVG.Text = avgW & "　KW"
+                                        cell_KWAVG.ColumnSpan = 2
+                                        cell_KWAVG.HorizontalAlign = 3
+                                        cell_KWAVG.Font.Bold = True
+                                        cell_KWAVG.Style("padding-right") = "20px"
+                                        cell_KWAVG.Style("border-right") = "1px solid #000000"
+                                        row.Controls.Add(cell_KWAVG)
+                                        ReportTable.Controls.Add(row)
+                                        Dim cell_sathalfdemand As TableCell = New TableCell()
+                                        cell_sathalfdemand.Text = "週六半尖峰"
+                                        cell_sathalfdemand.ColumnSpan = 2
+                                        cell_sathalfdemand.HorizontalAlign = 1
+                                        cell_sathalfdemand.Style("padding-left") = "20px"
+                                        cell_sathalfdemand.Style("border-left") = "1px solid #000000"
+                                        row.Controls.Add(cell_sathalfdemand)
+                                        cell_sathalfdemand = New TableCell()
+                                        cell_sathalfdemand.Text = sathalfdemand & "　KW"
+                                        cell_sathalfdemand.ColumnSpan = 2
+                                        cell_sathalfdemand.HorizontalAlign = 3
+                                        cell_sathalfdemand.Font.Bold = True
+                                        cell_sathalfdemand.Style("padding-right") = "20px"
+                                        cell_sathalfdemand.Style("border-right") = "1px solid #000000"
+                                        row.Controls.Add(cell_sathalfdemand)
+                                        ReportTable.Controls.Add(row)
+                                            
+                                        row = New TableRow()
+                                        Dim cell_KWMAX As TableCell = New TableCell()
+                                        cell_KWMAX.Text = "最大值"
+                                        cell_KWMAX.ColumnSpan = 2
+                                        cell_KWMAX.HorizontalAlign = 1
+                                        cell_KWMAX.Style("padding-left") = "20px"
+                                        cell_KWMAX.Style("border-left") = "1px solid #000000"
+                                        row.Controls.Add(cell_KWMAX)
+                                        cell_KWMAX = New TableCell()
+                                        cell_KWMAX.Text = maxW & "　KW"
+                                        cell_KWMAX.ColumnSpan = 2
+                                        cell_KWMAX.HorizontalAlign = 3
+                                        cell_KWMAX.Font.Bold = True
+                                        cell_KWMAX.Style("padding-right") = "20px"
+                                        cell_KWMAX.Style("border-right") = "1px solid #000000"
+                                        row.Controls.Add(cell_KWMAX)
+                                        ReportTable.Controls.Add(row)
+                                        Dim cell_offdemand As TableCell = New TableCell()
+                                        cell_offdemand.Text = "離峰"
+                                        cell_offdemand.ColumnSpan = 2
+                                        cell_offdemand.HorizontalAlign = 1
+                                        cell_offdemand.Style("padding-left") = "20px"
+                                        cell_offdemand.Style("border-left") = "1px solid #000000"
+                                        row.Controls.Add(cell_offdemand)
+                                        cell_offdemand = New TableCell()
+                                        cell_offdemand.Text = offdemand & "　KW"
+                                        cell_offdemand.ColumnSpan = 2
+                                        cell_offdemand.HorizontalAlign = 3
+                                        cell_offdemand.Font.Bold = True
+                                        cell_offdemand.Style("padding-right") = "20px"
+                                        cell_offdemand.Style("border-right") = "1px solid #000000"
+                                        row.Controls.Add(cell_offdemand)
+                                        ReportTable.Controls.Add(row)
+                                
+                                        row = New TableRow()
+                                        Dim cell_V As TableCell = New TableCell()
+                                        cell_V.Text = "電壓"
+                                        cell_V.Font.Size = 11
+                                        cell_V.ColumnSpan = 4
+                                        cell_V.HorizontalAlign = 2
+                                        cell_V.Font.Bold = True
+                                        cell_V.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                                        cell_V.ForeColor = Drawing.Color.White
+                                        cell_V.Style("border-left") = "1px solid #000000"
+                                        cell_V.Style("border-right") = "1px solid #000000"
+                                        row.Controls.Add(cell_V)
+                                        Dim cell_T As TableCell = New TableCell()
+                                        cell_T.Text = "用電量"
+                                        cell_T.Font.Size = 11
+                                        cell_T.ColumnSpan = 4
+                                        cell_T.HorizontalAlign = 2
+                                        cell_T.Font.Bold = True
+                                        cell_T.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                                        cell_T.ForeColor = Drawing.Color.White
+                                        cell_T.Style("border-left") = "1px solid #000000"
+                                        row.Controls.Add(cell_T)
+                                        ReportTable.Controls.Add(row)
+                                        row = New TableRow()
+                                
+                                        '電壓電流平均值最大值
+                                        Dim avgV, maxV, avgI, maxI As String
+                                        Dim sql_VI As String = "SELECT Round(AVG(Vavg),2) AS 電壓平均值,MAX(Vmax) AS 電壓最大值,Round(AVG(Iavg),2) AS 電流平均值,MAX(Imax) AS 電流最大值 FROM PowerRecordCollection " & _
+                                        "WHERE CtrlNr = " & ctrlnr & " AND MeterID = " & meterid & " AND substring(RecDate,1,7) = '" & datetime & "'"
+                                        Using cmd_VI As New OleDbCommand(sql_VI, conn2)
+                                            Using dr_VI As OleDbDataReader = cmd_VI.ExecuteReader
+                                                If dr_VI.Read() Then
+                                                    avgV = String.Format("{0:N}", dr_VI("電壓平均值")) & "　"
+                                                    maxV = String.Format("{0:N}", dr_VI("電壓最大值")) & "　"
+                                                    avgI = String.Format("{0:N}", dr_VI("電流平均值")) & "　"
+                                                    maxI = String.Format("{0:N}", dr_VI("電流最大值")) & "　"
+                                                Else
+                                                    avgV = ""
+                                                    maxV = ""
+                                                    avgI = ""
+                                                    maxI = ""
+                                                End If
+                                            End Using
+                                        End Using
+                    
+                                        '用電量
+                                        Dim rushhour, halfhour, sathalfhour, offhour, all As String
+                                        'Dim sql_KWH As String = "SELECT isnull(SUM(RushHour),0) AS 尖峰,isnull(SUM(HalfHour),0) AS 半尖峰,isnull(SUM(SatHalfHour),0) AS 週六半尖峰,isnull(SUM(OffHour),0) AS 離峰,isnull(SUM(RushHour+HalfHour+SatHalfHour+OffHour),0) AS 總計 FROM PowerRecordCollection " & _
+                                        '"WHERE CtrlNr = " & ctrlnr & " AND MeterID = " & meterid & " AND substring(RecDate,1,7) = '" & datetime & "'"
+                                        Dim sql_KWH As String = "SELECT TOP 1 RushHour AS 尖峰,HalfHour AS 半尖峰,SatHalfHour AS 週六半尖峰,OffHour AS 離峰,(RushHour+HalfHour+SatHalfHour+OffHour) AS 總計 FROM PowerRecord " & _
+                                        "WHERE CtrlNr = " & ctrlnr & " AND MeterID = " & meterid & " AND substring(RecDate,1,7) = '" & datetime & "' ORDER BY RecDate DESC"
+                                        Using cmd As New OleDbCommand(sql_KWH, conn2)
+                                            Using dr As OleDbDataReader = cmd.ExecuteReader()
+                                                If dr.Read() Then
+                                                    rushhour = CInt(dr("尖峰")).ToString("#,0") & "　"
+                                                    halfhour = CInt(dr("半尖峰")).ToString("#,0") & "　"
+                                                    sathalfhour = CInt(dr("週六半尖峰")).ToString("#,0") & "　"
+                                                    offhour = CInt(dr("離峰")).ToString("#,0") & "　"
+                                                    all = CInt(dr("總計")).ToString("#,0") & "　"
+                                                Else
+                                                    rushhour = ""
+                                                    halfhour = ""
+                                                    sathalfhour = ""
+                                                    offhour = ""
+                                                    all = ""
+                                                End If
+                                            End Using
+                                        End Using
+                                            
+                                        Dim cell_vavg As TableCell = New TableCell()
+                                        cell_vavg.Text = "平均值"
+                                        cell_vavg.ColumnSpan = 2
+                                        cell_vavg.HorizontalAlign = 1
+                                        cell_vavg.Style("padding-left") = "20px"
+                                        cell_vavg.Style("border-left") = "1px solid #000000"
+                                        row.Cells.Add(cell_vavg)
+                                        cell_vavg = New TableCell()
+                                        cell_vavg.Text = avgV & "　V"
+                                        cell_vavg.ColumnSpan = 2
+                                        cell_vavg.HorizontalAlign = 3
+                                        cell_vavg.Font.Bold = True
+                                        cell_vavg.Style("padding-right") = "20px"
+                                        cell_vavg.Style("border-right") = "1px solid #000000"
+                                        row.Cells.Add(cell_vavg)
+                                        Dim cell_rush As TableCell = New TableCell()
+                                        cell_rush.Text = "尖峰"
+                                        cell_rush.ColumnSpan = 2
+                                        cell_rush.HorizontalAlign = 1
+                                        cell_rush.Style("padding-left") = "20px"
+                                        cell_rush.Style("border-left") = "1px solid #000000"
+                                        row.Cells.Add(cell_rush)
+                                        cell_rush = New TableCell()
+                                        cell_rush.Text = rushhour & "　KWH"
+                                        cell_rush.ColumnSpan = 2
+                                        cell_rush.HorizontalAlign = 3
+                                        cell_rush.Font.Bold = True
+                                        cell_rush.Style("padding-right") = "20px"
+                                        cell_rush.Style("border-right") = "1px solid #000000"
+                                        row.Cells.Add(cell_rush)
+                                        ReportTable.Rows.Add(row)
+                                        row = New TableRow()
+                                            
+                                        Dim cell_vmax As TableCell = New TableCell()
+                                        cell_vmax.Text = "最大值"
+                                        cell_vmax.ColumnSpan = 2
+                                        cell_vmax.HorizontalAlign = 1
+                                        cell_vmax.Style("padding-left") = "20px"
+                                        cell_vmax.Style("border-left") = "1px solid #000000"
+                                        row.Cells.Add(cell_vmax)
+                                        cell_vmax = New TableCell()
+                                        cell_vmax.Text = maxV & "　V"
+                                        cell_vmax.ColumnSpan = 2
+                                        cell_vmax.HorizontalAlign = 3
+                                        cell_vmax.Font.Bold = True
+                                        cell_vmax.Style("padding-right") = "20px"
+                                        cell_vmax.Style("border-right") = "1px solid #000000"
+                                        row.Cells.Add(cell_vmax)
+                                        Dim cell_half As TableCell = New TableCell()
+                                        cell_half.Text = "半尖峰"
+                                        cell_half.ColumnSpan = 2
+                                        cell_half.HorizontalAlign = 1
+                                        cell_half.Style("padding-left") = "20px"
+                                        cell_half.Style("border-left") = "1px solid #000000"
+                                        row.Cells.Add(cell_half)
+                                        cell_half = New TableCell()
+                                        cell_half.Text = halfhour & "　KWH"
+                                        cell_half.ColumnSpan = 2
+                                        cell_half.HorizontalAlign = 3
+                                        cell_half.Font.Bold = True
+                                        cell_half.Style("padding-right") = "20px"
+                                        cell_half.Style("border-right") = "1px solid #000000"
+                                        row.Cells.Add(cell_half)
+                                        ReportTable.Rows.Add(row)
+                                        row = New TableRow()
+                                            
+                                        Dim cell_I As TableCell = New TableCell()
+                                        cell_I.Text = "電流"
+                                        cell_I.Font.Size = 11
+                                        cell_I.ColumnSpan = 4
+                                        cell_I.HorizontalAlign = 2
+                                        cell_I.Font.Bold = True
+                                        cell_I.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                                        cell_I.ForeColor = Drawing.Color.White
+                                        cell_I.Style("border-left") = "1px solid #000000"
+                                        cell_I.Style("border-right") = "1px solid #000000"
+                                        row.Cells.Add(cell_I)
+                                        Dim cell_sathalf As TableCell = New TableCell()
+                                        cell_sathalf.Text = "週六半尖峰"
+                                        cell_sathalf.ColumnSpan = 2
+                                        cell_sathalf.HorizontalAlign = 1
+                                        cell_sathalf.Style("padding-left") = "20px"
+                                        cell_sathalf.Style("border-left") = "1px solid #000000"
+                                        row.Cells.Add(cell_sathalf)
+                                        cell_sathalf = New TableCell()
+                                        cell_sathalf.Text = sathalfhour & "　KWH"
+                                        cell_sathalf.ColumnSpan = 2
+                                        cell_sathalf.HorizontalAlign = 3
+                                        cell_sathalf.Font.Bold = True
+                                        cell_sathalf.Style("padding-right") = "20px"
+                                        cell_sathalf.Style("border-right") = "1px solid #000000"
+                                        row.Cells.Add(cell_sathalf)
+                                        ReportTable.Rows.Add(row)
+                                        row = New TableRow()
+                                            
+                                        Dim cell_Iavg As TableCell = New TableCell()
+                                        cell_Iavg.Text = "平均值"
+                                        cell_Iavg.ColumnSpan = 2
+                                        cell_Iavg.HorizontalAlign = 1
+                                        cell_Iavg.Style("padding-left") = "20px"
+                                        row.Cells.Add(cell_Iavg)
+                                        cell_Iavg = New TableCell()
+                                        cell_Iavg.Text = avgI & "　A"
+                                        cell_Iavg.ColumnSpan = 2
+                                        cell_Iavg.HorizontalAlign = 3
+                                        cell_Iavg.Font.Bold = True
+                                        cell_Iavg.Style("padding-right") = "20px"
+                                        cell_Iavg.Style("border-right") = "1px solid #000000"
+                                        row.Cells.Add(cell_Iavg)
+                                        Dim cell_off As TableCell = New TableCell()
+                                        cell_off.Text = "離峰"
+                                        cell_off.ColumnSpan = 2
+                                        cell_off.HorizontalAlign = 1
+                                        cell_off.Style("padding-left") = "20px"
+                                        cell_off.Style("border-left") = "1px solid #000000"
+                                        cell_off.Style("border-bottom") = "1px solid #000000"
+                                        row.Cells.Add(cell_off)
+                                        cell_off = New TableCell()
+                                        cell_off.Text = offhour & "　KWH"
+                                        cell_off.ColumnSpan = 2
+                                        cell_off.HorizontalAlign = 3
+                                        cell_off.Font.Bold = True
+                                        cell_off.Style("padding-right") = "20px"
+                                        cell_off.Style("border-right") = "1px solid #000000"
+                                        cell_off.Style("border-bottom") = "1px solid #000000"
+                                        row.Cells.Add(cell_off)
+                                        ReportTable.Rows.Add(row)
+                                        row = New TableRow()
+                                            
+                                        Dim cell_Imax As TableCell = New TableCell()
+                                        cell_Imax.Text = "最大值"
+                                        cell_Imax.ColumnSpan = 2
+                                        cell_Imax.HorizontalAlign = 1
+                                        cell_Imax.Style("padding-left") = "20px"
+                                        cell_Imax.Style("border-bottom") = "1px solid #000000"
+                                        row.Cells.Add(cell_Imax)
+                                        cell_Imax = New TableCell()
+                                        cell_Imax.Text = maxI & "　A"
+                                        cell_Imax.ColumnSpan = 2
+                                        cell_Imax.HorizontalAlign = 3
+                                        cell_Imax.Font.Bold = True
+                                        cell_Imax.Style("padding-right") = "20px"
+                                        cell_Imax.Style("border-right") = "1px solid #000000"
+                                        cell_Imax.Style("border-bottom") = "1px solid #000000"
+                                        row.Cells.Add(cell_Imax)
+                                        Dim cell_sum As TableCell = New TableCell()
+                                        cell_sum.Text = "總計"
+                                        cell_sum.ColumnSpan = 2
+                                        cell_sum.Style("padding-left") = "20px"
+                                        cell_sum.Style("border-left") = "1px solid #000000"
+                                        cell_sum.Style("border-top") = "1px solid #000000"
+                                        cell_sum.Style("border-bottom") = "1px solid #000000"
+                                        row.Cells.Add(cell_sum)
+                                        cell_sum = New TableCell()
+                                        cell_sum.Font.Size = 12
+                                        cell_sum.ForeColor = Drawing.Color.Red
+                                        cell_sum.Text = CInt(rushhour) + CInt(halfhour) + CInt(sathalfhour) + CInt(offhour) & "　KWH"
+                                        cell_sum.ColumnSpan = 2
+                                        cell_sum.HorizontalAlign = 3
+                                        cell_sum.Font.Bold = True
+                                        cell_sum.Style("padding-right") = "20px"
+                                        cell_sum.Style("border-top") = "1px solid #000000"
+                                        cell_sum.Style("border-right") = "1px solid #000000"
+                                        cell_sum.Style("border-bottom") = "1px solid #000000"
+                                        row.Cells.Add(cell_sum)
+                                        ReportTable.Rows.Add(row)
+                                        row = New TableRow()
+
+                                        Dim cell_space As TableCell = New TableCell()
+                                        cell_space.Text = "  "
+                                        cell_space.ColumnSpan = 8
+                                        cell_space.Style("padding-bottom") = "20px"
+                                        row.Cells.Add(cell_space)
+                                        ReportTable.Rows.Add(row)
+                                        row = New TableRow()
+                                
+                                        '每日功率、月電量
+                                        Dim cell_kw2 As TableCell = New TableCell()
+                                        cell_kw2.Text = "功率(kw)"
+                                        cell_kw2.Font.Size = 10
+                                        cell_kw2.ColumnSpan = 3
+                                        cell_kw2.HorizontalAlign = 2
+                                        cell_kw2.Style("border-left") = "1px solid #000000"
+                                        cell_kw2.Style("border-right") = "1px solid #000000"
+                                        cell_kw2.Style("border-top") = "1px solid #000000"
+                                        cell_kw2.Style("border-bottom") = "1px solid #000000"
+                                        row.Controls.Add(cell_kw2)
+                                        Dim cell_kwh2 As TableCell = New TableCell()
+                                        cell_kwh2.Text = "用電量(KWH)"
+                                        cell_kwh2.Font.Size = 10
+                                        cell_kwh2.ColumnSpan = 5
+                                        cell_kwh2.HorizontalAlign = 2
+                                        cell_kwh2.Style("border-right") = "1px solid #000000"
+                                        cell_kwh2.Style("border-top") = "1px solid #000000"
+                                        cell_kwh2.Style("border-bottom") = "1px solid #000000"
+                                        row.Controls.Add(cell_kwh2)
+                                        ReportTable.Controls.Add(row)
+                                        row = New TableRow()
+                                
+                                        'title
+                                        Dim sql_kw As String = "SELECT SUBSTRING(RecDate,6,10) AS 日期,Round(AVG(Wavg),2) AS 平均值,Round(MAX(Wmax),2) AS 最大值 FROM PowerRecordCollection " & _
+                                        "WHERE CtrlNr = " & ctrlnr & " AND MeterID = " & meterid & " AND substring(RecDate,1,7) = '" & datetime & "' GROUP BY SUBSTRING(RecDate,6,10) order by 日期"
+                                        Dim da_kw As New OleDbDataAdapter(sql_kw, strcon2)
+                                        Dim dt_kw As New DataTable
+                                        da_kw.Fill(dt_kw)
+                                        For n = 0 To dt_kw.Columns.Count - 1
+                                            Dim cell_kw3 As TableCell = New TableCell()
+                                            cell_kw3.Text = dt_kw.Columns(n).ColumnName.ToString
+                                            Select Case n
+                                                Case 0
+                                                    cell_kw3.Attributes.Add("class", "text")
+                                                    cell_kw3.Style("border-left") = "1px solid #000000"
+                                                Case dt_kw.Columns.Count - 1
+                                                    cell_kw3.Style("border-right") = "1px solid #000000"
+                                            End Select
+                                            cell_kw3.Font.Bold = True
+                                            cell_kw3.Font.Size = 11
+                                            cell_kw3.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                                            cell_kw3.ForeColor = Drawing.Color.White
+                                            cell_kw3.HorizontalAlign = 2
+                                            row.Controls.Add(cell_kw3)
+                                        Next
+                                
+                                        Dim sql_data As String = "SELECT RushHour AS 尖峰,HalfHour AS 半尖峰,SatHalfHour AS 週六半尖峰,OffHour AS 離峰 FROM PowerRecordCollection " & _
+                                        "WHERE CtrlNr = " & ctrlnr & " AND MeterID = " & meterid & " AND substring(RecDate,1,7) = '" & datetime & "' order by Recdate"
+                                        Dim da_data As OleDbDataAdapter = New OleDbDataAdapter(sql_data, strcon2)
+                                        Dim dt_data As DataTable = New DataTable
+                                        da_data.Fill(dt_data)
+                                        For n = 0 To dt_data.Columns.Count - 1
+                                            Dim cell_data As TableCell = New TableCell()
+                                            cell_data.Text = dt_data.Columns(n).ColumnName.ToString
+                                            Select Case n
+                                                Case 0
+                                                    cell_data.Style("border-left") = "1px solid #000000"
+                                            End Select
+                                            cell_data.Font.Bold = True
+                                            cell_data.Font.Size = 11
+                                            cell_data.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                                            cell_data.ForeColor = Drawing.Color.White
+                                            cell_data.HorizontalAlign = 2
+                                            row.Controls.Add(cell_data)
+                                        Next
+                                        Dim cell_sum2 As TableCell = New TableCell()
+                                        cell_sum2.Text = "總計"
+                                        cell_sum2.Style("border-right") = "1px solid #000000"
+                                        cell_sum2.Font.Bold = True
+                                        cell_sum2.Font.Size = 11
+                                        cell_sum2.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                                        cell_sum2.ForeColor = Drawing.Color.White
+                                        cell_sum2.HorizontalAlign = 2
+                                        row.Controls.Add(cell_sum2)
+                                        ReportTable.Controls.Add(row)
+                                        row = New TableRow()
+                                
+                                        'content
+                                        For n = 0 To dt_kw.Rows.Count - 1
+                                            For m = 0 To dt_kw.Columns.Count - 1
+                                                Dim cell_kw3 As TableCell = New TableCell()
+                                                cell_kw3.Text = dt_kw.Rows(n).Item(m).ToString
+                                                Select Case m
+                                                    Case 0
+                                                        cell_kw3.Attributes.Add("class", "text")
+                                                        cell_kw3.Style("border-left") = "1px solid #000000"
+                                                    Case 2
+                                                        cell_kw3.Style("border-right") = "1px solid #000000"
+                                                End Select
+                                                If n = dt_kw.Rows.Count - 1 Then
+                                                    cell_kw3.Style("border-bottom") = "1px solid #000000"
+                                                End If
+                                                cell_kw3.HorizontalAlign = 2
+                                                row.Controls.Add(cell_kw3)
+                                            Next
+                                    
+                                            Dim sum As Integer = 0
+                                            For m = 0 To dt_data.Columns.Count - 1
+                                                Dim cell_data As TableCell = New TableCell()
+                                                cell_data.Text = dt_data.Rows(n).Item(m).ToString
+                                                If n = dt_kw.Rows.Count - 1 Then
+                                                    cell_data.Style("border-bottom") = "1px solid #000000"
+                                                End If
+                                                cell_data.HorizontalAlign = 2
+                                                row.Controls.Add(cell_data)
+                                                sum += dt_data.Rows(n).Item(m)
+                                            Next
+                                            Dim cell_sum3 As TableCell = New TableCell()
+                                            cell_sum3.Text = sum
+                                            cell_sum3.Style("border-right") = "1px solid #000000"
+                                            If n = dt_kw.Rows.Count - 1 Then
+                                                cell_sum3.Style("border-bottom") = "1px solid #000000"
+                                            End If
+                                            cell_sum3.HorizontalAlign = 2
+                                            row.Controls.Add(cell_sum3)
+                                    
+                                            ReportTable.Controls.Add(row)
+                                            row = New TableRow()
+                                        Next
+                                    End Using
+                                        
+                                    Dim ReportTable2 As Table = New Table()
+                                    Dim cell_footer As TableCell = New TableCell()
+                                    cell_footer.Text = "表格編號：FHt-M-P-12-17A"
+                                    cell_footer.Font.Size = 11
+                                    cell_footer.ColumnSpan = 2
+                                    cell_footer.HorizontalAlign = 1
+                                    cell_footer.BorderStyle = BorderStyle.None
+                                    row.Controls.Add(cell_footer)
+                                    ReportTable2.Controls.Add(row)
+                                    row = New TableRow()
+                    
+                                    Dim cell_space2 As TableCell = New TableCell()
+                                    cell_space2.Text = ""
+                                    cell_space2.ColumnSpan = 2
+                                    cell_space2.BorderStyle = BorderStyle.None
+                                    row.Controls.Add(cell_space2)
+                                    Dim cell_footer2 As TableCell = New TableCell()
+                                    cell_footer2.Text = "部門主管："
+                                    cell_footer2.Font.Size = 11
+                                    cell_footer2.ColumnSpan = 2
+                                    cell_footer2.HorizontalAlign = 1
+                                    cell_footer2.BorderStyle = BorderStyle.None
+                                    row.Controls.Add(cell_footer2)
+                                    Dim cell_footer3 As TableCell = New TableCell()
+                                    cell_footer3.Text = "審核："
+                                    cell_footer3.Font.Size = 11
+                                    cell_footer3.ColumnSpan = 2
+                                    cell_footer3.HorizontalAlign = 2
+                                    cell_footer3.BorderStyle = BorderStyle.None
+                                    row.Controls.Add(cell_footer3)
+                                    Dim cell_footer4 As TableCell = New TableCell()
+                                    cell_footer4.Text = "製表："
+                                    cell_footer4.Font.Size = 11
+                                    cell_footer4.ColumnSpan = 2
+                                    cell_footer4.HorizontalAlign = 1
+                                    cell_footer4.BorderStyle = BorderStyle.None
+                                    row.Controls.Add(cell_footer4)
+                                    ReportTable2.Controls.Add(row)
+                                        
+                                    Dim stringWrite As StringWriter = New StringWriter
+                                    Dim htmlWrite As HtmlTextWriter = New HtmlTextWriter(stringWrite)
+                                    ReportTable.RenderControl(htmlWrite)
+                                    ReportTable2.RenderControl(htmlWrite)
+                            
+                                    stream(k) &= "<style> .text { mso-number-format:\@; } </style>" & stringWrite.ToString
+                                    k += 1
+                                    'End If
+                                End While
+                            End Using
+                        End Using
+                    Else
+                        MailState(account & "月報表信箱無輸入或無啟用1")
+                    End If
+                    'End Using
+                    
+                    'Using conn_mail As New OleDbConnection(strcon)
+                    '    If conn_mail.State = 0 Then conn_mail.Open()
+                    Dim sql_mail As String = "SELECT * FROM MailSetup"
+                    Using cmd_mail As New OleDbCommand(sql_mail, conn)
+                        Using dr_mail As OleDbDataReader = cmd_mail.ExecuteReader
+                            If dr_mail.Read() Then
+                                '發送郵件的郵件服務器
+                                Dim mailserver As SmtpClient = New SmtpClient(dr_mail("SmtpServer").ToString)
+                                mailserver.Credentials = New NetworkCredential(dr_mail("MailServer_Account").ToString, dr_mail("MailServer_Password").ToString)
+                                mailserver.DeliveryMethod = System.Net.Mail.SmtpDeliveryMethod.Network
+                                mailserver.Timeout = 50000 ' 送信若超過xx秒會停止送信, 以免佔用服務太多時間
+                       
+                                If email <> "" And email IsNot Nothing And monthsent_enabled = True Then
+                                    'mail郵件設置
+                                    Dim mail As MailMessage = New MailMessage()
+                                    Dim mfrom As MailAddress = Nothing
+
+                                    If dr_mail("MailName") IsNot DBNull.Value And dr_mail("MailName").ToString <> "" Then
+                                        mfrom = New MailAddress(dr_mail("MailAddress").ToString, dr_mail("MailName").ToString)
+                                    Else
+                                        mfrom = New MailAddress(dr_mail("MailAddress").ToString)
+                                    End If
+                                    mail.From = mfrom
+                                
+                                    Dim mails() As String = email.Split(";")
+                                    For j = 0 To mails.Count - 1
+                                        mail.To.Add(mails(j))
+                                    Next
+
+                                    If dr_mail("Bcc") IsNot DBNull.Value And dr_mail("Bcc").ToString <> "" Then
+                                        mail.Bcc.Add(dr_mail("Bcc").ToString)
+                                    End If
+
+                                    mail.Subject = "電力分析系統月報表通知信"
+                                    mail.Body = "親愛的用戶，" & company & " 您好：<br/><br/>"
+                                    mail.Body &= "附件為" & datetime & "月，ECO5帳號(" & eco_account & ")，位於 " & eco_position & " 之月報表<br/><br/>"
+                                    mail.Body &= "<font color=red>注意：本信件是由系統自動產生與發送，請勿直接回覆</font>" & "<br/><br/>"
+                            
+                                    For l = 0 To stream.Length - 1
+                                        If stream(l) IsNot Nothing Then
+                                            Dim content As String = stream(l)
+                                            'Dim position As String = meter_position(l)
+                                            Dim memoryStream As MemoryStream = New MemoryStream(Encoding.UTF8.GetBytes(content))
+                                            memoryStream.Seek(0, SeekOrigin.Begin)
+                                            mail.Attachments.Add(New Attachment(memoryStream, "月報表_" & meter_position(l) & "_" & datetime & ".xls"))
+                                        End If
+                                    Next
+                            
+                                    If mail.Attachments.Count > 0 Then
+                                        mail.SubjectEncoding = System.Text.Encoding.GetEncoding("BIG5")
+                                        mail.BodyEncoding = System.Text.Encoding.GetEncoding("BIG5")
+                                        mail.IsBodyHtml = True
+                                        mailserver.Send(mail)
+                                        mail.Dispose()
+                                    
+                                        MailState(account & "月報表:" & eco_account)
+                                    Else
+                                        MailState(account & "月報表無附件")
+                                    End If
+                                Else
+                                    MailState(account & "月報表信箱無輸入或無啟用2")
+                                End If
+                            Else
+                                MailState("SMTP錯誤")
+                            End If
+                        End Using
+                    End Using
+                End Using
+            Next
+        End If
+        
+        '每天1點寄送日報表
+        If TimePick("Day") = True Then
+            Dim account, eco_account, email, eco_position As String
+            Dim stream(9) As String     '儲存報表stringWrite
+            Dim k As Integer = 0    '紀錄stream實際數量
+        
+            For i = 0 To Application("count")
+                If eco_account IsNot Nothing Then   '如果帳號變更 清空stream
+                    If eco_account <> ECOdata(i, 1) Then
+                        ReDim stream(9)
+                        k = 0
+                    End If
+                End If
+                account = ECOdata(i, 0)  'Account
+                eco_account = ECOdata(i, 1)  'ECO_Account
+                Dim company As String = ""
+                Dim daysent_enabled As Boolean = False
+                Dim strcon As String = System.Configuration.ConfigurationManager.ConnectionStrings("ECOConnectionString").ToString()
+                Using conn As New OleDbConnection(strcon)
+                    If conn.State = 0 Then conn.Open()
+                    Dim sql_eco5 As String = "select * from ControllerSetup where Account = ? and ECO_Account = ?"
+                    Using cmd_eco5 As New OleDbCommand(sql_eco5, conn)
+                        cmd_eco5.Parameters.AddWithValue("?Account", account)
+                        cmd_eco5.Parameters.AddWithValue("?ECO_Account", eco_account)
+                        Using dr_eco5 As OleDbDataReader = cmd_eco5.ExecuteReader
+                            If dr_eco5.Read() Then
+                                email = dr_eco5("DayMail").ToString
+                                daysent_enabled = dr_eco5("DayMailSentEnabled")
+                                eco_position = dr_eco5("InstallPosition").ToString
+                            Else
+                                email = ""
+                                daysent_enabled = False
+                                eco_position = ""
+                            End If
+                        End Using
+                    End Using
+                    
+                    Dim datetime As String = DateAdd(DateInterval.Day, -1, Now.Date).ToString("yyyy/MM/dd")
+                    Dim meter_position(9) As String
+                    If email IsNot Nothing And email <> "" And daysent_enabled = True Then
+                        '依序跑每個已啟用電表
+                        Dim sql_meter As String = "SELECT AD.Company as Company,MS.* FROM AdminSetup As AD, ControllerSetup AS CS,MeterSetup AS MS WHERE CS.Account=? and CS.ECO_Account = ? and MS.Enabled = 1 and cs.DayMailSentEnabled = 1 and Ad.Account = CS.Account and CS.ECO_Account = MS.ECO_Account"
+                        Using cmd_meter As New OleDbCommand(sql_meter, conn)
+                            cmd_meter.Parameters.AddWithValue("?Account", account)
+                            cmd_meter.Parameters.AddWithValue("?ECO_Account", eco_account)
+                            Using dr_meter As OleDbDataReader = cmd_meter.ExecuteReader
+                                While dr_meter.Read()
+                                    Dim ctrlnr As String = dr_meter("CtrlNr").ToString
+                                    Dim meterid As String = dr_meter("MeterID").ToString
+                                    company = dr_meter("Company").ToString
+                                    meter_position(k) = dr_meter("InstallPosition").ToString
+                                    Dim ReportTable As Table = New Table()
+                                    Dim row As TableRow = New TableRow()
+                                    Dim headerCell As TableHeaderCell = New TableHeaderCell()
+                                    'If daysent_enabled = True Then
+                                    '---標題---
+                                    headerCell.Text = "日報表"
+                                    headerCell.ColumnSpan = 8
+                                    headerCell.Font.Size = 16
+                                    headerCell.Height = 35
+                                    row.Controls.Add(headerCell)
+                                    ReportTable.Rows.Add(row)
+                                    '---報表內容---
+                                    Dim strcon2 As String = System.Configuration.ConfigurationManager.ConnectionStrings("DBConnectionString").ToString() & ";Initial Catalog=ECO_" & Account_admin(account) & ""
+                                    Using conn2 As New OleDbConnection(strcon2)
+                                        If conn2.State = 0 Then conn2.Open()
+                                        row = New TableRow()
+                                        Dim cell_D As TableCell = New TableCell()
+                                        cell_D.Text = "日期：" & datetime
+                                        cell_D.Font.Size = 11
+                                        'cell_D.Font.Bold = True
+                                        cell_D.Style("padding-left") = "50px"
+                                        cell_D.ColumnSpan = 4
+                                        cell_D.HorizontalAlign = 1
+                                        row.Controls.Add(cell_D)
+                                        Dim cell_KW As TableCell = New TableCell()
+                                        cell_KW.Text = "功率"
+                                        cell_KW.Font.Size = 11
+                                        cell_KW.ColumnSpan = 4
+                                        cell_KW.HorizontalAlign = 2
+                                        cell_KW.Font.Bold = True
+                                        cell_KW.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                                        cell_KW.ForeColor = Drawing.Color.White
+                                        cell_KW.Style("border-left") = "1px solid #000000"
+                                        cell_KW.Style("border-right") = "1px solid #000000"
+                                        row.Controls.Add(cell_KW)
+                                        ReportTable.Rows.Add(row)
+        
+                                        row = New TableRow()
+                                        Dim cell_Nr As TableCell = New TableCell()
+                                        cell_Nr.Text = "編號：" & ctrlnr & "-" & meterid
+                                        'cell_Nr.Font.Bold = True
+                                        cell_Nr.Font.Size = 11
+                                        cell_Nr.Style("padding-left") = "50px"
+                                        cell_Nr.ColumnSpan = 4
+                                        cell_Nr.HorizontalAlign = 1
+                                        row.Controls.Add(cell_Nr)
+
+                                        '功率平均值最大值
+                                        Dim avgW, maxW As String
+                                        Dim sql_W As String = "SELECT Wavg AS 平均值,Wmax AS 最大值 FROM PowerRecordCollection " & _
+                                        "WHERE CtrlNr = " & ctrlnr & " AND MeterID = " & meterid & " AND substring(RecDate,1,10) = '" & datetime & "'"
+                                        Using cmd_W As New OleDbCommand(sql_W, conn2)
+                                            Using dr_W As OleDbDataReader = cmd_W.ExecuteReader()
+                                                If dr_W.Read() Then
+                                                    avgW = String.Format("{0:N}", dr_W("平均值"))
+                                                    maxW = String.Format("{0:N}", dr_W("最大值"))
+                                                Else
+                                                    avgW = "0.00"
+                                                    maxW = "0.00"
+                                                End If
+                                            End Using
+                                        End Using
+                                        Dim cell_KWAVG As TableCell = New TableCell()
+                                        cell_KWAVG.Text = "平均值"
+                                        cell_KWAVG.ColumnSpan = 2
+                                        cell_KWAVG.HorizontalAlign = 1
+                                        cell_KWAVG.Style("padding-left") = "20px"
+                                        cell_KWAVG.Style("border-left") = "1px solid #000000"
+                                        row.Controls.Add(cell_KWAVG)
+                                        cell_KWAVG = New TableCell()
+                                        cell_KWAVG.Text = avgW & "  KW"
+                                        cell_KWAVG.ColumnSpan = 2
+                                        cell_KWAVG.HorizontalAlign = 3
+                                        cell_KWAVG.Font.Bold = True
+                                        cell_KWAVG.Style("padding-right") = "20px"
+                                        cell_KWAVG.Style("border-right") = "1px solid #000000"
+                                        row.Controls.Add(cell_KWAVG)
+                                        ReportTable.Rows.Add(row)
+        
+                                        row = New TableRow()
+                                        Dim cell_P As TableCell = New TableCell()
+                                        cell_P.Text = "位置：" & dr_meter("InstallPosition").ToString
+                                        'cell_P.Font.Bold = True
+                                        cell_P.Font.Size = 11
+                                        cell_P.Style("padding-left") = "50px"
+                                        cell_P.ColumnSpan = 4
+                                        cell_P.HorizontalAlign = 1
+                                        row.Controls.Add(cell_P)
+                                        Dim cell_KWMAX As TableCell = New TableCell()
+                                        cell_KWMAX.Text = "最大值"
+                                        cell_KWMAX.ColumnSpan = 2
+                                        cell_KWMAX.HorizontalAlign = 1
+                                        cell_KWMAX.Style("padding-left") = "20px"
+                                        cell_KWMAX.Style("border-left") = "1px solid #000000"
+                                        row.Controls.Add(cell_KWMAX)
+                                        cell_KWMAX = New TableCell()
+                                        cell_KWMAX.Text = maxW & "  KW"
+                                        cell_KWMAX.ColumnSpan = 2
+                                        cell_KWMAX.HorizontalAlign = 3
+                                        cell_KWMAX.Font.Bold = True
+                                        cell_KWMAX.Style("padding-right") = "20px"
+                                        cell_KWMAX.Style("border-right") = "1px solid #000000"
+                                        row.Controls.Add(cell_KWMAX)
+                                        ReportTable.Rows.Add(row)
+                                        row = New TableRow()
+                    
+                                        Dim cell_T As TableCell = New TableCell()
+                                        cell_T.Text = "用電量"
+                                        cell_T.Font.Size = 11
+                                        cell_T.ColumnSpan = 4
+                                        cell_T.HorizontalAlign = 2
+                                        cell_T.Font.Bold = True
+                                        cell_T.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                                        cell_T.ForeColor = Drawing.Color.White
+                                        cell_T.Style("border-left") = "1px solid #000000"
+                                        row.Controls.Add(cell_T)
+                                        Dim cell_V As TableCell = New TableCell()
+                                        cell_V.Text = "電壓"
+                                        cell_V.Font.Size = 11
+                                        cell_V.ColumnSpan = 4
+                                        cell_V.HorizontalAlign = 2
+                                        cell_V.Font.Bold = True
+                                        cell_V.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                                        cell_V.ForeColor = Drawing.Color.White
+                                        cell_V.Style("border-left") = "1px solid #000000"
+                                        cell_V.Style("border-right") = "1px solid #000000"
+                                        row.Controls.Add(cell_V)
+                                        ReportTable.Rows.Add(row)
+                                        row = New TableRow()
+        
+                                        '電壓電流平均值最大值
+                                        Dim avgV, maxV, avgI, maxI As String
+                                        Dim sql_VI As String = "SELECT Vavg AS 電壓平均值,Vmax AS 電壓最大值,Iavg AS 電流平均值,Imax AS 電流最大值 FROM PowerRecordCollection " & _
+                                        "WHERE CtrlNr = " & ctrlnr & " AND MeterID = " & meterid & " AND substring(RecDate,1,10) = '" & datetime & "'"
+                                        Using cmd_VI As New OleDbCommand(sql_VI, conn2)
+                                            Using dr_VI As OleDbDataReader = cmd_VI.ExecuteReader()
+                                                If dr_VI.Read() Then
+                                                    avgV = String.Format("{0:N}", dr_VI("電壓平均值"))
+                                                    maxV = String.Format("{0:N}", dr_VI("電壓最大值"))
+                                                    avgI = String.Format("{0:N}", dr_VI("電流平均值"))
+                                                    maxI = String.Format("{0:N}", dr_VI("電流最大值"))
+                                                Else
+                                                    avgV = "0.00"
+                                                    maxV = "0.00"
+                                                    avgI = "0.00"
+                                                    maxI = "0.00"
+                                                End If
+                                            End Using
+                                        End Using
+                    
+                                        '用電量
+                                        Dim sql_KWH As String = "SELECT RushHour AS 尖峰,HalfHour AS 半尖峰,SatHalfHour AS 週六半尖峰,OffHour AS 離峰 FROM PowerRecordCollection " & _
+                                        "WHERE CtrlNr = " & ctrlnr & " AND MeterID = " & meterid & " AND substring(RecDate,1,10) = '" & datetime & "'"
+
+                                        Dim rushhour, halfhour, sathalfhour, offhour As String
+                                        Using cmd_KWH As New OleDbCommand(sql_KWH, conn2)
+                                            Using dr_KWH As OleDbDataReader = cmd_KWH.ExecuteReader()
+                                                If dr_KWH.Read() Then
+                                                    rushhour = dr_KWH("尖峰")
+                                                    halfhour = dr_KWH("半尖峰")
+                                                    sathalfhour = dr_KWH("週六半尖峰")
+                                                    offhour = dr_KWH("離峰")
+                                                Else
+                                                    rushhour = 0
+                                                    halfhour = 0
+                                                    sathalfhour = 0
+                                                    offhour = 0
+                                                End If
+                                            End Using
+                                        End Using
+                                            
+                                        Dim cell_rush As TableCell = New TableCell()
+                                        cell_rush.Text = "尖峰"
+                                        cell_rush.ColumnSpan = 2
+                                        cell_rush.HorizontalAlign = 1
+                                        cell_rush.Style("padding-left") = "20px"
+                                        cell_rush.Style("border-left") = "1px solid #000000"
+                                        row.Cells.Add(cell_rush)
+                                        cell_rush = New TableCell()
+                                        cell_rush.Text = rushhour & "　KWH"
+                                        cell_rush.ColumnSpan = 2
+                                        cell_rush.HorizontalAlign = 3
+                                        cell_rush.Font.Bold = True
+                                        cell_rush.Style("padding-right") = "20px"
+                                        cell_rush.Style("border-right") = "1px solid #000000"
+                                        row.Cells.Add(cell_rush)
+                                        Dim cell_vavg As TableCell = New TableCell()
+                                        cell_vavg.Text = "平均值"
+                                        cell_vavg.ColumnSpan = 2
+                                        cell_vavg.HorizontalAlign = 1
+                                        cell_vavg.Style("padding-left") = "20px"
+                                        cell_vavg.Style("border-left") = "1px solid #000000"
+                                        row.Cells.Add(cell_vavg)
+                                        cell_vavg = New TableCell()
+                                        cell_vavg.Text = avgV & "　V"
+                                        cell_vavg.ColumnSpan = 2
+                                        cell_vavg.HorizontalAlign = 3
+                                        cell_vavg.Font.Bold = True
+                                        cell_vavg.Style("padding-right") = "20px"
+                                        cell_vavg.Style("border-right") = "1px solid #000000"
+                                        row.Cells.Add(cell_vavg)
+                                        ReportTable.Rows.Add(row)
+                                        row = New TableRow()
+
+                                        Dim cell_half As TableCell = New TableCell()
+                                        cell_half.Text = "半尖峰"
+                                        cell_half.ColumnSpan = 2
+                                        cell_half.HorizontalAlign = 1
+                                        cell_half.Style("padding-left") = "20px"
+                                        cell_half.Style("border-left") = "1px solid #000000"
+                                        row.Cells.Add(cell_half)
+                                        cell_half = New TableCell()
+                                        cell_half.Text = halfhour & "　KWH"
+                                        cell_half.ColumnSpan = 2
+                                        cell_half.HorizontalAlign = 3
+                                        cell_half.Font.Bold = True
+                                        cell_half.Style("padding-right") = "20px"
+                                        cell_half.Style("border-right") = "1px solid #000000"
+                                        row.Cells.Add(cell_half)
+                                        Dim cell_vmax As TableCell = New TableCell()
+                                        cell_vmax.Text = "最大值"
+                                        cell_vmax.ColumnSpan = 2
+                                        cell_vmax.HorizontalAlign = 1
+                                        cell_vmax.Style("padding-left") = "20px"
+                                        cell_vmax.Style("border-left") = "1px solid #000000"
+                                        row.Cells.Add(cell_vmax)
+                                        cell_vmax = New TableCell()
+                                        cell_vmax.Text = maxV & "　V"
+                                        cell_vmax.ColumnSpan = 2
+                                        cell_vmax.HorizontalAlign = 3
+                                        cell_vmax.Font.Bold = True
+                                        cell_vmax.Style("padding-right") = "20px"
+                                        cell_vmax.Style("border-right") = "1px solid #000000"
+                                        row.Cells.Add(cell_vmax)
+                                        ReportTable.Rows.Add(row)
+                                        row = New TableRow()
+
+                                        Dim cell_sathalf As TableCell = New TableCell()
+                                        cell_sathalf.Text = "週六半尖峰"
+                                        cell_sathalf.ColumnSpan = 2
+                                        cell_sathalf.HorizontalAlign = 1
+                                        cell_sathalf.Style("padding-left") = "20px"
+                                        cell_sathalf.Style("border-left") = "1px solid #000000"
+                                        row.Cells.Add(cell_sathalf)
+                                        cell_sathalf = New TableCell()
+                                        cell_sathalf.Text = sathalfhour & "　KWH"
+                                        cell_sathalf.ColumnSpan = 2
+                                        cell_sathalf.HorizontalAlign = 3
+                                        cell_sathalf.Font.Bold = True
+                                        cell_sathalf.Style("padding-right") = "20px"
+                                        cell_sathalf.Style("border-right") = "1px solid #000000"
+                                        row.Cells.Add(cell_sathalf)
+                                        Dim cell_I As TableCell = New TableCell()
+                                        cell_I.Text = "電流"
+                                        cell_I.Font.Size = 11
+                                        cell_I.ColumnSpan = 4
+                                        cell_I.HorizontalAlign = 2
+                                        cell_I.Font.Bold = True
+                                        cell_I.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                                        cell_I.ForeColor = Drawing.Color.White
+                                        cell_I.Style("border-left") = "1px solid #000000"
+                                        cell_I.Style("border-right") = "1px solid #000000"
+                                        row.Cells.Add(cell_I)
+                                        ReportTable.Rows.Add(row)
+                                        row = New TableRow()
+
+                                        Dim cell_off As TableCell = New TableCell()
+                                        cell_off.Text = "離峰"
+                                        cell_off.ColumnSpan = 2
+                                        cell_off.HorizontalAlign = 1
+                                        cell_off.Style("padding-left") = "20px"
+                                        cell_off.Style("border-left") = "1px solid #000000"
+                                        cell_off.Style("border-bottom") = "1px solid #000000"
+                                        row.Cells.Add(cell_off)
+                                        cell_off = New TableCell()
+                                        cell_off.Text = offhour & "　KWH"
+                                        cell_off.ColumnSpan = 2
+                                        cell_off.HorizontalAlign = 3
+                                        cell_off.Font.Bold = True
+                                        cell_off.Style("padding-right") = "20px"
+                                        cell_off.Style("border-right") = "1px solid #000000"
+                                        cell_off.Style("border-bottom") = "1px solid #000000"
+                                        row.Cells.Add(cell_off)
+                                        Dim cell_Iavg As TableCell = New TableCell()
+                                        cell_Iavg.Text = "平均值"
+                                        cell_Iavg.ColumnSpan = 2
+                                        cell_Iavg.HorizontalAlign = 1
+                                        cell_Iavg.Style("padding-left") = "20px"
+                                        row.Cells.Add(cell_Iavg)
+                                        cell_Iavg = New TableCell()
+                                        cell_Iavg.Text = avgI & "　A"
+                                        cell_Iavg.ColumnSpan = 2
+                                        cell_Iavg.HorizontalAlign = 3
+                                        cell_Iavg.Font.Bold = True
+                                        cell_Iavg.Style("padding-right") = "20px"
+                                        cell_Iavg.Style("border-right") = "1px solid #000000"
+                                        row.Cells.Add(cell_Iavg)
+                                        ReportTable.Rows.Add(row)
+                                        row = New TableRow()
+
+                                        Dim cell_sum As TableCell = New TableCell()
+                                        cell_sum.Text = "總計"
+                                        cell_sum.ColumnSpan = 2
+                                        cell_sum.Style("padding-left") = "20px"
+                                        cell_sum.Style("border-left") = "1px solid #000000"
+                                        cell_sum.Style("border-top") = "1px solid #000000"
+                                        cell_sum.Style("border-bottom") = "1px solid #000000"
+                                        row.Cells.Add(cell_sum)
+                                        cell_sum = New TableCell()
+                                        cell_sum.Font.Size = 12
+                                        cell_sum.Text = CInt(rushhour) + CInt(halfhour) + CInt(sathalfhour) + CInt(offhour) & "　KWH"
+                                        cell_sum.ColumnSpan = 2
+                                        cell_sum.HorizontalAlign = 3
+                                        cell_sum.Font.Bold = True
+                                        cell_sum.Style("padding-right") = "20px"
+                                        cell_sum.Style("border-top") = "1px solid #000000"
+                                        cell_sum.Style("border-right") = "1px solid #000000"
+                                        cell_sum.Style("border-bottom") = "1px solid #000000"
+                                        row.Cells.Add(cell_sum)
+                                        Dim cell_Imax As TableCell = New TableCell()
+                                        cell_Imax.Text = "最大值"
+                                        cell_Imax.ColumnSpan = 2
+                                        cell_Imax.HorizontalAlign = 1
+                                        cell_Imax.Style("padding-left") = "20px"
+                                        cell_Imax.Style("border-bottom") = "1px solid #000000"
+                                        row.Cells.Add(cell_Imax)
+                                        cell_Imax = New TableCell()
+                                        cell_Imax.Text = maxI & "　A"
+                                        cell_Imax.ColumnSpan = 2
+                                        cell_Imax.HorizontalAlign = 3
+                                        cell_Imax.Font.Bold = True
+                                        cell_Imax.Style("padding-right") = "20px"
+                                        cell_Imax.Style("border-right") = "1px solid #000000"
+                                        cell_Imax.Style("border-bottom") = "1px solid #000000"
+                                        row.Cells.Add(cell_Imax)
+                                        ReportTable.Rows.Add(row)
+                                        row = New TableRow()
+
+                                        Dim cell_space As TableCell = New TableCell()
+                                        cell_space.Text = "  "
+                                        cell_space.ColumnSpan = 8
+                                        cell_space.Style("padding-bottom") = "20px"
+                                        row.Cells.Add(cell_space)
+                                        ReportTable.Rows.Add(row)
+                                        row = New TableRow()
+                            
+                                        '每日電力資訊
+                                        Dim sql_data As String = "SELECT substring(RecDate,12,8) as 時間,Vavg as 平均電壓,Iavg as 平均電流,W as 實功,V_ar as 虛功,VA as 視在,PF as 功因,KWh as 用電度數 FROM PowerRecord " & _
+                                        "where CtrlNr= " & ctrlnr & " and MeterID= " & meterid & " and substring(RecDate,1,10) = '" & datetime & "' order by RecDate "
+                                        Dim da_data As OleDbDataAdapter = New OleDbDataAdapter(sql_data, strcon2)
+                                        Dim dt_data As DataTable = New DataTable
+                                        da_data.Fill(dt_data)
+                                        'title
+                                        For n = 0 To dt_data.Columns.Count - 1
+                                            Dim cell_title As TableCell = New TableCell()
+                                            cell_title.Text = dt_data.Columns(n).ColumnName.ToString
+                                            Select Case n
+                                                Case 0
+                                                    cell_title.Style("border-left") = "1px solid #000000"
+                                                Case dt_data.Columns.Count - 1
+                                                    cell_title.Style("border-right") = "1px solid #000000"
+                                            End Select
+                                            cell_title.Font.Bold = True
+                                            cell_title.Font.Size = 11
+                                            cell_title.BackColor = Drawing.ColorTranslator.FromHtml("#333333")
+                                            cell_title.ForeColor = Drawing.Color.White
+                                            cell_title.HorizontalAlign = 2
+                                            row.Cells.Add(cell_title)
+                                        Next
+                                        ReportTable.Controls.Add(row)
+                                        row = New TableRow()
+                            
+                                        'content
+                                        For n = 0 To dt_data.Rows.Count - 1
+                                            For m = 0 To dt_data.Columns.Count - 1
+                                                Dim cell_content As TableCell = New TableCell()
+                                                cell_content.Text = dt_data.Rows(n).Item(m).ToString
+                                                Select Case m
+                                                    Case 0
+                                                        cell_content.Style("border-left") = "1px solid #000000"
+                                                    Case dt_data.Columns.Count - 1
+                                                        cell_content.Style("border-right") = "1px solid #000000"
+                                                End Select
+                                                If n = dt_data.Rows.Count - 1 Then
+                                                    cell_content.Style("border-bottom") = "1px solid #000000"
+                                                End If
+                                                cell_content.HorizontalAlign = 2
+                                                row.Cells.Add(cell_content)
+                                            Next
+                                            ReportTable.Controls.Add(row)
+                                            row = New TableRow()
+                                        Next
+                                    End Using
+                                        
+                                    Dim stringWrite As StringWriter = New StringWriter
+                                    Dim htmlWrite As HtmlTextWriter = New HtmlTextWriter(stringWrite)
+                                    ReportTable.RenderControl(htmlWrite)
+                                
+                                    stream(k) &= stringWrite.ToString
+                                    k += 1
+                                End While
+                            End Using
+                        End Using
+                    Else
+                        MailState(account & "日報表信箱無輸入或無啟用1")
+                    End If
+
+                    Dim sql_mail As String = "SELECT * FROM MailSetup"
+                    Using cmd_mail As New OleDbCommand(sql_mail, conn)
+                        Using dr_mail As OleDbDataReader = cmd_mail.ExecuteReader
+                            If dr_mail.Read() Then
+                                '發送郵件的郵件服務器
+                                Dim mailserver As SmtpClient = New SmtpClient(dr_mail("SmtpServer").ToString)
+                                mailserver.Credentials = New NetworkCredential(dr_mail("MailServer_Account").ToString, dr_mail("MailServer_Password").ToString)
+                                mailserver.DeliveryMethod = System.Net.Mail.SmtpDeliveryMethod.Network
+                                mailserver.Timeout = 50000 ' 送信若超過xx秒會停止送信, 以免佔用服務太多時間
+
+                                'Dim datetime As String = DateAdd(DateInterval.Day, -1, Now.Date).ToString("yyyy/MM/dd")
+                                If email <> "" And email IsNot Nothing And daysent_enabled = True Then
+                                    'mail郵件設置
+                                    Dim mail As MailMessage = New MailMessage()
+                                    Dim mfrom As MailAddress = Nothing
+
+                                    If dr_mail("MailName") IsNot DBNull.Value And dr_mail("MailName").ToString <> "" Then
+                                        mfrom = New MailAddress(dr_mail("MailAddress").ToString, dr_mail("MailName").ToString)
+                                    Else
+                                        mfrom = New MailAddress(dr_mail("MailAddress").ToString)
+                                    End If
+                                    mail.From = mfrom
+                                
+                                    Dim mails() As String = email.Split(";")
+                                    For j = 0 To mails.Count - 1
+                                        mail.To.Add(mails(j))
+                                    Next
+
+                                    If dr_mail("Bcc") IsNot DBNull.Value And dr_mail("Bcc").ToString <> "" Then
+                                        mail.Bcc.Add(dr_mail("Bcc").ToString)
+                                    End If
+
+                                    mail.Subject = "電力分析系統日報表通知信"
+                                    mail.Body = "親愛的用戶，" & company & " 您好：<br/><br/>"
+                                    mail.Body &= "附件為" & datetime & "，ECO5帳號(" & eco_account & ")，位於 " & eco_position & " 之日報表<br/><br/>"
+                                    mail.Body &= "<font color=red>注意：本信件是由系統自動產生與發送，請勿直接回覆</font>" & "<br/><br/>"
+                                
+                                    For l = 0 To stream.Length - 1
+                                        If stream(l) IsNot Nothing Then
+                                            Dim content As String = stream(l)
+                                            'Dim position As String = meter_position(l)
+                                            Dim memoryStream As MemoryStream = New MemoryStream(Encoding.UTF8.GetBytes(content))
+                                            memoryStream.Seek(0, SeekOrigin.Begin)
+                                            mail.Attachments.Add(New Attachment(memoryStream, "日報表_" & meter_position(l) & "_" & datetime & ".xls"))
+                                        End If
+                                    Next
+                        
+                                    If mail.Attachments.Count > 0 Then
+                                        mail.SubjectEncoding = System.Text.Encoding.GetEncoding("BIG5")
+                                        mail.BodyEncoding = System.Text.Encoding.GetEncoding("BIG5")
+                                        mail.IsBodyHtml = True
+                                        mailserver.Send(mail)
+                                        mail.Dispose()
+                                        
+                                        MailState(account & "日報表:" & eco_account)
+                                    Else
+                                        MailState(account & "日報表無附件")
+                                    End If
+                                Else
+                                    MailState(account & "日報信箱無輸入或無啟用2")
+                                End If
+                            Else
+                                MailState("SMTP錯誤")
+                            End If
+                        End Using
+                    End Using
+                End Using
+            Next
+        End If
+    End Sub
+    
+    '尋找資料庫建立者
+    Protected Function Account_admin(ByVal account As String) As String
+        Using conn As New OleDbConnection(System.Configuration.ConfigurationManager.ConnectionStrings("ECOConnectionString").ToString())
+            If conn.State = 0 Then conn.Open()
+            Dim sql1 As String = "select * from AdminSetup where Account='" & account & "'"
+            Using cmd1 As New OleDbCommand(sql1, conn)
+                Using dr1 As OleDbDataReader = cmd1.ExecuteReader
+                    If dr1.Read() Then
+                        Dim sql2 As String = "select ad.Account from AdminSetup as ad,ControllerSetup as CS where ad.ECO_Group = '" & dr1("ECO_Group").ToString & "' and ad.Account=cs.Account"
+                        Using cmd2 As New OleDbCommand(sql2, conn)
+                            Using dr2 As OleDbDataReader = cmd2.ExecuteReader
+                                If dr2.Read() Then
+                                    Return dr2("Account").ToString
+                                Else
+                                    Return ""
+                                End If
+                            End Using
+                        End Using
+                    Else
+                        Return ""
+                    End If
+                End Using
+            End Using
+        End Using
+    End Function
+    
+    '記錄程式運行階段
+    Sub MailState(ByVal content As String)
+        Dim val As String = "0,0,'" & Now.ToString("yyyy/MM/dd HH:mm:ss") & "',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'" & content & "'"
+        Dim strSQL As String = "insert into PowerRecord(CtrlNr,MeterID,RecDate,I1,I2,I3,Iavg,V1,V2,V3,Vavg,W,V_ar,VA,PF,KWh,Mode1,Mode2,Mode3,Mode4,DeMand,DemandHalf,DemandSatHalf,DemandOff,RushHour,HalfHour,SatHalfHour,OffHour,state) values (" & val & ")"
+        Using conn As New OleDbConnection(System.Configuration.ConfigurationManager.ConnectionStrings("ECOConnectionString").ToString())
+            If conn.State = 0 Then conn.Open()
+            Using cmd As New OleDbCommand(strSQL, conn)
+                cmd.ExecuteNonQuery()
+            End Using
+        End Using
+    End Sub
+</script>

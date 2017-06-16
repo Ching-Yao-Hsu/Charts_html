@@ -1,0 +1,326 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+PowerFeeCalculate
+</name>
+</assembly>
+<members>
+<member name="F:PowerFeeCalculate.FeeCalculate.SupplyType.HighPress">
+	<summary>
+ 高壓供電
+ </summary>
+	<remarks></remarks>
+</member><member name="F:PowerFeeCalculate.FeeCalculate.SupplyType.HyperPress">
+	<summary>
+ 特高壓供電
+ </summary>
+	<remarks></remarks>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Two.Sum_Basic_Demand(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 夏月-經常契約電價(每瓩每月)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Two.Sum_Basic_SatHalfDemand(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 夏月-週六半尖峰契約電價(每瓩每月)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Two.Sum_Basic_OffDemand(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 夏月-離峰契約電價(每瓩每月)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Two.NoSum_Basic_Demand(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 非夏月-經常契約電價(每瓩每月)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Two.NoSum_Basic_NoSumDemand(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 非夏月-非夏月契約電價(每瓩每月)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Two.NoSum_Basic_SatHalfDemand(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 非夏月-週六半尖峰契約電價(每瓩每月)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Two.NoSum_Basic_OffDemand(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 非夏月-離峰契約電價(每瓩每月)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Two.Sum_Flow_Top(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 夏月-尖峰用電電價(每度)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Two.Sum_Flow_SatHalf(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 夏月-半尖峰用電電價(每度)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Two.Sum_Flow_Off(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 夏月-離峰用電電價(每度)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Two.NoSum_Flow_Top(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 非夏月-尖峰用電電價(每度)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Two.NoSum_Flow_SatHalf(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 非夏月-半尖峰用電電價(每度)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Two.NoSum_Flow_Off(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 非夏月-離峰用電電價(每度)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="M:PowerFeeCalculate.FeeCalculate.Two.Caculate(PowerFeeCalculate.FeeCalculate.SupplyType,System.Boolean,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Double@,System.Double@,System.Double@)">
+	<summary>
+ 二段式電費計算
+ </summary>
+	<param name="Summer">電費計算是否處於夏月</param>
+	<param name="TopUse">尖峰用電度數</param>
+	<param name="SatHalfUse">週六半尖峰用電度數</param>
+	<param name="OffUse">離峰用電度數</param>
+	<param name="MaxTopDemand">經常需量最大值</param>
+	<param name="MaxSatHalfDemand">週六半尖峰需量最大值</param>
+	<param name="MaxOffDemand">離峰需量最大值</param>
+	<param name="NormalCapacity">經常契約容量</param>
+	<param name="NoSumCapacity">非夏月契約容量</param>
+	<param name="SatHalfCapacity">週六半尖峰契約容量</param>
+	<param name="OffCapacity">離峰契約容量</param>
+	<param name="BasicFee">如欲傳回計算後之"基本電費"則須指定此參數</param>
+	<param name="FlowFee">如欲傳回計算後之"流動電費"則須指定此參數</param>
+	<param name="OverFee">如欲傳回計算後之"超約附加費"則須指定此參數</param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="T:PowerFeeCalculate.FeeCalculate.Two">
+	<summary>
+  計價方式-二段式電費計算
+ </summary>
+	<remarks>
+	</remarks>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Three.Sum_Basic_Demand(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 夏月-經常契約電價(每瓩每月)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Three.Sum_Basic_HalfDemand(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 夏月-半尖峰契約電價(每瓩每月)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Three.Sum_Basic_SatHalfDemand(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 夏月-週六半尖峰契約電價(每瓩每月)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Three.Sum_Basic_OffDemand(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 夏月-離峰契約電價(每瓩每月)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Three.NoSum_Basic_Demand(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 非夏月-經常契約電價(每瓩每月)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Three.NoSum_Basic_HalfDemand(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 非夏月-半尖峰契約電價(每瓩每月)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Three.NoSum_Basic_SatHalfDemand(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 非夏月-週六半契約電價(每瓩每月)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Three.NoSum_Basic_OffDemand(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 非夏月-離峰契約電價(每瓩每月)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Three.Sum_Flow_Top(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 夏月-尖峰用電電價(尖峰時間固定)(每度)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Three.Sum_Flow_Half(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 夏月-半尖峰用電電價(每度)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Three.Sum_Flow_SatHalf(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 夏月-週六半尖峰用電電價(每度)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Three.Sum_Flow_Off(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 夏月-離峰用電電價(每度)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Three.Sum_Flow_Top_IfNoFix(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 夏月-尖峰用電電價(尖峰時間可變動)(每度)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Three.NoSum_Flow_Half(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 非夏月-半尖峰用電電價(每度)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Three.NoSum_Flow_SatHalf(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 非夏月-周六半尖峰用電電價(每度)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="P:PowerFeeCalculate.FeeCalculate.Three.NoSum_Flow_Off(PowerFeeCalculate.FeeCalculate.SupplyType)">
+	<summary>
+ 非夏月-離峰用電電價(每度)
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+	<param name="SupplyType">供電方式</param>
+</member><member name="M:PowerFeeCalculate.FeeCalculate.Three.Caculate(PowerFeeCalculate.FeeCalculate.SupplyType,System.Boolean,System.Boolean,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Double@,System.Double@,System.Double@)">
+	<summary>
+ 三段式電費計算
+ </summary>
+	<param name="SupplyType">供電方式</param>
+	<param name="Summer">電費計算是否處於夏月</param>
+	<param name="IFFix">尖峰時間固定(True)、尖峰時間可變動(False)</param>
+	<param name="TopUse">尖峰用電度數</param>
+	<param name="Halfuse">半尖峰用電度數</param>
+	<param name="SatHalfUse">週六半尖峰用電度數</param>
+	<param name="OffUse">離峰用電度數</param>
+	<param name="MaxTopDemand">經常需量最大值</param>
+	<param name="MaxHalfDemand">半尖峰需量最大值</param>
+	<param name="MaxSatHalfDemand">週六半尖峰需量最大值</param>
+	<param name="MaxOffDemand">離峰需量最大值</param>
+	<param name="NormalCapacity">經常契約容量</param>
+	<param name="HalfCapacity">半尖峰契約容量</param>
+	<param name="SatHalfCapacity">週六半尖峰契約容量</param>
+	<param name="OffCapacity">離峰契約容量</param>
+	<param name="BasicFee">如欲傳回計算後之"基本電費"則須指定此參數</param>
+	<param name="FlowFee">如欲傳回計算後之"流動電費"則須指定此參數</param>
+	<param name="OverFee">如欲傳回計算後之"超約附加費"則須指定此參數</param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="T:PowerFeeCalculate.FeeCalculate.Three">
+	<summary>
+ 三段式電費計算
+ </summary>
+	<remarks></remarks>
+</member><member name="T:PowerFeeCalculate.FeeCalculate">
+	<summary>
+ 電費計算
+ </summary>
+	<remarks></remarks>
+</member><member name="P:PowerFeeCalculate.My.Resources.Resources.ResourceManager">
+	<summary>
+  傳回這個類別使用的快取的 ResourceManager 執行個體。
+</summary>
+</member><member name="P:PowerFeeCalculate.My.Resources.Resources.Culture">
+	<summary>
+  覆寫目前執行緒的 CurrentUICulture 屬性，對象是所有
+  使用這個強型別資源類別的資源查閱。
+</summary>
+</member><member name="T:PowerFeeCalculate.My.Resources.Resources">
+	<summary>
+  用於查詢當地語系化字串等的強型別資源類別
+</summary>
+</member>
+</members>
+</doc>

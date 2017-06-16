@@ -1,0 +1,130 @@
+/* =======按鈕區============================== */
+#menu{
+	font-family: "微軟正黑體";
+	width: 850px;
+	height: 50px;
+	position: relative;
+	z-index: 100;
+	margin-right: auto;
+	margin-left: auto;
+	margin-top: -5px;
+	float: none;
+	background-repeat: no-repeat;
+}
+ul.dropdown {
+	list-style: none;
+	text-align: center;
+	line-height: 50px;
+	z-index: 100;
+	margin-bottom: 3px;
+	background-color: #FFF;
+}
+ul.dropdown li {
+	float: left;
+	position: relative;
+	width: 164px;
+	height: 50px;
+	text-align: center;
+	z-index: 100;
+	background-repeat: no-repeat;
+	border: medium solid #089139;
+	background-color: #FFF;
+}
+
+ul.dropdown li a{
+	display: block;
+	width: 164px;
+	text-decoration: none;
+	color: #666;
+	font-size: 14px;
+	font-family: "微軟正黑體";
+	letter-spacing: 1px;
+	font-weight: normal;
+	height: 50px;
+	text-align: center;
+}
+
+ul.dropdown li ul{
+	position: absolute;
+	text-align: center;
+	height: 37px;
+	z-index: 100;
+	display: none;
+}
+ul li{
+	border-bottom-width: 0px;
+	border-bottom-style: none;
+}
+
+ul.dropdown li ul li a,li#_left ul li a, li#_right ul li a{
+	width: 164px;
+	height: 50px;
+	clear: both;
+	font-size: 12px;
+	font-family: "微軟正黑體";
+	font-weight: normal;
+	text-align: center;
+}
+ul.dropdown li ul li a:hover,li#_left ul li a:hover, li#_right ul li a:hover{
+	color: #80B32A;
+	z-index: 100;
+	height: 50px;
+}
+
+#HEADER #menu .dropdown #line {
+	border-right-width: thin;
+	border-left-width: thin;
+	border-right-style: solid;
+	border-left-style: solid;
+	border-right-color: #D6D6D6;
+	border-left-color: #D6D6D6;
+
+	z-index: 100;
+
+}
+#HEADER #menu .dropdown #line ul #button a {
+	width: 130px;
+}
+
+ul, li {margin: 0;padding: 0;list-style: none;}
+
+
+#menu .dropdown ul li {
+	height: 50px;
+}
+
+ul.dropdown a:hover{
+	color: #FFFFFF;
+	background-color: #089139;
+}
+
+#menu .dropdown ul li a:hover {
+	background-color: #089139;
+	color: #FFF;
+	width: 164px;
+}
+
+.center {
+	line-height: 50px;	
+}
+.center2 {
+	line-height: 25px;	
+}
+
+.u01 {
+	margin-left: -3px;
+}
+.u02 {
+	margin-left: -3px;
+}
+.u05 {
+	margin-left: -3px;
+}
+.m01 {
+	line-height: 50px;
+}
+
+.m02 {
+	line-height: 25px;
+	
+}

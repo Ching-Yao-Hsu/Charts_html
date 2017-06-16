@@ -47,7 +47,7 @@ function second_Orgchart(e1, e2) {
 function Info_Insert(e1,e2) {
     $('#' + e1).parent().prepend(        
         $('<a/>')
-            .attr('href', '#')            
+            .attr('href', 'javascript:;')            
     );
     $('#' + e1).parent().prepend(
         $('<div/>')
@@ -242,6 +242,7 @@ function OrgChart_DataTable_CheckFormat(e) {
             $(this).BuildOrgChart(e);
             $('#tree a').addClass('azure');
             orgtoggle();
+            
         }
     };
 })(jQuery);

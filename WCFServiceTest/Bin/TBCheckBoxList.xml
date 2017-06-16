@@ -1,0 +1,37 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+TBCheckBoxList
+</name>
+</assembly>
+<members>
+<member name="P:TBCheckBoxList.WebControls.TBCheckBoxList.SelectedValueList">
+	<summary>
+ 項目複選的 Value 值，以逗號分隔每個項目。
+ </summary>
+</member><member name="M:TBCheckBoxList.WebControls.TBCheckBoxList.GetSelectedValueList">
+	<summary>
+ 取得項目複選的 Value 值。
+ </summary>
+</member><member name="M:TBCheckBoxList.WebControls.TBCheckBoxList.SetSelectedValueList(System.String)">
+	<summary>
+ 設定項目複選的 Value 值。
+ </summary>
+	<param name="Value">複選 Value 值。</param>
+</member><member name="P:TBCheckBoxList.WebControls.TBCheckBoxList.SelectedTextList">
+	<summary>
+ 項目複選的 Text 值，以逗號分隔每個項目。
+ </summary>
+</member><member name="M:TBCheckBoxList.WebControls.TBCheckBoxList.GetSelectedTextList">
+	<summary>
+ 取得項目複選的 Text 值。
+ </summary>
+</member><member name="M:TBCheckBoxList.WebControls.TBCheckBoxList.SetSelectedTextList(System.String)">
+	<summary>
+ 設定項目複選的 Text 值。
+ </summary>
+	<param name="Value">複選 Text 值。</param>
+</member>
+</members>
+</doc>

@@ -1,0 +1,269 @@
+﻿
+        
+        body {
+	        color:#555;
+	        font-size:12px;
+	        background:#f0f0f0;
+	        font-family:"Lucida Sans Unicode","Lucida Grande","Trebuchet MS", Helvetica, Arial, sans-serif;
+        }
+        #primary_right .inner {
+	        clear:both;
+	        float:left;
+	        padding:30px;
+	        margin-left:230px;
+	        position:relative;
+        }
+        fieldset {
+	        border:1px solid #fff;
+        	
+	        border-radius: 5px;
+	        -moz-border-radius: 5px;
+	        -webkit-border-radius: 5px;	
+        	
+	        -moz-box-shadow: 1px 1px 0px #999;
+	        -webkit-box-shadow: 1px 1px 0px #999;
+	        box-shadow: 1px 1px 0px #999;
+	        padding:20px 20px 0 20px;
+        	
+	        background:#fbfbfb;
+	        background: -moz-linear-gradient(top,#fbfbfb,#f5f5f5);
+	        background: -webkit-gradient(linear, left top, left bottom, from(#fbfbfb), to(#f5f5f5));
+        	
+	        margin-bottom:15px;
+        }
+        fieldset legend {
+	        border:1px solid #fff;
+        	
+	        border-radius: 5px;
+	        -moz-border-radius: 5px;
+	        -webkit-border-radius: 5px;	
+        	
+	        -moz-box-shadow: 1px 1px 0px #999;
+	        -webkit-box-shadow: 1px 1px 0px #999;
+	        box-shadow: 1px 1px 0px #999;
+        	
+	        background:#fbfbfb;
+	        background: -moz-linear-gradient(top,#fbfbfb,#f5f5f5);
+	        background: -webkit-gradient(linear, left top, left bottom, from(#fbfbfb), to(#f5f5f5));
+        	
+	        padding:5px 20px;
+	        text-transform:uppercase;
+	        font-size:11px;
+        }
+        input[type="text"],input[type="radio"], input[type="checkbox"], input[type="password"], select {
+            padding:5px 10px;
+	        background:#eee;
+	        color:#888;
+        	
+	        border-width:1px;
+	        border-style:solid;
+	        border-color:#d9d9d9 #eaeaea white;
+        	
+	        border-radius: 5px;
+	        -moz-border-radius: 5px;
+	        -webkit-border-radius: 5px;	
+        	
+	        font-size:12px;
+        }
+        a.button_link, input[type="submit"], input[type="reset"], .ui-dialog .ui-dialog-buttonpane button {
+	        color:#fff;
+	        text-decoration:none;
+	        font-size:14px;
+	        font-family:Arial, Helvetica, sans-serif;
+	        font-weight:bold;
+	        text-shadow:0 1px 1px #0c507b;
+	        letter-spacing:0px;
+	        text-transform:uppercase;
+        	
+	        padding:8px 12px 6px 12px;
+	        margin:0 10px 5px 0;
+        	
+	        background: #3aa3e6;
+	        background: -moz-linear-gradient(top, #87c6ee, #3aa3e6 2%, #028fe8);
+	        background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #87c6ee), color-stop(.01, #3aa3e6), to(#028fe8)); 
+
+	        border:1px solid #0082d5;
+        	
+	        border-radius: 5px;
+	        -moz-border-radius: 5px;
+	        -webkit-border-radius: 5px;
+        	
+	        outline:none;
+        }
+        a.button_link:hover, input[type="submit"]:hover, input[type="reset"]:hover, .ui-dialog-buttonpane button:hover {
+	        text-shadow: 0 1px 1px #6f3a02;
+
+	        border:1px solid #e6791c;
+	        border-bottom:1px solid #d86f15;
+
+	        background: #f48423;
+	        background: -moz-linear-gradient(top, #ffdf9e, #f5b026 2%, #f48423);
+	        background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #ffd683), color-stop(.01, #f5b026), to(#f48423)); 
+        	
+	        cursor:pointer;
+
+        }
+        /* Calendar 容器所用的樣式 */
+.cssCalendar .ajax__calendar_container
+{
+    padding: 4px;
+    position: absolute;
+    cursor: default;
+    width: 220px;
+    text-align: center;
+    font: 16px 標楷體;
+    background-color: White;
+    border: 2px outset Black;
+    color: Black;
+}
+
+/* Calendar Body 所用的樣式 */
+.cssCalendar .ajax__calendar_body
+{
+    height: 130px;
+    width: 220px;
+    position: relative;
+    overflow: hidden;
+    margin: auto;
+}
+
+/*
+於顯示日期、月份、年份所用的樣式，
+務必指定高度與寬度
+*/
+.cssCalendar .ajax__calendar_days,
+.cssCalendar .ajax__calendar_months,
+.cssCalendar .ajax__calendar_years
+{
+    top: 0px;
+    left: 0px;
+    height: 130px;
+    width: 220px;
+    position: absolute;
+    text-align: center;
+    margin: 2px;
+}
+
+/* 指定標頭、註腳所需的高度與寬度 */
+.cssCalendar .ajax__calendar_header,
+.cssCalendar .ajax__calendar_footer
+{
+    height: 20px;
+    width: 100%;
+}
+
+/*
+指定「上一個」圖示的樣式，
+若不指定圖檔來源時，會自動使用內建的圖示
+*/
+.cssCalendar .ajax__calendar_prev
+{
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    float: left;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    
+}
+
+/*
+指定「下一個」圖示的樣式，
+若不指定圖檔來源時，會自動使用內建的圖示
+*/
+.cssCalendar .ajax__calendar_next
+{
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    float: right;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    
+}
+
+/* 月曆第一行的標題所用的樣式 */
+.cssCalendar .ajax__calendar_title 
+{
+    cursor: pointer;
+    font-weight: bold;
+    color: black;
+}
+
+/* 月曆最後一行的今日所用的樣式 */
+.cssCalendar .ajax__calendar_today
+{
+    cursor: pointer;
+    padding-top: 3px;
+    font-weight: bold;
+    color: black;
+}
+
+/* 「星期」所用的樣式 */
+.cssCalendar .ajax__calendar_dayname
+{
+    height: 20px;
+    width: 20px;
+    text-align: right;
+    color: Maroon;
+    padding: 0px 2px;
+}
+
+/* 日曆所用的樣式 */
+.cssCalendar .ajax__calendar_day
+{
+    height: 18px;
+    width: 22px;
+    text-align: right;
+    cursor: pointer;
+    overflow: hidden;
+    padding: 2px 2px 2px;
+}
+
+/* 月份、年份所用的樣式 */
+.cssCalendar .ajax__calendar_month,
+.cssCalendar .ajax__calendar_year
+{
+    height: 38px;
+    width: 52px;
+    text-align: center;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+/* 已經被啟用的日期、月份與年份所用的樣式 */
+.cssCalendar .ajax__calendar_active .ajax__calendar_day,
+.cssCalendar .ajax__calendar_active .ajax__calendar_month,
+.cssCalendar .ajax__calendar_active .ajax__calendar_year 
+{
+    background-color: #edf9ff;
+    border-color: #0066cc;
+    color: blue;
+    border: 1px solid black;
+}
+
+/* 非目前所選取的日期、月份或年份所用的樣式 */
+.cssCalendar .ajax__calendar_other .ajax__calendar_day,
+.cssCalendar .ajax__calendar_other .ajax__calendar_month,
+.cssCalendar .ajax__calendar_other .ajax__calendar_year 
+{
+    background-color: white;
+    color: #999999;
+}
+
+/* 當滑鼠移至月曆的第一行、最後一行時，所使用的樣式 */
+.cssCalendar .ajax__calendar_hover .ajax__calendar_title,
+.cssCalendar .ajax__calendar_hover .ajax__calendar_today
+{
+	background-color: black;
+	color: white;
+}
+
+/* 當滑鼠移至日期、月份、年份上時，所使用的樣式 */
+.cssCalendar .ajax__calendar_hover .ajax__calendar_day,
+.cssCalendar .ajax__calendar_hover .ajax__calendar_month,
+.cssCalendar .ajax__calendar_hover .ajax__calendar_year 
+{
+    background-color: #0f2543;
+	color: #ffffff;    
+}

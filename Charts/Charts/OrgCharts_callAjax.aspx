@@ -12,10 +12,11 @@
             font-family:DFKai-sb;
         }
     </style>
-    <script type="text/JavaScript" src="scripts/jquery-3.1.1.min.js"></script>
-    <script type="text/JavaScript" src="js/org.js"></script>
-    <script type="text/JavaScript" src="js/recursion.js"></script>
+    <script type="text/JavaScript" src="/scripts/jquery-3.1.1.min.js"></script>
+    <script type="text/JavaScript" src="/js/org.js"></script>
+    <script type="text/JavaScript" src="/js/recursion.js"></script>
     <script type="text/JavaScript">
+
         $(document).ready(function () {           
             $.ajax({
                 url: "OrgCharts_responseAjax.aspx",

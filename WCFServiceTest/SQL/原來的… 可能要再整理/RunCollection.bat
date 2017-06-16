@@ -1,0 +1,1 @@
+sqlcmd -S 127.0.0.1\ECOSMART -U sa -P 53394812 -d Master -Q "EXEC dbo.Usp_RunCollection '' " 

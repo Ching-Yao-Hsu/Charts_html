@@ -1,0 +1,463 @@
+﻿<%@ Page Title="" Language="VB" MasterPageFile="~/index.master" AutoEventWireup="false" CodeFile="Waterindex.aspx.vb" Inherits="WaterIndex"%>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="head" runat="Server">
+    <script type="text/javascript">
+
+        BindEvents()
+
+        function BindEvents() {
+            $(document).ready(function () {
+                var HrefAddress = "support/IndexSupport.htm";
+                $('.support').colorbox({ innerWidth: 725, innerHeight: 540, iframe: true, slideshow: true, scrolling: true, overlayClose: false, href: HrefAddress });
+
+                //月曆(日期)
+                $("#<%= txtDate.ClientID%>").datepicker({
+                dateFormat: 'yy/mm/dd', showOn: 'button',
+                buttonImageOnly: true, buttonImage: 'img/calendar_Black2.png', changeYear: true, changeMonth: true
+            });
+            $("#<%= txtDateS.ClientID%>").datepicker({
+                dateFormat: 'yy/mm/dd', showOn: 'button',
+                buttonImageOnly: true, buttonImage: 'img/calendar_Black2.png', changeYear: true, changeMonth: true
+            });
+            $("#<%= txtDateE.ClientID%>").datepicker({
+                dateFormat: 'yy/mm/dd', showOn: 'button',
+                buttonImageOnly: true, buttonImage: 'img/calendar_Black2.png', changeYear: true, changeMonth: true
+            });
+
+            //月曆(月份)
+
+            $("#<%= txtMonth.ClientID%>").datepicker({
+                dateFormat: 'yy/mm', showOn: 'button',
+                buttonImageOnly: true, buttonImage: 'img/calendar_Black2.png', changeYear: true, changeMonth: true
+            });
+
+            $("#<%= txtMonth.ClientID%>").datepicker({
+                dateFormat: 'yy/mm', showOn: 'button',
+                buttonImageOnly: true, buttonImage: 'img/calendar_Black2.png', changeYear: true, changeMonth: true
+            });
+            $("#<%= txtMonthS.ClientID%>").datepicker({
+                dateFormat: 'yy/mm', showOn: 'button',
+                buttonImageOnly: true, buttonImage: 'img/calendar_Black2.png', changeYear: true, changeMonth: true
+            });
+
+                
+                $("#<%=item_RBList.ClientID%>").click(function () {
+
+                })
+
+                $("#<%=item_RBList.ClientID%>").click(function () {
+                    var item = $('#<%=item_RBList.ClientID %> input:checked').val();
+                    if (item == 'AllShopDay') {
+                       $('#AllShopDayD').show();
+                       $('#AllShopMonthD').hide();
+                       $('#SelfMonthD').hide();
+                       $('#SelfDayD').hide();
+                       $("#txtRBList").text("AD");
+                       //$("#txtRBList").load('WaterIndex.aspx?Value=AD');
+
+                    } else if (item == 'AllShopMonth') {
+                       $('#AllShopMonthD').show();
+                       $('#AllShopDayD').hide();
+                       $('#SelfMonthD').hide();
+                       $('#SelfDayD').hide();
+                       $("#txtRBList").text("AM");
+
+                    } else if (item == 'SelfMonth') {
+                       $('#SelfMonthD').show();
+                       $('#AllShopDayD').hide();
+                       $('#AllShopMonthD').hide();
+                       $('#SelfDayD').hide();
+                       $("#txtRBList").text("SM");
+
+                    } else if (item == 'SelfDay') {
+                       $('#SelfDayD').show();
+                       $('#AllShopDayD').hide();
+                       $('#AllShopMonthD').hide();
+                       $('#SelfMonthD').hide();
+                       $("#txtRBList").text("SD");
+
+                }
+            });
+
+
+
+                $("#<%=ButtonAD.ClientID%>").click(function () {
+                    var sRecdate = $("#<%= txtDate.ClientID%>").val();
+                    if (sRecdate != '') {
+                        var HrefAddress = "WaterDayReport.aspx?sRecdate=" + sRecdate;
+                        $("#<%=ButtonAD.ClientID%>").colorbox({ innerWidth: 950, innerHeight: 520, iframe: true, slideshow: true, scrolling: true, overlayClose: false, href: HrefAddress });
+                        return true;
+                    } else {
+                        alertify.alert("總日報表的日期不可空白!");
+                        return false;
+                    }
+                });
+
+
+                $("#<%=ButtonAM.ClientID%>").click(function () {
+                    var sRecdate = $("#<%= txtMonth.ClientID%>").val();
+                    if (sRecdate != '') {
+                        var HrefAddress = "WaterMonthReport.aspx?sRecdate=" + sRecdate;
+                        $("#<%=ButtonAM.ClientID%>").colorbox({ innerWidth: 950, innerHeight: 520, iframe: true, slideshow: true, scrolling: true, overlayClose: false, href: HrefAddress });
+                        return true;
+                    } else {
+                        alertify.alert("總月報表的月份不可空白!");
+                        return false;
+                    }
+                });
+
+                $("#<%=ButtonSM.ClientID%>").click(function () {
+                    var sShopNo = $("#<%= txtShopNoM.ClientID%>").val();
+                    var sDrawNo = $("#<%= txtDrawNoM.ClientID%>").val();
+                    var sShopName = $("#<%= txtShopNameM.ClientID%>").val();
+                    var sMonthS = $("#<%= txtMonthS.ClientID%>").val();
+                    if (sMonthS != '') {
+                        var HrefAddress = "WaterSMonthReport.aspx?sShopNo=" + sShopNo + "&sDrawNo=" + sDrawNo + "&sShopName=" + sShopName + "&sMonthS=" + sMonthS;
+                        $("#<%=ButtonSM.ClientID%>").colorbox({ innerWidth: 950, innerHeight: 520, iframe: true, slideshow: true, scrolling: true, overlayClose: false, href: HrefAddress });
+                        return true;
+                    } else {
+                        alertify.alert("月報表的月份不可空白!");
+                        return false;
+                    }
+                });
+
+                $("#<%=ButtonSD.ClientID%>").click(function () {
+                    var sShopNo = $("#<%= txtShopNoD.ClientID%>").val();
+                    var sDrawNo = $("#<%= txtDrawNoD.ClientID%>").val();
+                    var sShopName = $("#<%= txtShopNameD.ClientID%>").val();
+                    var sDateS = $("#<%= txtDateS.ClientID%>").val();
+                    var sDateE = $("#<%= txtDateE.ClientID%>").val();
+                    var sHHS = $("#<%= begin_hh.ClientID%>").val();
+                    var sHHE = $("#<%= end_hh.ClientID%>").val();
+                    if (sDateS != '' && sHHS != '' && sDateE != '' && sHHE != '') {
+                        var HrefAddress = "WaterSDayReport.aspx?sShopNo=" + sShopNo + "&sDrawNo=" + sDrawNo + "&sShopName=" + sShopName + "&sDateS=" + sDateS + "&sDateE=" + sDateE + "&sHHS=" + sHHS + "&sHHE=" + sHHE;
+                        $("#<%=ButtonSD.ClientID%>").colorbox({ innerWidth: 950, innerHeight: 520, iframe: true, slideshow: true, scrolling: true, overlayClose: false, href: HrefAddress });
+                        return true;
+                    } else {
+                        alertify.alert("紀錄查詢的時間區間欄位皆不可空白!");
+                        return false;
+                    }
+                });
+
+            });
+
+            }
+
+    </script>
+
+    <style type="text/css">
+        .support
+        {
+            outline: none;
+            border: none;
+        }
+        .ui-datepicker-trigger
+        {
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+        }
+        .td_width
+        {
+            height: 40px;
+            width: 100px;
+        }
+        .title_div
+        {
+            line-height: 25px;
+            width: 100px;
+            text-align: center;
+            padding-top:10px;
+        }
+    </style>
+    
+</asp:Content>
+
+<asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+    
+    <div id="content" align="center">
+        <table>
+            <tr>
+                <td align="left">
+                    <asp:Label ID="Label1" runat="server" Text="即時水量數值" Font-Bold="True" Font-Size="16pt" CssClass="fontline"></asp:Label>
+                </td>
+                <td align="right" style="padding-right:10px;">
+                    <asp:ImageButton ID="support" runat="server" ImageUrl="~/img/support.png" onmouseover="this.src='img/support_move.png'" onmouseout="this.src='img/support.png'" CssClass="support" CausesValidation="False" ToolTip="說明" ></asp:ImageButton>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <script type="text/javascript">
+                        var xPos1, yPos1;
+                        var prm = Sys.WebForms.PageRequestManager.getInstance();
+                        prm.add_beginRequest(BeginRequestHandler);
+                        prm.add_endRequest(EndRequestHandler);
+                        function BeginRequestHandler(sender, args) {
+                            xPos1 = $get('div1').scrollLeft; //gvDiv請更換成適合的ID名稱
+                            yPos1 = $get('div1').scrollTop;
+                        }
+                        function EndRequestHandler(sender, args) {
+                            $get('div1').scrollLeft = xPos1;
+                            $get('div1').scrollTop = yPos1;
+                        }
+                    </script>
+                    <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Conditional">
+                        <ContentTemplate>
+                            <div style="border-radius: 15px 15px 15px 15px; background-color: #e8f0ff;">
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <table>
+                                                <tr>
+                                                    <td align="left" nowrap="nowrap">
+                                                        <img src="img/compare.png" />顯示名稱</td>
+                                                    <td align="left" valign="middle" nowrap="nowrap">
+                                                        <asp:CheckBox ID="chkID" runat="server" Text="編號" /><br />
+                                                        <asp:CheckBox ID="chkShopNo" runat="server" Text="店鋪編號" />
+                                                    </td>
+                                                    <td align="left" valign="middle" nowrap="nowrap">
+                                                        <asp:CheckBox ID="chkDrawNo" runat="server" Text="圖面編號" /><br />
+                                                        <asp:CheckBox ID="chkShopName" runat="server" Text="店鋪名稱" />
+                                                    </td>
+                                                    <td align="center">
+                                                        <asp:Button ID="submit_btn" runat="server" Text="查詢" />
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="center">
+                                            <img src="img/Dash_01.png" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" valign="top">
+                                            <div id="div1" style="height: 490px; width: 370px; overflow: auto; border-radius: 15px 15px 15px 15px;">
+                                                <asp:TreeView ID="Shop_TreeView" runat="server" Style="margin-right: 3px" Font-Names="微軟正黑體" ForeColor="Black" ShowLines="True" CssClass="ParentNodeStyle">
+                                                    <SelectedNodeStyle BackColor="#6699FF" ForeColor="White" />
+                                                </asp:TreeView>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div style="visibility: hidden;">
+                                 <asp:Label ID="node_temp" runat="server" Text="" Visible="true"></asp:Label>
+                                 <asp:Label ID="WaterDataTemp" runat="server" Text=""></asp:Label>
+                            </div>
+                        </ContentTemplate>
+                    </asp:UpdatePanel>
+                </td>
+                <td>
+                                <asp:Panel ID="Panel_Data" runat="server">
+                                    <asp:UpdatePanel ID="UpdatePanel2" runat="server" UpdateMode="Conditional">
+                                        <ContentTemplate>
+                                                 <script type="text/javascript">
+                                                     Sys.Application.add_load(BindEvents);
+     </script>
+
+                    <table width="100%">
+                        <tr>
+                            <td colspan="3" valign="top">
+                                            <asp:Panel ID="Panel2" runat="server" Width="435px" Height="190px" BackImageUrl="~/img/Water_panel3.jpg">
+                                                <div style="height: 60px;">
+                                                    <table width="100%">
+                                                        <tr>
+                                                            <td width="240px" height="60px" nowrap="nowrap"> 
+                                                                <div style="position: relative; padding-left: 90px; padding-top: 20px; width: 160px;">
+                                                                    <asp:Label ID="RecDate" runat="server" Font-Size="16px" Text="--" CssClass="style3"></asp:Label>
+                                                                </div>
+                                                            </td>
+                                                            <td width="80px" height="60px">
+                                                                <div style="position: relative; padding-left: 20px; padding-top: 20px; width: 120px;">
+                                                                    <asp:Label ID="id" runat="server" Font-Size="16px" Text="--" CssClass="style3"></asp:Label>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                                <div>
+                                                    <table width="100%">
+                                                        <tr>
+                                                            <td width="50%" align="right" style="padding-right: 40px; padding-top: 50px;">
+                                                                <table width="100%" style="height: 50px">
+                                                                    <tr>
+                                                                        <td align="right" valign="top">
+                                                                            <div style="height: 50px; position: relative; padding-top: 0px; padding-right: 5px;">
+                                                                                <asp:Label ID="WaterData" runat="server" Text="--" Font-Size="40px"></asp:Label>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                            <td width="50%" align="right" style="padding-right: 25px; padding-top: 30px;">
+                                                                <table width="100%" style="height: 50px">
+                                                                    <tr>
+                                                                        <td align="right" valign="top">
+                                                                            <div style="height: 50px; position: relative; padding-top: 10px; padding-right: 25px;">
+                                                                                <asp:Label ID="WaterData1" runat="server" Text="" Font-Size="40px"></asp:Label>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </asp:Panel>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td nowrap="nowrap" align="center" valign="middle">
+                                <div style="position: relative; padding-bottom: 15px;">
+                                    <img src="img/water_item.png" />
+                                </div>
+                                <div  style="width: 10px; height: 25px; display: none;">
+                                    <p id="txtRBList">AD</p>
+                                </div>
+                            </td>
+                            <td nowrap="nowrap" colspan="2">  
+                                <asp:RadioButtonList ID="item_RBList" runat="server" RepeatDirection="Horizontal">
+                                    <asp:ListItem Value="AllShopDay" Selected="True">總日表</asp:ListItem>
+                                    <asp:ListItem Value="AllShopMonth">總月報表</asp:ListItem>
+                                    <asp:ListItem Value="SelfMonth">月報表</asp:ListItem>
+                                    <asp:ListItem Value="SelfDay">紀錄查詢</asp:ListItem>
+                                </asp:RadioButtonList>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" style="padding-left: 10px">
+                                <%  If item_RBList.SelectedValue = "AllShopDay" Then%>
+                                   <div id="AllShopDayD" style="width: 410px; height: 250px;">
+                                <%  Else%>
+                                   <div id="AllShopDayD" style="width: 410px; height: 250px; display: none;">
+                                <%  End If%>
+                                    <table width="100%">
+                                        <tr>
+                                           <td align="left" width="200px">
+                                               <img src="img/date2.png" />日期　
+                                               <asp:TextBox ID="txtDate" runat="server" Width="70px" BackColor="White" ForeColor="Black"></asp:TextBox>
+                                           </td>
+                                            <td style="padding-left:50px;">
+                                                <asp:Button ID="ButtonAD" runat="server" Text="確認" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <%  If item_RBList.SelectedValue = "AllShopMonth" Then%>
+                                   <div id="AllShopMonthD" style="width: 410px; height: 250px;">
+                                <%  Else%>
+                                   <div id="AllShopMonthD" style="width: 410px; height: 250px; display: none;">
+                                <%  End If%>
+                                    <table width="100%">
+                                        <tr>
+                                            <td>
+                                                <img src="img/date2.png" />月份　
+                                                <asp:TextBox ID="txtMonth" runat="server" Width="50px"></asp:TextBox>
+                                            </td>
+                                            <td style="padding-left:50px;">
+                                                <asp:Button ID="ButtonAM" runat="server" Text="確認" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                       
+                                <%  If item_RBList.SelectedValue = "SelfMonth" Then%>
+                                   <div id="SelfMonthD" style="width: 410px; height: 250px;">
+                                <%  Else%>
+                                   <div id="SelfMonthD" style="width: 410px; height: 250px; display: none;">
+                                <%  End If%>
+                                    <table width="100%">
+                                        <tr>
+                                           <td class="td_width" align="right"><img src="img/date2.png" /> 月份</td>
+                                           <td colspan="3" class="auto-style2" style="padding-left:10px;">
+                                               <asp:TextBox ID="txtMonthS" runat="server" Width="50px"></asp:TextBox>
+                                           </td>
+                                           <td class="td_width" align="right" colspan="4">
+                                               　<asp:Button ID="ButtonSM" runat="server" Text="確認" />
+                                           </td>
+                                        </tr>
+                                        <tr>
+                                        </tr>
+                                        <tr>
+                                           <td class="td_width" align="right">店鋪編號</td>
+                                           <td colspan="3" class="auto-style2" style="padding-left:10px;">
+                                               <asp:TextBox ID="txtShopNoM" runat="server" Enabled="False" Width="150px" ForeColor="#000099" BackColor="White"></asp:TextBox>
+                                           </td>
+                                        </tr>
+                                        <tr>
+                                           <td class="td_width" align="right">店鋪名稱</td>
+                                           <td colspan="3" class="auto-style2" style="padding-left:10px;">
+                                               <asp:TextBox ID="txtShopNameM" runat="server" Enabled="False" Width="150px" ForeColor="#000099" BackColor="White"></asp:TextBox>
+                                           </td>
+                                        </tr>
+                                        <tr>
+                                           <td class="td_width" align="right">圖面編號</td>
+                                           <td colspan="3" class="auto-style2" style="padding-left:10px;">
+                                               <asp:TextBox ID="txtDrawNoM" runat="server" Enabled="False" Width="150px" ForeColor="#000099" BackColor="White"></asp:TextBox>
+                                           </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                       
+                                <%  If item_RBList.SelectedValue = "SelfDay" Then%>
+                                   <div id="SelfDayD" style="width: 410px; height: 250px;">
+                                <%  Else%>
+                                   <div id="SelfDayD" style="width: 410px; height: 250px; display: none;">
+                                <%  End If%>
+                                    <table width="100%">
+                                        <tr>
+                                           <td class="td_width" align="right">
+                                              <img src="img/date2.png" />時間區間</td>
+                                        </tr>
+                                        <tr>
+                                           <td colspan="4" class="auto-style2" style="padding-left:50px;"><asp:TextBox ID="txtDateS" runat="server" Width="70px" BackColor="White" ForeColor="Black"></asp:TextBox>
+                                              <asp:DropDownList ID="begin_hh" runat="server"></asp:DropDownList>時
+                                              ～
+                                              <asp:TextBox ID="txtDateE" runat="server" Width="70px" BackColor="White" ForeColor="Black"></asp:TextBox>
+                                              <asp:DropDownList ID="end_hh" runat="server"></asp:DropDownList>時
+                                           </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="td_width" align="right" colspan="4">
+                                                <asp:Button ID="ButtonSD" runat="server" Text="確認" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                           <td class="td_width" align="right">店鋪編號</td>
+                                           <td colspan="3" class="auto-style2" style="padding-left:10px;">
+                                               <asp:TextBox ID="txtShopNoD" runat="server" Enabled="False" Width="150px" ForeColor="#000099" BackColor="White"></asp:TextBox>
+                                           </td>
+                                        </tr>
+                                        <tr>
+                                           <td class="td_width" align="right">店鋪名稱</td>
+                                           <td colspan="3" class="auto-style2" style="padding-left:10px;">
+                                               <asp:TextBox ID="txtShopNameD" runat="server" Enabled="False" Width="150px" ForeColor="#000099" BackColor="White"></asp:TextBox>
+                                           </td>
+                                        </tr>
+                                        <tr>
+                                           <td class="td_width" align="right">圖面編號</td>
+                                           <td colspan="3" class="auto-style2" style="padding-left:10px;">
+                                               <asp:TextBox ID="txtDrawNoD" runat="server" Enabled="False" Width="150px" ForeColor="#000099" BackColor="White"></asp:TextBox>
+                                           </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                                        </ContentTemplate>
+                                        <Triggers>
+                                            <asp:AsyncPostBackTrigger ControlID="Shop_TreeView" EventName="SelectedNodeChanged" />
+                                        </Triggers>
+                                    </asp:UpdatePanel>
+                                </asp:Panel>
+                </td>
+            </tr>
+        </table>
+    </div>
+</asp:Content>
+

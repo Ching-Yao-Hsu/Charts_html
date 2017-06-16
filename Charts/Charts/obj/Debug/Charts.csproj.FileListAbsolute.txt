@@ -61,7 +61,6 @@ C:\Users\ECOSMART\Desktop\Charts_html\Charts\Charts\bin\Microsoft.AI.Web.xml
 C:\Users\ECOSMART\Desktop\Charts_html\Charts\Charts\bin\Microsoft.AI.WindowsServer.xml
 C:\Users\ECOSMART\Desktop\Charts_html\Charts\Charts\bin\Microsoft.ApplicationInsights.xml
 C:\Users\ECOSMART\Desktop\Charts_html\Charts\Charts\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml
-C:\Users\ECOSMART\Desktop\Charts_html\Charts\Charts\obj\Debug\Charts.csprojResolveAssemblyReference.cache
 C:\Users\ECOSMART\Desktop\Charts_html\Charts\Charts\obj\Debug\Charts.dll
 C:\Users\ECOSMART\Desktop\Charts_html\Charts\Charts\obj\Debug\Charts.pdb
 C:\Users\Ryan\Desktop\Charts_html\Charts\Charts\bin\ApplicationInsights.config
@@ -97,3 +96,4 @@ C:\Users\Ryan\Desktop\Charts_html\Charts\Charts\bin\Microsoft.CodeDom.Providers.
 C:\Users\Ryan\Desktop\Charts_html\Charts\Charts\obj\Debug\Charts.csprojResolveAssemblyReference.cache
 C:\Users\Ryan\Desktop\Charts_html\Charts\Charts\obj\Debug\Charts.dll
 C:\Users\Ryan\Desktop\Charts_html\Charts\Charts\obj\Debug\Charts.pdb
+C:\Users\ECOSMART\Desktop\Charts_html\Charts\Charts\obj\Debug\Charts.csprojResolveAssemblyReference.cache
