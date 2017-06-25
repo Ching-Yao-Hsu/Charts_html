@@ -4,6 +4,135 @@
 <head>
     <meta charset="UTF-8">
     <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+    <script>
+        $.fn.SetOrgChart = function () {
+            $(this).append(
+                $('<table/>')
+                .attr('id', 'orgChart')
+            );
+        };
+
+        $.fn.FirstNode = function (e) {
+            $(this).append(
+                $('<tr/>').append(
+                    $('<td/>')
+                    .attr('colspan', 2)
+                    .attr('id', e)
+                    .addClass('bgc')
+                    .html('&nbsp;')
+                )
+
+            );
+        };
+
+        $.fn.SecondNode = function (e1, e2) {
+            $(this).append(
+                $('<tr/>').append(
+                    $('<td/>')
+                    .attr('colspan', 2)
+                    .attr('id', e1)
+                    .addClass('bgc')
+                    .html('&nbsp;')
+                )
+            );
+
+            Create_CenterLine_odd(e2);
+            Create_CenterLine_odd(e2);
+        };
+
+        function Insert_nbsp(e) {
+            $('#' + e).append(
+                $('<td/>')
+                .attr('colspan', '1')
+                .html('&nbsp;')
+            );
+        }
+
+        function Insert_leftline(e) {
+            $('#' + e).append(
+                $('<td/>')
+                .attr('colspan', '1')
+                .addClass('leftline')
+                .html('&nbsp;')
+            );
+        }
+
+        function Create_CenterLine_odd(e) {
+            $('#' + e).parent().after("<tr id='first'></tr>");
+            Insert_nbsp('first');
+            Insert_leftline('first');
+        };
+
+        function Create_CenterLine_even(e) {
+            $('#' + e).parent().after("<tr id='first'></tr>");
+            $('#first').append(
+                $('<td/>')
+                .attr('colspan', '1')
+                .html('&nbsp;')
+            );
+            $('#first').append(
+                $('<td/>')
+                .attr('colspan', '1')
+                .addClass('centerline')
+                .html('&nbsp;')
+            );
+        };
+
+        function build(e) {
+
+        }
+
+        $(document).ready(function () {
+            data = [{
+                    id: '00', parent:''
+            }, {
+                    id: '00-00', parent:'00'
+            }, {
+                    id: '00-01', parent:'00'
+            }
+            ]
+
+            $('#org-tree').SetOrgChart();
+            var array = {};
+
+
+            if (data != null) {
+                for (i = 0; i < data.length; i++) {
+                    array[i] = data[i]['id'].split('-');
+                }
+            }
+
+            for (i = 0; i < data.length; i++) {
+                if (array[i].length == 1) {
+                    $('#orgChart').FirstNode(array[i][0]);
+
+                    for(j = 0; j < data.length; j++){
+                        if(data[j]['parent'] == array[i][0])
+                    }
+                }
+            }
+
+
+
+
+
+
+
+
+
+        });
+    </script>
+
+
+
+
+
+
+
+
+
     <style>
         table {
             border-collapse: collapse;
@@ -20,12 +149,8 @@
             /*            width: 20px;*/
         }
         
-        .one {
-            background-color: antiquewhite;
-        }
-        
-        .two {
-            background-color: antiquewhite;
+        .bgc {
+            background-color: bisque;
         }
     </style>
 
@@ -35,80 +160,87 @@
             border-bottom: 1px solid red;
         }
         
-        .centerline {
+        .leftline {
             border-left: 1px solid red;
         }
     </style>
 
+
+
 </head>
 
 <body>
+
+
+    <!--
     <table>
-        <tr>
-            <td colspan="6">&nbsp;</td>
-            <td colspan="2" class="one">1</td>
-            <td colspan="6">&nbsp;</td>
+        <tr>            
+            <td colspan="2" class="one">1</td>            
+        </tr>
+        <tr>            
+            <td colspan="1">&nbsp;</td>
+            <td colspan="1" class="leftline">&nbsp;</td>            
         </tr>
         <tr>
-            <td colspan="3">&nbsp;</td>
-            <td colspan="4" class="linebottom">&nbsp;</td>
-            <td colspan="4" class="linebottom centerline">&nbsp;</td>
-            <td colspan="3">&nbsp;</td>
-        </tr>
-        <tr>
-            <td colspan="3">&nbsp;</td>
-            <td colspan="4" class="centerline">&nbsp;</td>
-            <td colspan="4">&nbsp;</td>
-            <td colspan="3" class="centerline">&nbsp;</td>
+            <td colspan="1">&nbsp;</td>
+            <td colspan="1" class="leftline">&nbsp;</td>
             
         </tr>
-        <tr>
-            <td colspan="2">&nbsp;</td>
-            <td colspan="2" class="two">2</td>
-            <td colspan="3">&nbsp;</td>
-            <td colspan="3">&nbsp;</td>
-            <td colspan="2" class="two">2</td>
-            <td colspan="2">&nbsp;</td>
-        </tr>
-
-        <tr>
-            <td colspan="1">&nbsp;</td>
-            <td colspan="2" class="linebottom">&nbsp;</td>
-            <td colspan="2" class="linebottom centerline">&nbsp;</td>
-            <td colspan="2">&nbsp;</td>
-            <td colspan="2">&nbsp;</td>
-            <td colspan="2" class="linebottom">&nbsp;</td>
-            <td colspan="2" class="linebottom centerline">&nbsp;</td>
-            <td colspan="1">&nbsp;</td>
+        <tr>            
             
-
+                    
+            <td colspan="2" class="two">2</td>            
         </tr>
-        <tr>
-            <td colspan="1">&nbsp;</td>
-            <td colspan="1" class="centerline">&nbsp;</td>
-            <td colspan="2">&nbsp;</td>
-            <td colspan="1">&nbsp;</td>
-            <td colspan="1" class="centerline">&nbsp;</td>
-            <td colspan="2">&nbsp;</td>
-            <td colspan="1">&nbsp;</td>
-            <td colspan="1" class="centerline">&nbsp;</td>
-            <td colspan="2">&nbsp;</td>
-            <td colspan="1">&nbsp;</td>
-            <td colspan="1" class="centerline">&nbsp;</td>
-            
-
-        </tr>
-        <tr>
-            <td colspan="2" class="two">3</td>
-            <td colspan="2">&nbsp;</td>
-            <td colspan="2" class="two">3</td>
-            <td colspan="2">&nbsp;</td>
-            <td colspan="2" class="two">3</td>
-            <td colspan="2">&nbsp;</td>
-            <td colspan="2" class="two">3</td>
-        </tr>
-
     </table>
+-->
+
+
+
+
+    <!--
+    <table id="org-tree">
+        <tr id="one-1">
+            <td colspan="2">&nbsp;</td>
+            <td colspan="2">&nbsp;</td>
+            <td colspan="2">&nbsp;</td>
+            <td colspan="2" class="one">1</td>
+            <td colspan="2">&nbsp;</td>
+            <td colspan="2">&nbsp;</td>
+            <td colspan="2">&nbsp;</td>
+        </tr>
+        <tr id="one-2">
+            <td colspan="1">&nbsp;</td>
+            <td colspan="6" class="linebottom">&nbsp;</td>
+            <td colspan="6" class="linebottom leftline">&nbsp;</td>
+            <td colspan="1">&nbsp;</td>
+        </tr>
+        <tr id="one-3">
+            <td colspan="1">&nbsp;</td>
+            <td colspan="1" class="leftline">&nbsp;</td>
+            <td colspan="2">&nbsp;</td>
+            <td colspan="1">&nbsp;</td>
+            <td colspan="1" class="leftline">&nbsp;</td>
+            <td colspan="2">&nbsp;</td>
+            <td colspan="1">&nbsp;</td>
+            <td colspan="1" class="leftline">&nbsp;</td>
+            <td colspan="2">&nbsp;</td>
+            <td colspan="1">&nbsp;</td>
+            <td colspan="1" class="leftline">&nbsp;</td>
+
+        </tr>
+        <tr>
+            <td colspan="2" class="two">2</td>
+            <td colspan="2">&nbsp;</td>
+            <td colspan="2" class="two">2</td>
+            <td colspan="2">&nbsp;</td>
+            <td colspan="2" class="two">2</td>
+            <td colspan="2">&nbsp;</td>
+            <td colspan="2" class="two">2</td>
+        </tr>
+    </table>
+-->
+
+    <div id="org-tree"></div>
 
 </body>
 
