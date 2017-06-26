@@ -7,122 +7,89 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
     <script>
-        $.fn.SetOrgChart = function () {
+        $.fn.SetOrgChart = function() {
             $(this).append(
                 $('<table/>')
                 .attr('id', 'orgChart')
             );
         };
 
-        $.fn.FirstNode = function (e) {
-            $(this).append(
-                $('<tr/>').append(
-                    $('<td/>')
-                    .attr('colspan', 2)
-                    .attr('id', e)
-                    .addClass('bgc')
-                    .html('&nbsp;')
-                )
-
-            );
-        };
-
-        $.fn.SecondNode = function (e1, e2) {
-            $(this).append(
-                $('<tr/>').append(
-                    $('<td/>')
-                    .attr('colspan', 2)
-                    .attr('id', e1)
-                    .addClass('bgc')
-                    .html('&nbsp;')
-                )
+        function Create_Total_Hierarchy(e) {
+            $('#orgChart').append(
+                $('<tr/>')
+                .attr('id', 'Hierarchy' + e + '-0')
             );
 
-            Create_CenterLine_odd(e2);
-            Create_CenterLine_odd(e2);
-        };
-
-        function Insert_nbsp(e) {
-            $('#' + e).append(
-                $('<td/>')
-                .attr('colspan', '1')
-                .html('&nbsp;')
-            );
-        }
-
-        function Insert_leftline(e) {
-            $('#' + e).append(
-                $('<td/>')
-                .attr('colspan', '1')
-                .addClass('leftline')
-                .html('&nbsp;')
-            );
-        }
-
-        function Create_CenterLine_odd(e) {
-            $('#' + e).parent().after("<tr id='first'></tr>");
-            Insert_nbsp('first');
-            Insert_leftline('first');
-        };
-
-        function Create_CenterLine_even(e) {
-            $('#' + e).parent().after("<tr id='first'></tr>");
-            $('#first').append(
-                $('<td/>')
-                .attr('colspan', '1')
-                .html('&nbsp;')
-            );
-            $('#first').append(
-                $('<td/>')
-                .attr('colspan', '1')
-                .addClass('centerline')
-                .html('&nbsp;')
-            );
-        };
-
-        function build(e) {
-
-        }
-
-        $(document).ready(function () {
-            data = [{
-                    id: '00', parent:''
-            }, {
-                    id: '00-00', parent:'00'
-            }, {
-                    id: '00-01', parent:'00'
+            for (j = 2; j > 0; j--) {
+                $('#Hierarchy' + e + '-0').after("<tr id='Hierarchy" + e + "-" + j + "'></tr>");
             }
-            ]
+        }
+
+        function Create_Last_Hierarchy(e) {
+            $('#orgChart').append(
+                $('<tr/>')
+                .attr('id', 'Hierarchy' + e + '-0')
+            );
+        }
+
+        function Insert_First_Node(e) {
+            $('#Hierarchy1-0').append(
+                $('<td/>')
+                .attr('colspan', 2)
+                .attr('id', e)
+                .html('&nbsp;')
+                .addClass('bgc')
+            );
+        }
+
+        function Insert_Second_Node(e) {
+
+        }
+
+
+        $(document).ready(function() {
+            data = [{
+                id: '00',
+                parent: ''
+            }, {
+                id: '00-00',
+                parent: '00'
+            }, {
+                id: '00-01',
+                parent: '00'
+            }]
 
             $('#org-tree').SetOrgChart();
             var array = {};
-
+            var max = 0;
 
             if (data != null) {
                 for (i = 0; i < data.length; i++) {
                     array[i] = data[i]['id'].split('-');
+                    max = (max < array[i].length) ? array[i].length : max;
                 }
-            }
 
-            for (i = 0; i < data.length; i++) {
-                if (array[i].length == 1) {
-                    $('#orgChart').FirstNode(array[i][0]);
-
-                    for(j = 0; j < data.length; j++){
-                        if(data[j]['parent'] == array[i][0])
+                if (max != 0 || max != null) {
+                    for (i = 1; i <= max; i++) {
+                        (i != max) ? Create_Total_Hierarchy(i): Create_Last_Hierarchy(max);
                     }
                 }
             }
 
+            for (i = 0; i < data.length; i++) {
+                if (data[i]['parent'] == '') {
+                    Insert_First_Node(data[i]['id']);
+                }
+            }
 
-
-
+            console.log($('00').next());
 
 
 
 
 
         });
+
     </script>
 
 
@@ -152,6 +119,7 @@
         .bgc {
             background-color: bisque;
         }
+
     </style>
 
 
@@ -163,6 +131,7 @@
         .leftline {
             border-left: 1px solid red;
         }
+
     </style>
 
 
@@ -241,6 +210,14 @@
 -->
 
     <div id="org-tree"></div>
+
+    <ul>
+        <li>list item 1</li>
+        <li>list item 2</li>
+        <li class="third-item">list item 3</li>
+        <li>list item 4</li>
+        <li>list item 5</li>
+    </ul>
 
 </body>
 
