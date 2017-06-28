@@ -4,6 +4,218 @@
 <head>
     <meta charset="UTF-8">
     <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+    <script>
+        $.fn.SetOrgChart = function() {
+            $(this).append(
+                $('<table/>')
+                .attr('id', 'orgChart')
+            );
+        };
+
+        function Create_Total_Hierarchy(e) {
+            $('#orgChart').append(
+                $('<tr/>')
+                .attr('id', 'Hierarchy' + e + '-0')
+            );
+
+            for (j = 2; j > 0; j--) {
+                $('#Hierarchy' + e + '-0').after("<tr id='Hierarchy" + e + "-" + j + "'></tr>");
+            }
+        }
+
+        function Create_Last_Hierarchy(e) {
+            $('#orgChart').append(
+                $('<tr/>')
+                .attr('id', 'Hierarchy' + e + '-0')
+            );
+        }
+
+        function Insert_First_Node(e) {
+            $('#Hierarchy1-0').append(
+                $('<td/>')
+                .attr('colspan', 2)
+                .attr('id', e)
+                .html('&nbsp;')
+                .addClass('bgc')
+            );
+        }
+
+        function Insert_Second_Node(e1, e2) {
+            $('#' + e1).parent().next().next().next().append(
+                $('<td/>')
+                .attr('id', e2)
+                .attr('colspan', 2)
+                .html('&nbsp;')
+                .addClass('bgc')
+            );
+        }
+
+        function Insert_Hierarchy2_LeftLine(e) {
+            $('#' + e).parent().next().append(
+                $('<td/>')
+                .attr('colspan', 1)
+                .html('&nbsp;')
+            );
+
+            $('#' + e).parent().next().append(
+                $('<td/>')
+                .attr('colspan', 1)
+                .addClass('leftline')
+                .html('&nbsp;')
+            );
+        }
+
+        function Insert_Hierarchy3_LeftLine(e) {
+            $('#' + e).parent().next().next().append(
+                $('<td/>')
+                .attr('colspan', 1)
+                .html('&nbsp;')
+            );
+
+            $('#' + e).parent().next().next().append(
+                $('<td/>')
+                .attr('colspan', 1)
+                .addClass('leftline')
+                .html('&nbsp;')
+            );
+        }
+
+        function Insert_Hierarchy1_Space(e) {
+
+            $('#' + e).parent().append(
+                $('<td/>')
+                .attr('colspan', 2)
+                .html('&nbsp;')
+            );
+            $('#' + e).parent().prepend(
+                $('<td/>')
+                .attr('colspan', 2)
+                .html('&nbsp;')
+            );
+
+        }
+
+        function Insert_Hierarchy2_Space(e) {
+            $('#' + e).parent().next().prepend(
+                $('<td/>')
+                .attr('colspan', 1)
+                .html('&nbsp;')
+            );
+            $('#' + e).parent().next().prepend(
+                $('<td/>')
+                .attr('colspan', 1)
+                .html('&nbsp;')
+            );
+            $('#' + e).parent().next().append(
+                $('<td/>')
+                .attr('colspan', 1)
+                .html('&nbsp;')
+            );
+            $('#' + e).parent().next().append(
+                $('<td/>')
+                .attr('colspan', 1)
+                .html('&nbsp;')
+            );
+
+            $('#' + e).parent().next().children().addClass('bottomline');
+            $('#' + e).parent().next().children().last().removeClass();
+            $('#' + e).parent().next().children().first().removeClass();
+
+        }
+
+        function Insert_Hierarchy3_Space(e) {
+            $('#' + e).parent().next().next().append(
+                $('<td/>')
+                .attr('colspan', 2)
+                .html('&nbsp;')
+            );
+
+        }
+
+        function Insert_SecondNode_Space(e) {
+            $('#' + e).parent().next().next().next().append(
+                $('<td/>')
+                .attr('colspan', 2)
+                .html('&nbsp;')
+            );
+        }
+
+
+        $(document).ready(function() {
+            data = [{
+                id: '00',
+                parent: ''
+            }, {
+                id: '00-00',
+                parent: '00'
+            }, {
+                id: '00-01',
+                parent: '00'
+            }, {
+                id: '00-02',
+                parent: '00'
+            }, {
+                id: '00-03',
+                parent: '00'
+            }]
+
+            $('#org-tree').SetOrgChart();
+            var array = {};
+            var max = 0;
+
+            if (data != null) {
+                for (i = 0; i < data.length; i++) {
+                    array[i] = data[i]['id'].split('-');
+                    max = (max < array[i].length) ? array[i].length : max;
+                }
+
+                if (max != 0 || max != null) {
+                    for (i = 1; i <= max; i++) {
+                        (i != max) ? Create_Total_Hierarchy(i): Create_Last_Hierarchy(max);
+                    }
+                }
+            }
+
+            for (i = 0; i < data.length; i++) {
+                var count = 0;
+
+                if (data[i]['parent'] == '') {
+                    Insert_First_Node(data[i]['id']);
+                }
+
+                for (j = 0; j < data.length; j++) {
+                    if (data[i]['id'] == data[j]['parent']) {                        
+                        count++;
+                    }                   
+                }
+                console.log(count);
+            }
+            
+            var countChild = 1;                
+            var num = 0;
+            while($("#Hierarchy1-0 td:nth-child(" + countChild + ")").attr('id') != '00'){
+                
+                num += parseInt($("#Hierarchy1-0 td:nth-child(" + countChild + ")").attr('colspan'));
+                
+                countChild ++;                
+            }
+            
+            
+
+        });
+
+    </script>
+
+
+
+
+
+
+
+
+
     <style>
         table {
             border-collapse: collapse;
@@ -17,89 +229,34 @@
         
         table tr td {
             text-align: center;
-/*            width: 20px;*/
+            /*            width: 20px;*/
         }
         
-        .one {
-            background-color: antiquewhite;
+        .bgc {
+            background-color: bisque;
         }
-        
-        .two {
-            background-color: antiquewhite;
-        }
+
     </style>
 
 
     <style>
-        .linebottom {
+        .bottomline {
             border-bottom: 1px solid red;
         }
         
-        .centerline {
+        .leftline {
             border-left: 1px solid red;
         }
+
     </style>
+
+
 
 </head>
 
 <body>
-    <table>
-        <tr>
-            <td colspan="4">&nbsp;</td>            
-            <td colspan="2" class="one">1</td>
-            <td colspan="4">&nbsp;</td>
-        </tr>
-        <tr>
-            <td colspan="1">&nbsp;</td>
-            <td colspan="4" class="linebottom">&nbsp;</td>
-            <td colspan="2" class="linebottom centerline">&nbsp;</td>
-            <td colspan="2">&nbsp;</td>
-        </tr>
-        <tr>
-            <td colspan="1">&nbsp;</td>
-            <td colspan="1" class="centerline">&nbsp;</td>
-            <td colspan="4">&nbsp;</td>
-            <td colspan="1">&nbsp;</td>
-            <td colspan="1" class="centerline">&nbsp;</td>
-            <td colspan="2">&nbsp;</td>
-        </tr>
-        <tr>
-            <td colspan="2" class="two">2</td>
-            <td colspan="4">&nbsp;</td>
-            <td colspan="2" class="two">2</td>
-            <td colspan="2">&nbsp;</td>
-        </tr>
-
-        <tr>
-            <td colspan="1">&nbsp;</td>
-            <td colspan="1" class="centerline">&nbsp;</td>
-            <td colspan="3">&nbsp;</td>
-            <td colspan="2" class="linebottom">&nbsp;</td>
-            <td colspan="2" class="linebottom centerline">&nbsp;</td>
-            <td colspan="1">&nbsp;</td>
-
-        </tr>
-        <tr>
-            <td colspan="1">&nbsp;</td>
-            <td colspan="1" class="centerline">&nbsp;</td>
-            <td colspan="2">&nbsp;</td>
-            <td colspan="1">&nbsp;</td>
-            <td colspan="1" class="centerline">&nbsp;</td>
-            <td colspan="2">&nbsp;</td>
-            <td colspan="1">&nbsp;</td>
-            <td colspan="1" class="centerline">&nbsp;</td>
-
-        </tr>
-        <tr>
-            <td colspan="2" class="two">3</td>
-            <td colspan="2">&nbsp;</td>
-            <td colspan="2" class="two">3</td>
-            <td colspan="2">&nbsp;</td>
-            <td colspan="2" class="two">3</td>
-        </tr>
-
-    </table>
-
+    <div id="org-tree"></div>
 </body>
+
 
 </html>

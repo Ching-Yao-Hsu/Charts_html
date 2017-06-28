@@ -7,7 +7,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
     <script>
-        $.fn.SetOrgChart = function () {
+        $.fn.SetOrgChart = function() {
             $(this).append(
                 $('<table/>')
                 .attr('id', 'orgChart')
@@ -83,19 +83,18 @@
         }
 
         function Insert_Hierarchy1_Space(e) {
-            var check = $('#' + e).parent().attr('id');
-            if (check == 'Hierarchy1-0') {
-                $('#' + e).parent().append(
-                    $('<td/>')
-                    .attr('colspan', 2)
-                    .html('&nbsp;')
-                );
-                $('#' + e).parent().prepend(
-                    $('<td/>')
-                    .attr('colspan', 2)
-                    .html('&nbsp;')
-                );
-            }            
+
+            $('#' + e).parent().append(
+                $('<td/>')
+                .attr('colspan', 2)
+                .html('&nbsp;')
+            );
+            $('#' + e).parent().prepend(
+                $('<td/>')
+                .attr('colspan', 2)
+                .html('&nbsp;')
+            );
+
         }
 
         function Insert_Hierarchy2_Space(e) {
@@ -144,43 +143,43 @@
         }
 
 
-        $(document).ready(function () {
+        $(document).ready(function() {
             data = [{
                 id: '00',
-                parent: ''
+                parent: '',
+                hierarchy: ''
             }, {
                 id: '00-00',
-                parent: '00'
+                parent: '00',
+                hierarchy: ''
             }, {
                 id: '00-01',
-                parent: '00'
+                parent: '00',
+                hierarchy: ''
             }, {
                 id: '00-02',
-                parent: '00'
+                parent: '00',
+                hierarchy: ''
             }, {
                 id: '00-03',
-                parent: '00'
+                parent: '00',
+                hierarchy: ''
             }, {
                 id: '00-00-00',
-                parent: '00-00'
-            }, {
-                id: '00-00-01',
-                parent: '00-00'
-            }, {
-                id: '00-00-00',
-                parent: '00-00'
-            }, {
-                id: '00-00-01',
-                parent: '00-00'
+                parent: '00-00',
+                hierarchy: ''
             }]
 
             $('#org-tree').SetOrgChart();
             var array = {};
             var max = 0;
+            var array_count_hierarchy = {};
+            var width = 0;
 
             if (data != null) {
                 for (i = 0; i < data.length; i++) {
                     array[i] = data[i]['id'].split('-');
+                    data[i]['hierarchy'] = array[i].length;
                     max = (max < array[i].length) ? array[i].length : max;
                 }
 
@@ -191,41 +190,95 @@
                 }
             }
 
-            for (i = 0; i < data.length; i++) {
-                var count = 0;
-
-                if (data[i]['parent'] == '') {
-
-                    Insert_First_Node(data[i]['id']);
-
-                }
-
-                for (j = 0; j < data.length; j++) {
-
-                    if (data[i]['id'] == data[j]['parent']) {
-
-                        if (count == 0) {
-                            Insert_Second_Node(data[j]['parent'], data[j]['id']);
-                            Insert_Hierarchy2_LeftLine(data[j]['parent']);
-                            Insert_Hierarchy3_LeftLine(data[j]['parent']);
-                        } else {
-                            Insert_Hierarchy1_Space(data[j]['parent']);
-                            Insert_Hierarchy2_Space(data[j]['parent']);
-                            Insert_Hierarchy3_Space(data[j]['parent']);
-                            Insert_Hierarchy3_LeftLine(data[j]['parent']);
-                            Insert_SecondNode_Space(data[j]['parent']);
-                            Insert_Second_Node(data[j]['parent'], data[j]['id']);
-
-                        }
 
 
-                        count++;
-                    }
+            var num = max;
 
-                    console.log(count);
-                }
 
+            for (i = 0; i < max; i++) {
+                array_count_hierarchy[i] = 0;
             }
+
+            while (num > 0) {
+                for (i = data.length; i > 0; i--) {
+                    if (data[i - 1]['hierarchy'] == num) {
+                        array_count_hierarchy[num - 1]++;
+                    }
+                }
+                num--;
+            }
+
+
+            if (array_count_hierarchy[max - 1] == 1) {
+                width = array_count_hierarchy[max - 1];
+            } else {
+                width = array_count_hierarchy[max - 1] * 2;
+            }
+            
+            for(i = 0; i < data.length; i++){
+                if(data[i]['hierarchy'] == 3){
+                    for(j =0; j < data.length; j++){
+                        
+                    }                 
+                }    
+            }
+
+
+
+
+            console.log(data[2]['hierarchy']);
+
+
+
+
+
+            //            for (i = 0; i < data.length; i++) {
+            //                var count = 0;
+            //
+            //                if (data[i]['parent'] == '') {
+            //
+            //                    Insert_First_Node(data[i]['id']);
+            //
+            //                }
+            //
+            //                for (j = 0; j < data.length; j++) {
+            //
+            //                    if (data[i]['id'] == data[j]['parent']) {
+            //
+            //                        if (count == 0) {
+            //                            Insert_Second_Node(data[j]['parent'], data[j]['id']);
+            //                            Insert_Hierarchy2_LeftLine(data[j]['parent']);
+            //                            Insert_Hierarchy3_LeftLine(data[j]['parent']);
+            //                        } else {
+            //                            Insert_Hierarchy1_Space(data[j]['parent']);
+            //                            Insert_Hierarchy2_Space(data[j]['parent']);
+            //                            Insert_Hierarchy3_Space(data[j]['parent']);
+            //                            Insert_Hierarchy3_LeftLine(data[j]['parent']);
+            //                            Insert_SecondNode_Space(data[j]['parent']);
+            //                            Insert_Second_Node(data[j]['parent'], data[j]['id']);
+            //                        }
+            //
+            //
+            //                        count++;
+            //                    }
+            //
+            //                    //                    console.log(count);
+            //                }
+            //
+            //            }
+
+            //            var countChild = 1;                
+            //            var num = 0;
+            //            while($("#Hierarchy1-0 td:nth-child(" + countChild + ")").attr('id') != '00'){
+            //                
+            //                num += parseInt($("#Hierarchy1-0 td:nth-child(" + countChild + ")").attr('colspan'));
+            //                
+            //                countChild ++;                
+            //            }
+            //            
+            //            console.log(num);
+
+
 
 
 
@@ -234,6 +287,7 @@
 
 
         });
+
     </script>
 
 
@@ -263,6 +317,7 @@
         .bgc {
             background-color: bisque;
         }
+
     </style>
 
 
@@ -274,6 +329,7 @@
         .leftline {
             border-left: 1px solid red;
         }
+
     </style>
 
 
@@ -356,5 +412,6 @@
 
 
 </body>
+
 
 </html>
