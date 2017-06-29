@@ -200,7 +200,7 @@
                 hierarchy: ''
             }, {
                 id: '00-00-00',
-                parent: '00-03',
+                parent: '00-01',
                 hierarchy: ''
             }, {
                 id: '00-00-01',
@@ -216,11 +216,11 @@
                 hierarchy: ''
             }, {
                 id: '00-00-00-00',
-                parent: '00-00-01',
+                parent: '00-00-00',
                 hierarchy: ''
             }, {
                 id: '00-00-00-01',
-                parent: '00-00-01',
+                parent: '00-00-00',
                 hierarchy: ''
             }]
 
@@ -267,17 +267,35 @@
                         count_nodes++;
                     }
                 }
-
-                if (count_nodes > 1) {
-                    for (k = 0; k < count_nodes -1 ; k++) {
-                        Insert_Nodes_Space(data[i]['id']);                        
-                    }
-                }
+//
+//                if (count_nodes > 1) {
+//                    for (k = 0; k < count_nodes -1 ; k++) {
+//                        Insert_Nodes_Space(data[i]['id']);      
+//                        console.log(data[i]['id']);
+//                        
+//                        
+//                        if(array_stroe[count_array_store] == null){
+//                            array_stroe[count_array_store] = data[i]['id'];
+//                            count_array_store++;
+//                        }else{
+//                            
+//                            for(m = 0; m < count_array_store; m++){
+//                                if(data[i]['id'] == array_stroe[m]){
+//                                    break;
+//                                }else{
+//                                    array_stroe[count_array_store] = data[i]['id'];
+//                                    count_array_store++;
+//                                }
+//                            }  
+//                            
+//                        }
+//                    }
+//                }
             }
+            
+            console.log(array_stroe);
 
-
-
-
+            
 
 
 

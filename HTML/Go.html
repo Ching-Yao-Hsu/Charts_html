@@ -1,13 +1,334 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Document</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gojs/1.7.12/go-debug.js"></script>
-    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+    <script>
+        $.fn.SetOrgChart = function() {
+            $(this).append(
+                $('<table/>')
+                .attr('id', 'orgChart')
+            );
+        };
+
+        function Create_Total_Hierarchy(e) {
+            $('#orgChart').append(
+                $('<tr/>')
+                .attr('id', 'Hierarchy' + e + '-0')
+            );
+
+            for (j = 2; j > 0; j--) {
+                $('#Hierarchy' + e + '-0').after("<tr id='Hierarchy" + e + "-" + j + "'></tr>");
+            }
+        }
+
+        function Create_Last_Hierarchy(e) {
+            $('#orgChart').append(
+                $('<tr/>')
+                .attr('id', 'Hierarchy' + e + '-0')
+            );
+        }
+
+        function Insert_First_Node(e) {
+            $('#Hierarchy1-0').append(
+                $('<td/>')
+                .attr('colspan', 2)
+                .append(
+                    $('<div/>')
+                    .attr('id', e)
+                    .html('&nbsp;')
+                )
+
+
+            );
+        }
+
+        function Insert_Second_Node(e1, e2) {
+            $('#' + e1).parent().next().next().next().append(
+                $('<td/>')
+                .attr('id', e2)
+                .attr('colspan', 2)
+                .html('&nbsp;')
+                .addClass('bgc')
+            );
+        }
+
+        function Insert_Hierarchy2_LeftLine(e) {
+            $('#' + e).parent().next().append(
+                $('<td/>')
+                .attr('colspan', 1)
+                .html('&nbsp;')
+            );
+
+            $('#' + e).parent().next().append(
+                $('<td/>')
+                .attr('colspan', 1)
+                .addClass('leftline')
+                .html('&nbsp;')
+            );
+        }
+
+        function Insert_Hierarchy3_LeftLine(e) {
+            $('#' + e).parent().next().next().append(
+                $('<td/>')
+                .attr('colspan', 1)
+                .html('&nbsp;')
+            );
+
+            $('#' + e).parent().next().next().append(
+                $('<td/>')
+                .attr('colspan', 1)
+                .addClass('leftline')
+                .html('&nbsp;')
+            );
+        }
+
+        function Insert_Hierarchy1_Space(e) {
+
+            $('#' + e).parent().append(
+                $('<td/>')
+                .attr('colspan', 2)
+                .html('&nbsp;')
+            );
+            $('#' + e).parent().prepend(
+                $('<td/>')
+                .attr('colspan', 2)
+                .html('&nbsp;')
+            );
+
+        }
+
+        function Insert_Hierarchy2_Space(e) {
+            $('#' + e).parent().next().prepend(
+                $('<td/>')
+                .attr('colspan', 1)
+                .html('&nbsp;')
+            );
+            $('#' + e).parent().next().prepend(
+                $('<td/>')
+                .attr('colspan', 1)
+                .html('&nbsp;')
+            );
+            $('#' + e).parent().next().append(
+                $('<td/>')
+                .attr('colspan', 1)
+                .html('&nbsp;')
+            );
+            $('#' + e).parent().next().append(
+                $('<td/>')
+                .attr('colspan', 1)
+                .html('&nbsp;')
+            );
+
+            $('#' + e).parent().next().children().addClass('bottomline');
+            $('#' + e).parent().next().children().last().removeClass();
+            $('#' + e).parent().next().children().first().removeClass();
+
+        }
+
+        function Insert_Hierarchy3_Space(e) {
+            $('#' + e).parent().next().next().append(
+                $('<td/>')
+                .attr('colspan', 2)
+                .html('&nbsp;')
+            );
+
+        }
+
+        function Insert_SecondNode_Space(e) {
+            $('#' + e).parent().next().next().next().append(
+                $('<td/>')
+                .attr('colspan', 2)
+                .html('&nbsp;')
+            );
+        }
+
+
+
+        function Insert_Nodes(e1, e2) {
+            $('#Hierarchy' + e1 + '-0').append(
+                $('<td/>')
+                .attr('colspan', 2)
+                .html('&nbsp;')
+
+            );
+            $('#Hierarchy' + e1 + '-0').append(
+                $('<td/>')
+                .attr('colspan', 2)
+                .append(
+                    $('<div/>')
+                    .html('&nbsp;')
+                    .attr('id', e2)
+                )
+            );
+        }
+
+        function Insert_Right_Space(e) {
+            $('#Hierarchy' + e + '-0').append(
+                $('<td/>')
+                .attr('colspan', 2)
+                .html('&nbsp;')
+            );
+        }
+
+        function Insert_Nodes_Space(e) {
+            $('#' + e).parent().before("<td colspan='2'>&nbsp;</td>");
+            $('#' + e).parent().after("<td colspan='2'>&nbsp;</td>");
+        }
+
+
+
+
+
+
+
+        
+
+        $(document).ready(function() {
+            data = [{
+                id: '00',
+                parent: '',
+                child:'',
+                hierarchy: ''
+            }, {
+                id: '00-00',
+                parent: '00',
+                hierarchy: ''
+            }, {
+                id: '00-01',
+                parent: '00',
+                hierarchy: ''
+            }, {
+                id: '00-02',
+                parent: '00',
+                hierarchy: ''
+            }, {
+                id: '00-03',
+                parent: '00',
+                hierarchy: ''
+            }, {
+                id: '00-00-00',
+                parent: '00-01',
+                hierarchy: ''
+            }, {
+                id: '00-00-01',
+                parent: '00-03',
+                hierarchy: ''
+            }, {
+                id: '00-00-02',
+                parent: '00-03',
+                hierarchy: ''
+            }, {
+                id: '00-00-03',
+                parent: '00-03',
+                hierarchy: ''
+            }, {
+                id: '00-00-00-00',
+                parent: '00-00-00',
+                hierarchy: ''
+            }, {
+                id: '00-00-00-01',
+                parent: '00-00-00',
+                hierarchy: ''
+            }]
+            
+            
+
+            $('#org-tree').SetOrgChart();
+
+
+            var array = [];
+            var max = 0;
+            var count_parent = 0;
+
+
+            if (data != null) {
+                for (i = 0; i < data.length; i++) {
+                    array[i] = data[i]['id'].split('-');
+                    data[i]['hierarchy'] = array[i].length;
+                    max = (max < array[i].length) ? array[i].length : max;
+                }
+
+                if (max != 0 || max != null) {
+                    for (i = 1; i <= max; i++) {
+                        (i != max) ? Create_Total_Hierarchy(i): Create_Last_Hierarchy(max);
+                    }
+                }
+            }
+
+            for (i = 0; i < data.length; i++) {
+                if (data[i]['parent'] == '') {
+                    Insert_First_Node(data[i]['id']);
+                    for(j = 0; j < data.length; j++){ 
+                        if(data[i]['id'] == data[j]['parent']){
+                            count_parent++;
+                        }
+                    }
+                }
+            }
+            
+            
+            
+            
+            var child = [];
+            
+            
+            for(i = 0; i < data.length; i++){
+                
+                if(data[i]['parent'] != ''){
+                    child[data[i]['parent']] = [];
+                }
+            }
+            
+            console.log(child);
+
+
+
+
+
+
+
+        });
+
+    </script>
+
+    <style>
+        #orgChart {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        
+        #orgChart * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        #orgChart div {
+            background-color: red;
+        }
+
+    </style>
+
+
+    <style>
+        .bottomline {
+            border-bottom: 1px solid red;
+        }
+        
+        .leftline {
+            border-left: 1px solid red;
+        }
+
+    </style>
+
 </head>
 
 <body>
-    <div id="myDiagramDiv" style="width:400px; height:150px; background-color: #DAE4E4;"></div>
+    <div id="org-tree"></div>
 </body>
+
+
 </html>
