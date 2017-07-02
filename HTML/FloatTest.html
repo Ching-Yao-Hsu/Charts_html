@@ -5,84 +5,299 @@
     <meta charset="UTF-8">
     <title>Document</title>
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+    <script>
+        $.fn.SetOrgChart = function () {
+            $(this).append(
+                $('<table/>')
+                .attr('id', 'orgChart')
+            );
+        };
+
+        function Create_Total_Hierarchy(e) {
+            $('#orgChart').append(
+                $('<tr/>')
+                .attr('id', 'hierarchy' + e + '-0')
+            );
+
+            for (j = 2; j > 0; j--) {
+                $('#hierarchy' + e + '-0').after("<tr id='hierarchy" + e + "-" + j + "'></tr>");
+            }
+        }
+
+        function Create_Last_Hierarchy(e) {
+            $('#orgChart').append(
+                $('<tr/>')
+                .attr('id', 'hierarchy' + e + '-0')
+            );
+        }
+
+        function Insert_Td_TableWidth(e1, e2) {
+            if (e1 == e2) {
+                $('#hierarchy' + e1 + '-0').append(
+                    $('<td/>')
+                    .attr('colspan', 1)
+                    .html('&nbsp;')
+                );
+            } else {
+                $('#hierarchy' + e1 + '-0').append(
+                    $('<td/>')
+                    .attr('colspan', 1)
+                    .html('&nbsp;')
+                );
+                $('#hierarchy' + e1 + '-1').append(
+                    $('<td/>')
+                    .attr('colspan', 1)
+                    .html('&nbsp;')
+                );
+                $('#hierarchy' + e1 + '-2').append(
+                    $('<td/>')
+                    .attr('colspan', 1)
+                    .html('&nbsp;')
+                );
+            }
+        }
+
+        //        function AddClass_Nodes(max, e2, e3) {
+        //            for (i = 0; i < max; i++) {
+        //                for (j = 0; j < e2 * 2; j++) {
+        //                    $('#hierarchy' + (i + 1) + '-0 td:nth-of-type(' + (j + 1) + ')').addClass(e3);
+        //                    $('#hierarchy' + (i + 1) + '-1 td:nth-of-type(' + (j + 1) + ')').addClass(e3);
+        //                    $('#hierarchy' + (i + 1) + '-2 td:nth-of-type(' + (j + 1) + ')').addClass(e3);
+        //                }
+        //            }
+        //        }
+
+        function AddClass_Nodes(hierarchy, max, id, countMax, countMin) {            
+            $('#hierarchy' + hierarchy + '-0 > td:nth-of-type(' + countMin + ')')
+                .nextUntil($('#hierarchy' + hierarchy + '-0 > td:nth-of-type(' + countMax + ')'))
+                .addClass(id);
+
+            $('#hierarchy' + hierarchy + '-0 > td:nth-of-type(' + countMin + ')')
+                .addClass(id);
+
+            $('#hierarchy' + hierarchy + '-1 > td:nth-of-type(' + countMin + ')')
+                .nextUntil($('#hierarchy' + hierarchy + '-1 > td:nth-of-type(' + countMax + ')'))
+                .addClass(id);
+
+            $('#hierarchy' + hierarchy + '-1 > td:nth-of-type(' + countMin + ')')
+                .addClass(id);
+
+            $('#hierarchy' + hierarchy + '-2 > td:nth-of-type(' + countMin + ')')
+                .nextUntil($('#hierarchy' + hierarchy + '-2 > td:nth-of-type(' + countMax + ')'))
+                .addClass(id);
+
+            $('#hierarchy' + hierarchy + '-2 > td:nth-of-type(' + countMin + ')')
+                .addClass(id);
+
+        }
+
+        $(document).ready(function () {
+            data = [{
+                id: '00',
+                parent: '',
+                hierarchy: '',
+                leaf: '',
+                leaf_Total: 0,
+                child: ''
+            }, {
+                id: '01',
+                parent: '',
+                hierarchy: '',
+                leaf: '',
+                leaf_Total: 0,
+                child: ''
+            }, {
+                id: '00-00',
+                parent: '00',
+                hierarchy: '',
+                leaf: '',
+                leaf_Total: 0,
+                child: ''
+            }, {
+                id: '00-01',
+                parent: '00',
+                hierarchy: '',
+                leaf: '',
+                leaf_Total: 0,
+                child: ''
+            }, {
+                id: '00-02',
+                parent: '00',
+                hierarchy: '',
+                leaf: '',
+                leaf_Total: 0,
+                child: ''
+            }, {
+                id: '00-03',
+                parent: '00',
+                hierarchy: '',
+                leaf: '',
+                leaf_Total: 0,
+                child: ''
+            }, {
+                id: '00-00-00',
+                parent: '00-01',
+                hierarchy: '',
+                leaf: '',
+                leaf_Total: 0,
+                child: ''
+            }, {
+                id: '00-00-01',
+                parent: '00-01',
+                hierarchy: '',
+                leaf: '',
+                leaf_Total: 0,
+                child: ''
+            }, {
+                id: '00-00-02',
+                parent: '00-03',
+                hierarchy: '',
+                leaf: '',
+                leaf_Total: 0,
+                child: ''
+            }, {
+                id: '00-00-03',
+                parent: '00-03',
+                hierarchy: '',
+                leaf: '',
+                leaf_Total: 0,
+                child: ''
+            }, {
+                id: '00-00-00-00',
+                parent: '00-00-02',
+                hierarchy: '',
+                leaf: '',
+                leaf_Total: 0,
+                child: ''
+            }, {
+                id: '00-00-00-01',
+                parent: '00-00-02',
+                hierarchy: '',
+                leaf: '',
+                leaf_Total: 0,
+                child: ''
+            }]
+
+            $('#org-tree').SetOrgChart();
+            var array = [];
+            var max = 0;
+            var count_leaf = 0;
+            var count_order = 0;
+            var array_split = '';
+
+            if (data != null) {
+                for (i = 0; i < data.length; i++) {
+                    array[i] = data[i]['id'].split('-');
+                    data[i]['hierarchy'] = array[i].length;
+                    max = (max < array[i].length) ? array[i].length : max;
+                }
+
+                if (max != 0 || max != null) {
+                    for (i = 1; i <= max; i++) {
+                        (i != max) ? Create_Total_Hierarchy(i): Create_Last_Hierarchy(max);
+                    }
+                }
+            }
+
+            for (i = 0; i < data.length; i++) {
+                for (j = 0; j < data.length; j++) {
+
+                    if (data[i]['id'] == data[j]['parent']) {
+                        data[i]['child'] += j + ',';
+                    }
+                }
+
+                if (data[i]['child'].length == 0) {
+                    count_leaf++;
+                }
+            }
+
+            for (i = 0; i < data.length; i++) {
+                array_split = data[i]['child'].split(',');
+                array_split.pop();
+                data[i]['child'] = array_split;
+            }
+
+            for (i = data.length - 1; i >= 0; i--) {
+                if (data[i]['child'].length == 0) {
+                    data[i]['leaf_Total'] = 1;
+                } else {
+                    for (j = 0; j < data[i]['child'].length; j++) {
+                        if (data[i]['child'][j] != null) {
+                            data[i]['leaf_Total'] += data[data[i]['child'][j]]['leaf_Total'];
+                        }
+                    }
+                }
+            }
+
+            for (i = 0; i < data.length; i++) {
+                if (data[i]['hierarchy'] == '1') {
+                    var num = (data[i]['leaf_Total'] * 2);
+                    for (j = 0; j < max; j++) {
+                        for (k = 0; k < num; k++) {
+                            Insert_Td_TableWidth(j + 1, max);
+                        }
+                    }
+                }
+            }
+
+            for (x = 0; x < 2; x++) {
+                var countRight = 0;
+                var countLeft = 0;
+
+                for (i = 0; i < data.length; i++) {
+                    countRight = 0;
+                    if (data[i]['hierarchy'] == (x+1)) {
+                        countRight += data[i]['leaf_Total'] * 2 + countLeft;
+                        for (j = 0; j < max; j++) {
+                            AddClass_Nodes((j + 1), max, data[i]['id'], countRight + 1, countLeft + 1);
+                        }
+                        countLeft = countRight;
+                    }
+                }
+            }
+
+
+
+
+        });
+    </script>
+
     <style>
-        * {
+        #orgChart {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        
+        #orgChart * {
             margin: 0;
             padding: 0;
         }
         
-        div {
-            position: absolute;
+        #orgChart tr td div {
             background-color: red;
-            text-align: center;
-            top: 0;
-        }
-        
-        table td{
-            position: relative;
-        }
-        
-        table {
-            border-collapse: collapse;
-            width: 100%;
         }
     </style>
+
+
+    <style>
+        .bottomline {
+            border-bottom: 1px solid red;
+        }
+        
+        .leftline {
+            border-left: 1px solid red;
+        }
+    </style>
+
+
 </head>
 
 <body>
-
-    <table>
-        <tr>
-            
-            <td colspan="6"><div>111</div></td>
-            
-        </tr>
-        <tr></tr>
-        <tr></tr>
-        <tr>
-            <td colspan="2">
-                <table>
-                    <tr><td colspan="6"><div>222</div></td></tr>
-                    <tr></tr>
-                    <tr></tr>
-                    <tr></tr>
-                </table>
-            </td>
-            <td colspan="2">
-                <table>
-                    <tr><td colspan="6"><div>222</div></td></tr>
-                    <tr></tr>
-                    <tr></tr>
-                    <tr></tr>
-                </table>
-            </td>
-            <td colspan="2">
-                <table>
-                    <tr><td colspan="6"><div>222</div></td></tr>
-                    <tr></tr>
-                    <tr></tr>
-                    <tr>
-                        <table>
-                            <tr><td colspan="6"><div>333</div></td></tr>
-                            <tr></tr>
-                            <tr></tr>
-                            <tr></tr>
-                        </table>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-
-
-
-
-
-
-
-
-
-
+    <div id="org-tree"></div>
 </body>
+
 
 </html>
