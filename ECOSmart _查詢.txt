@@ -1,0 +1,5 @@
+SELECT [ECO_Group],[MeterID],C.InstallPosition,[LineNum] FROM AdminSetup as A
+INNER JOIN ControllerSetup as C ON A.Account  = C.Account 
+INNER JOIN MeterSetup as M ON M.ECO_Account = C.ECO_Account 
+WHERE LineNum != '' AND A.Account = 'eco' 
+ORDER BY LineNum

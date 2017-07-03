@@ -1,2 +1,0 @@
-https://msdn.microsoft.com/zh-tw/library/yhzc935f(v=vs.100).aspx
-http://www.c-sharpcorner.com/uploadfile/sapnabeniwal/create-custom-web-control-in-asp-net/

@@ -1,1 +1,0 @@
-sqlcmd -S TPEECOSMART -U sa -P 53394812 -d Master -Q "EXEC dbo.Usp_RunCollection '' " 
