@@ -97,9 +97,25 @@
                                                 <tr>
                                                     <td align="left" valign="top">
                                                         <div id="div1" style="height: 415px; width: 100%; overflow: auto; background-color: #e8f0ff; border-radius: 15px 15px 15px 15px;">
-                                                            <asp:TreeView runat="server" ID="Meter_TreeView" Style="margin-right: 3px" ForeColor="Black" ShowLines="True" CssClass="ParentNodeStyle" Font-Italic="False" ExpandDepth="FullyExpand" NodeWrap="False" Font-Names="微軟正黑體">
-                                                                <NodeStyle VerticalPadding="2px" HorizontalPadding="2px" />
-                                                                <SelectedNodeStyle BackColor="#6699FF" ForeColor="White" Width="100%" />
+                                                            <asp:TreeView ID="TreeView1" runat="server" ShowCheckBoxes="All">
+                                                                <Nodes>
+                                                                    <asp:TreeNode SelectAction="None" Text="新節點" Value="新節點">
+                                                                        <asp:TreeNode Text="新節點" Value="新節點">
+                                                                            <asp:TreeNode Text="新節點" Value="新節點">
+                                                                                <asp:TreeNode Text="新節點" Value="新節點"></asp:TreeNode>
+                                                                            </asp:TreeNode>
+                                                                        </asp:TreeNode>
+                                                                    </asp:TreeNode>
+                                                                    <asp:TreeNode SelectAction="SelectExpand" Text="新節點" Value="新節點">
+                                                                        <asp:TreeNode Text="新節點" Value="新節點"></asp:TreeNode>
+                                                                        <asp:TreeNode Text="新節點" Value="新節點"></asp:TreeNode>
+                                                                        <asp:TreeNode Text="新節點" Value="新節點"></asp:TreeNode>
+                                                                        <asp:TreeNode Text="新節點" Value="新節點"></asp:TreeNode>
+                                                                        <asp:TreeNode Text="新節點" Value="新節點"></asp:TreeNode>
+                                                                    </asp:TreeNode>
+                                                                    <asp:TreeNode Text="新節點" Value="新節點"></asp:TreeNode>
+                                                                </Nodes>
+                                                                <SelectedNodeStyle BackColor="Red" />
                                                             </asp:TreeView>
                                                         </div>
                                                     </td>

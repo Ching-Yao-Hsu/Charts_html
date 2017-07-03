@@ -18,13 +18,17 @@ namespace WCFService_Test
             {
                 ControllerSet();
             }
+            
         }
+
+
+
 
         private void ControllerSet()
         {
             string str_cmd = "SELECT [ECO_Group], [Account] FROM [AdminSetup]";
             DataTable dr_AdminSetup = DataBaseLink_ECOSMARTConnectionString(str_cmd);
-            Group_DropDownList.DataSource = dr_AdminSetup;
+            Group_DropDownList.DataSource = dr_AdminSetup;           
             Group_DropDownList.DataTextField = dr_AdminSetup.Columns[0].ToString();
             Group_DropDownList.DataValueField = dr_AdminSetup.Columns[1].ToString();
             Group_DropDownList.DataBind();
@@ -68,6 +72,11 @@ namespace WCFService_Test
             DataTable dr_Join3Table = DataBaseLink_ECOSMARTConnectionString(str_cmd);
 
             Response.Write(dr_Join3Table.Rows[0]["InstallPosition"]);
+        }
+
+        protected void Meter_TreeView_SelectedNodeChanged(object sender, EventArgs e)
+        {
+            Response.Write("123");
         }
     }
 }

@@ -9,7 +9,7 @@
     <link href="css/org.css" rel="stylesheet" />
     <style>
         div {
-            font-family:DFKai-sb;
+            font-family: DFKai-sb;
         }
     </style>
     <script type="text/JavaScript" src="/scripts/jquery-3.1.1.min.js"></script>
@@ -17,8 +17,28 @@
     <script type="text/JavaScript" src="/js/recursion.js"></script>
     <script type="text/JavaScript">
 
-        $(document).ready(function () {           
-            $.ajax({
+        $(document).ready(function () {            
+            $.ajax({                
+                xhr: function () {
+                    var xhr = new window.XMLHttpRequest();
+                    //Upload progress
+                    xhr.upload.addEventListener("progress", function (evt) {
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            //Do something with upload progress
+                            console.log('aaa');
+                        }
+                    }, false);
+                    //Download progress
+                    xhr.addEventListener("progress", function (evt) {
+                        console.log(evt);
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            //Do something with download progress                            
+                        }
+                    }, false);
+                    return xhr;
+                },
                 url: "OrgCharts_responseAjax.aspx",
                 dataType: "json",
                 type: "POST",
@@ -28,13 +48,13 @@
                     rec.recursion(e)(table);
 
                     function SortByName(a, b) {
-                        var aName = a.id.toLowerCase();                        
-                        var bName = b.id.toLowerCase();                        
+                        var aName = a.id.toLowerCase();
+                        var bName = b.id.toLowerCase();
                         return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
                     }
 
                     e.sort(SortByName);
-                    
+
                     $('#tree').EzOrgChart(e);
                 },
                 error: function () {
@@ -42,7 +62,7 @@
                 }
             })
         });
-    </script>    
+    </script>
 </head>
 <body>
     <form id="form1" runat="server">

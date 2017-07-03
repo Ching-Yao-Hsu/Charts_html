@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" />
+    <style>
+        * {
+            font-family: "Roboto";
+            margin: 0;
+            padding: 0;
+        }
+        nav {
+            height: 45px;
+            background-color: #000;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+        }
+        nav ul {
+            margin: 0;
+            padding: 0;
+        }
+        nav li {
+            float: left;
+            list-style: none;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            display: block;
+            line-height: 45px;
+            padding-left: 15px;
+            padding-right: 15px;
+            font-size: 14px;
+            letter-spacing: 2px;
+            transition: all .3s;
+        }
+        nav a:hover {
+            background-color: #555;
+        }
+        #about,#works,#blog,#contact {
+            height: 1200px;
+        }
+        #about {background-color: #00e2ff;}
+        #works {background-color: #f83075;}
+        #blog {background-color: #b6f800;}
+        #contact {background-color: #ff9d00;}
+        #gotop {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            line-height: 50px;
+            cursor: pointer;
+/*            display: none;*/
+        }
+    </style>
+    <script>
+        $(document).ready(function(){
+            $("nav a").click(function(){
+                var _link = $(this).data("link");
+//                console.log(_link);
+                var _offset = $("#"+_link).offset().top;
+//                console.log(_offset);
+                $("html,body").animate({
+                    scrollTop:_offset
+                });
+                return false;
+            });
+            
+            $("#gotop").hide();
+            
+            $(window).scroll(function(){
+                var sr = $(window).scrollTop();
+                var _in = "rollIn";
+                var _out = "hinge";
+                console.log(sr);
+                if(sr>600){
+//                    $("#gotop").fadeIn();
+                    $("#gotop").show().removeClass(_out).addClass(_in);
+                }else{
+//                    $("#gotop").fadeOut();
+                    $("#gotop").removeClass(_in).addClass(_out);
+                }
+                
+            });
+            $("#gotop").click(function(){
+                $("html,body").animate({
+                    scrollTop: 0
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <nav>
+        <ul>                                 
+            <li><a href="#" data-link="about">about</a></li>
+            <li><a href="#" data-link="works">works</a></li>
+            <li><a href="#" data-link="blog">blog</a></li>
+            <li><a href="#" data-link="contact">contact</a></li>
+        </ul>
+    </nav>
+    <div id="about"></div>
+    <div id="works"></div>
+    <div id="blog"></div>
+    <div id="contact"></div>
+    <div id="gotop" class="animated">TOP</div>
+</body>
+</html>

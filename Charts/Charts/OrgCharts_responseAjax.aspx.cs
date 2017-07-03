@@ -14,10 +14,10 @@ namespace Charts
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            string str_conn = WebConfigurationManager.ConnectionStrings["ECOSMARTConnectionString"].ConnectionString;
-            string str_cmd = "SELECT ms.ECO_Account,ms.CtrlNr,ms.MeterID,ms.LineNum,ms.InstallPosition FROM ECOSMART.dbo.MeterSetup as ms WHERE ms.LineNum != '' AND ms.ECO_Account LIKE 'twenergy%' ORDER BY ms.LineNum";
-            //string str_conn = WebConfigurationManager.ConnectionStrings["TESTConnectionString"].ConnectionString;
-            //string str_cmd = "SELECT mi.meterId,mi.lineNum from dbo.MeterInfo as mi where mi.lineNum !='' order by mi.lineNum";
+            //string str_conn = WebConfigurationManager.ConnectionStrings["ECOSMARTConnectionString"].ConnectionString;
+            //string str_cmd = "SELECT ms.ECO_Account,ms.CtrlNr,ms.MeterID,ms.LineNum,ms.InstallPosition FROM ECOSMART.dbo.MeterSetup as ms WHERE ms.LineNum != '' AND ms.ECO_Account LIKE 'twenergy%' ORDER BY ms.LineNum";
+            string str_conn = WebConfigurationManager.ConnectionStrings["ChartTestConnectionString"].ConnectionString;
+            string str_cmd = "SELECT mi.meterId,mi.lineNum from dbo.MeterInfo as mi where mi.lineNum !='' order by mi.lineNum";
 
             //StringBuilder json = new StringBuilder();
             string json = "";
@@ -33,12 +33,12 @@ namespace Charts
                         count = dt.Rows.Count;
                         Response.Clear();
                         Response.ContentType = "application/json; charset=utf-8";
-                        json = "[{\"id\":\"" + dt.Rows[0]["lineNum"] + "\",\"remark\":\"" + dt.Rows[0]["InstallPosition"] + "\"}";
+                        json = "[{\"id\":\"" + dt.Rows[0]["lineNum"] + "\",\"remark\":\"" + dt.Rows[0]["MeterId"] + "\"}";
                         for (int i = 1; i < count - 1; i++)
                         {
-                            json += ",{\"id\":\"" + dt.Rows[i]["lineNum"] + "\",\"remark\":\"" + dt.Rows[i]["InstallPosition"] + "\"}";
+                            json += ",{\"id\":\"" + dt.Rows[i]["lineNum"] + "\",\"remark\":\"" + dt.Rows[i]["MeterId"] + "\"}";
                         }
-                        json += ",{\"id\":\"" + dt.Rows[count-1]["lineNum"] + "\",\"remark\":\"" + dt.Rows[count - 1]["InstallPosition"] + "\"}]";
+                        json += ",{\"id\":\"" + dt.Rows[count-1]["lineNum"] + "\",\"remark\":\"" + dt.Rows[count - 1]["MeterId"] + "\"}]";
                         Response.Write(json);
                         Response.End();
                     }
