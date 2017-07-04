@@ -95,6 +95,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="img\btn_dailyreport_01.png" />
+    <Content Include="img\btn_dailyreport_02.png" />
     <Content Include="img\compare.png" />
     <Content Include="img\date2.png" />
     <Content Include="img\icon-account.png" />
@@ -102,6 +103,7 @@
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="server.aspx" />
     <Content Include="WebForm1.aspx" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -129,6 +131,13 @@
       <DependentUpon>PowerDayReport.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="server.aspx.cs">
+      <DependentUpon>server.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="server.aspx.designer.cs">
+      <DependentUpon>server.aspx</DependentUpon>
+    </Compile>
     <Compile Include="WebForm1.aspx.cs">
       <DependentUpon>WebForm1.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
