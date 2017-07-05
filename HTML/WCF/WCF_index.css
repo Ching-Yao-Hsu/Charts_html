@@ -1,0 +1,98 @@
+.WCF_index {
+    width: 1024px;
+    margin: auto;
+}
+
+.WCF_index .header .title {
+    height: 210px;
+    background: url(img/header/banner_power.png);
+    background-size: cover;
+}
+
+.WCF_index .header .menu table {
+    width: 100%;
+}
+
+.WCF_index .header .menu table tr .option {
+    text-align: center;
+    vertical-align: middle;
+    width: 19.5%;
+    height: 50px;
+    background-color: rgb(235, 235, 224);
+    font-size: 20px;
+    font-family: cursive;
+}
+
+.WCF_index .header .menu table tr td:first-child,
+.WCF_index .header .menu table tr td:last-child {
+    background-color: rgb(235, 235, 224);
+}
+
+.WCF_index .content .top {
+    height: 100px;
+    background: url(img/content/analysis.png);
+    background-size: cover;
+    position: relative;
+}
+
+#ECO_Group {
+    position: absolute;
+    left: 391px;
+    top: 34px;
+    width: 120px;
+    height: 30px;
+}
+
+.WCF_index .content .middle {
+    height: 120px;
+    background: url(img/content/area_show.jpg);
+    background-size: cover;
+    position: relative;
+}
+
+input[type=checkbox] {
+    /* Double-sized Checkboxes */
+    -ms-transform: scale(2);
+    /* IE */
+    -moz-transform: scale(2);
+    /* FF */
+    -webkit-transform: scale(2);
+    /* Safari and Chrome */
+    -o-transform: scale(2);
+    /* Opera */
+    padding: 10px;
+}
+
+.WCF_index .content .middle button {
+    position: absolute;
+    width: 90px;
+    height: 40px;
+    right: 178px;
+    top: 40px;
+    font-size: 25px;
+    font-family: cursive;
+    color: #595959;
+    background: -webkit-linear-gradient(to bottom right, white, #d9d9d9);
+    background: -o-linear-gradient(to bottom right, white, #d9d9d9);
+    background: -moz-linear-gradient(to bottom right, white, #d9d9d9);
+    background: linear-gradient(to bottom right, white, #d9d9d9);
+    border-radius: 5px;
+}
+
+.WCF_index .content .middle table {
+    height: 120px;
+    width: 400px;
+    position: absolute;
+    left: 320px;
+    font-size: 25px;
+}
+
+.WCF_index .footer {
+    background: url(img/footer/footer.png);
+    background-size: cover;
+    height: 64px;
+}
+
+#treeview_block {
+    height: 590px;
+}

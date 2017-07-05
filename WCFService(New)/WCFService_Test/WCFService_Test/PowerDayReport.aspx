@@ -6,54 +6,9 @@
 <head runat="server">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title></title>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <script>
-        $(document).ready(function () {
-            var _nodeId = $(this).data("node");
-
-            $("#ECO_Group").change(function () {
-                console.log(this.value);
-            }); 
-
-            $.ajax({
-                url: "server.aspx",
-                dataType: "json",
-                data: {
-                    nodeId: _nodeId
-                },
-                type: "POST",
-                success: function (e) {                    
-                    $("#container_treeview a").click(function () {
-                        $("#myModalLabel").text(e[0]["AccountMeterId"][0]["ECO_AccountAndMeterId"]);
-                    });
-
-                    for (i = 0; i < e[1]["Group"].length; i++) {
-                        $("#ECO_Group").append(
-                            $("<option/>")
-                                .text(e[1]["Group"][i]["ECO_Group"])
-                                .attr("value", e[1]["Group"][i]["Account"])
-                        );
-                    }             
-                },
-                error: function () {
-                    alert("error");
-                }
-            })
-        });
-    </script>
-
-
-
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous" />
+    <link href="css/org.css" rel="stylesheet" />
     <style type="text/css">
         * {
             margin: 0;
@@ -78,6 +33,131 @@
             padding-top: 10px;
         }
     </style>
+    
+    <script>
+
+        function toObject(arr) {
+            var rv = {};
+            for (var i = 0; i < arr.length; ++i)
+                if (arr[i] !== undefined) rv[i] = arr[i];
+            return rv;
+        }
+
+        $(document).ready(function () {
+            var _nodeId = "00";
+            var bool = false;
+            var _ECO_Group = "eco";
+
+            $.ajax({
+                url: "server.aspx",
+                dataType: "json",
+                data: {
+                    nodeId: _nodeId,
+                    ECO_Group: _ECO_Group
+                },
+                type: "POST",
+                success: function (e) {
+                    $("#ECO_Group").empty();
+                    for (i = 0; i < e[1]["DropDownList"].length; i++) {                        
+                        $("#ECO_Group").append(
+                            $("<option/>")
+                                .text(e[1]["DropDownList"][i]["ECO_Group"])
+                                .attr("value", e[1]["DropDownList"][i]["Account"])
+                        );
+                    }
+                },
+                error: function () {
+                    alert("error");
+                }
+            })
+
+
+
+
+
+
+            //$("#ECO_Group").change(function () {
+            //    console.log(this.value);
+            //    $.ajax({
+            //        url: "server.aspx",
+            //        dataType: "json",
+            //        data: {
+            //            nodeId: _nodeId
+            //        },
+            //        type: "POST",
+            //        success: function (e) {
+            //            $("#ECO_Group").empty();
+            //            for (i = 0; i < e[1]["DropDownList"].length; i++) {
+            //                $("#ECO_Group").append(
+            //                    $("<option/>")
+            //                        .text(e[1]["DropDownList"][i]["ECO_Group"])
+            //                        .attr("value", e[1]["DropDownList"][i]["Account"])
+            //                );
+            //            }
+
+            //            var rec = new Ezrecursion();
+            //            var table = rec.init_recursion(e[2]["TreeView"]);
+            //            rec.recursion(e[2]["TreeView"])(table);
+            //            function SortByName(a, b) {
+            //                var aName = a.id.toLowerCase();
+            //                var bName = b.id.toLowerCase();
+            //                return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+            //            }
+            //            e[2]["TreeView"].sort(SortByName);
+            //            $('#tree').EzOrgChart(e[2]["TreeView"]);
+
+            //        },
+            //        error: function () {
+            //            alert("error");
+            //        }
+            //    })
+            //});
+
+
+            //$("#tree a").click(function () {
+            //    _nodeId = $(this).data("node");
+            //    $("#myModalLabel").text(e[0]["Modal"][0]["ECO_AccountAndMeterId"]);
+            //});
+
+
+            
+
+            //$.ajax({
+            //    url: "server.aspx",
+            //    dataType: "json",
+            //    data: {
+            //        nodeId: _nodeId
+            //    },
+            //    type: "POST",
+            //    success: function (e) {
+            //        for (i = 0; i < e[1]["DropDownList"].length; i++) {
+            //            $("#ECO_Group").append(
+            //                $("<option/>")
+            //                    .text(e[1]["DropDownList"][i]["ECO_Group"])
+            //                    .attr("value", e[1]["DropDownList"][i]["Account"])
+            //            );
+            //        }                                        
+            //        var rec = new Ezrecursion();
+            //        var table = rec.init_recursion(e[2]["TreeView"]);
+            //        rec.recursion(e[2]["TreeView"])(table);
+
+            //        function SortByName(a, b) {
+            //            var aName = a.id.toLowerCase();
+            //            var bName = b.id.toLowerCase();
+            //            return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+            //        }
+
+            //        e[2]["TreeView"].sort(SortByName);
+
+            //        $('#tree').EzOrgChart(e[2]["TreeView"]);
+                    
+            //    },
+            //    error: function () {
+            //        alert("error");
+            //    }
+            //})
+        });
+    </script>
 </head>
 <body>
     <form id="form1" runat="server">
@@ -151,23 +231,11 @@
                                                         </table>
                                                     </td>
                                                 </tr>
-                                                <tr>
-                                                    <td>
-                                                        <hr />
-                                                    </td>
-                                                </tr>
-                                                <tr>
+                                                
+                                                <tr style="border-top:dotted 1px;">
                                                     <td align="left" valign="top">
-                                                        <div id="container_treeview" style="height: 415px; width: 100%; overflow: auto; background-color: #e8f0ff; border-radius: 0px 0px 15px 15px;">
-
-                                                            <div><a href="#" data-toggle="modal" data-target="#myModal" data-node="00">00</a></div>
-                                                            <div><a href="#" data-toggle="modal" data-target="#myModal" data-node="01">01</a></div>
-                                                            <div><a href="#" data-toggle="modal" data-target="#myModal" data-node="02">02</a></div>
-                                                            <div><a href="#" data-toggle="modal" data-target="#myModal" data-node="03">03</a></div>
-
-                                                            <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
-                                                                Launch demo modal
-                                                            </button>
+                                                        <div style="height: 415px; width: 100%; overflow: auto; background-color: #e8f0ff; border-radius: 0px 0px 15px 15px;">                                                              
+                                                            <div id="tree"></div>
                                                         </div>
                                                     </td>
                                                 </tr>

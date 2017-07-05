@@ -18,32 +18,13 @@
     <script type="text/JavaScript">
 
         $(document).ready(function () {            
-            $.ajax({                
-                xhr: function () {
-                    var xhr = new window.XMLHttpRequest();
-                    //Upload progress
-                    xhr.upload.addEventListener("progress", function (evt) {
-                        if (evt.lengthComputable) {
-                            var percentComplete = evt.loaded / evt.total;
-                            //Do something with upload progress
-                            console.log('aaa');
-                        }
-                    }, false);
-                    //Download progress
-                    xhr.addEventListener("progress", function (evt) {
-                        console.log(evt);
-                        if (evt.lengthComputable) {
-                            var percentComplete = evt.loaded / evt.total;
-                            //Do something with download progress                            
-                        }
-                    }, false);
-                    return xhr;
-                },
+            $.ajax({
                 url: "OrgCharts_responseAjax.aspx",
                 dataType: "json",
                 type: "POST",
                 success: function (e) {
                     var rec = new Ezrecursion();
+                    console.log(e);
                     var table = rec.init_recursion(e);
                     rec.recursion(e)(table);
 
@@ -56,6 +37,7 @@
                     e.sort(SortByName);
 
                     $('#tree').EzOrgChart(e);
+                    console.log(e);
                 },
                 error: function () {
                     alert("error");

@@ -94,11 +94,32 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="css\html_reset.css" />
+    <Content Include="css\org.css" />
+    <Content Include="css\WCF_index.css" />
     <Content Include="img\btn_dailyreport_01.png" />
     <Content Include="img\btn_dailyreport_02.png" />
     <Content Include="img\compare.png" />
+    <Content Include="img\content\analysis.png" />
+    <Content Include="img\content\area_show.jpg" />
+    <Content Include="img\content\arrow.png" />
+    <Content Include="img\content\btn_search.png" />
+    <Content Include="img\content\btn_search_02.png" />
+    <Content Include="img\content\icon_search.png" />
     <Content Include="img\date2.png" />
+    <Content Include="img\footer\footer.png" />
+    <Content Include="img\header\banner_charges.png" />
+    <Content Include="img\header\banner_consumption.png" />
+    <Content Include="img\header\banner_power.png" />
     <Content Include="img\icon-account.png" />
+    <Content Include="img\modal\btn_daily-report.png" />
+    <Content Include="img\modal\btn_monthly-report.png" />
+    <Content Include="img\modal\btn_record.png" />
+    <Content Include="img\modal\btn_trend.png" />
+    <Content Include="img\modal\panel.png" />
+    <Content Include="index.aspx" />
+    <Content Include="js\org.js" />
+    <Content Include="js\org_recursion.js" />
     <Content Include="packages.config" />
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -122,6 +143,13 @@
   <ItemGroup>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="index.aspx.cs">
+      <DependentUpon>index.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="index.aspx.designer.cs">
+      <DependentUpon>index.aspx</DependentUpon>
     </Compile>
     <Compile Include="PowerDayReport.aspx.cs">
       <DependentUpon>PowerDayReport.aspx</DependentUpon>
