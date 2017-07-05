@@ -19,25 +19,36 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script>
         $(document).ready(function () {
-            $("#myModalLabel").text("ECOSmart");
+            var _nodeId = $(this).data("node");
 
-            $("#container_treeview a").click(function () {
-                var _nodeId = $(this).data("node");   
-                $.ajax({                    
-                    url: "server.aspx",
-                    dataType: "json",
-                    data: {
-                        nodeId: _nodeId
-                    },
-                    type: "POST",
-                    success: function (e) {
-                        $("#myModalLabel").text(e[0]["ECO_AccountAndMeterId"]);                        
-                    },
-                    error: function () {
-                        alert("error");
-                    }
-                })
-            });
+            $("#ECO_Group").change(function () {
+                console.log(this.value);
+            }); 
+
+            $.ajax({
+                url: "server.aspx",
+                dataType: "json",
+                data: {
+                    nodeId: _nodeId
+                },
+                type: "POST",
+                success: function (e) {                    
+                    $("#container_treeview a").click(function () {
+                        $("#myModalLabel").text(e[0]["AccountMeterId"][0]["ECO_AccountAndMeterId"]);
+                    });
+
+                    for (i = 0; i < e[1]["Group"].length; i++) {
+                        $("#ECO_Group").append(
+                            $("<option/>")
+                                .text(e[1]["Group"][i]["ECO_Group"])
+                                .attr("value", e[1]["Group"][i]["Account"])
+                        );
+                    }             
+                },
+                error: function () {
+                    alert("error");
+                }
+            })
         });
     </script>
 
@@ -80,7 +91,7 @@
                 <tr>
                     <td align="center" colspan="1">
                         <div style="border-radius: 15px; background-color: #eaf8c7; width: 795px;">
-                            <table width="100%">
+                            <table style="width: 100%;">
                                 <tr style="height: 2px;">
                                     <td>&nbsp;</td>
                                 </tr>
@@ -114,7 +125,12 @@
                                                             <tr>
                                                                 <td align="left" colspan="4" nowrap="nowrap">
                                                                     <img src="img/icon-account.png" />群組
-                                                                    <asp:DropDownList ID="Group_DropDownList" runat="server" AutoPostBack="True"></asp:DropDownList>
+                                                                    <%--<asp:DropDownList ID="Group_DropDownList" runat="server" AutoPostBack="True"></asp:DropDownList>--%>
+
+                                                                    <select id="ECO_Group">
+                                                                        <option value="">請選擇</option>
+                                                                    </select>
+                                                                    
                                                                 </td>
                                                             </tr>
                                                             <tr>
@@ -184,7 +200,7 @@
                 <div class="modal-content" style="height: 600px;">
                     <div class="modal-header" style="height: 8%;">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">電表編號 : <span id="myModalLabel"></span></h4>                        
+                        <h4 class="modal-title">電表編號 : <span id="myModalLabel"></span></h4>
                     </div>
                     <div class="modal-body" style="height: 82%;">
                         ...

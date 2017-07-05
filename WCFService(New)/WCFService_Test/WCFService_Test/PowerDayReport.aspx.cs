@@ -26,12 +26,12 @@ namespace WCFService_Test
 
         private void ControllerSet()
         {
-            string str_cmd = "SELECT [ECO_Group], [Account] FROM [AdminSetup]";
-            DataTable dr_AdminSetup = DataBaseLink_ECOSMARTConnectionString(str_cmd);
-            Group_DropDownList.DataSource = dr_AdminSetup;           
-            Group_DropDownList.DataTextField = dr_AdminSetup.Columns[0].ToString();
-            Group_DropDownList.DataValueField = dr_AdminSetup.Columns[1].ToString();
-            Group_DropDownList.DataBind();
+            ////string str_cmd = "SELECT [ECO_Group], [Account] FROM [AdminSetup]";
+            ////DataTable dr_AdminSetup = DataBaseLink_ECOSMARTConnectionString(str_cmd);
+            ////Group_DropDownList.DataSource = dr_AdminSetup;           
+            ////Group_DropDownList.DataTextField = dr_AdminSetup.Columns[0].ToString();
+            ////Group_DropDownList.DataValueField = dr_AdminSetup.Columns[1].ToString();
+            ////Group_DropDownList.DataBind();
         }
 
         private DataTable DataBaseLink_ECOSMARTConnectionString(string _str_cmd)
