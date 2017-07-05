@@ -20,12 +20,16 @@ namespace WCFService_Test
                 Return_Data();
             }
             else if (Request.Form["ECO_Group_account"] != null)
-            {
-
-                Return_Data(Request.Form["ECO_Group_account"].ToString());
-
+            {    
+                if (Request.Form["node"] != null)
+                {
+                    Return_Data(Request.Form["node"].ToString(), Request.Form["ECO_Group_account"].ToString());
+                }
+                else
+                {
+                    Return_Data(Request.Form["ECO_Group_account"].ToString());
+                }
             }
-
         }
 
         private void Return_Data()
@@ -87,6 +91,40 @@ namespace WCFService_Test
                         }
                         json.Append("]");
                     }
+                }
+            }
+            Response.Write(json);
+            Response.End();
+        }
+
+        private void Return_Data(string _node, string _account)
+        {
+            string str_conn = WebConfigurationManager.ConnectionStrings["ECOSMARTConnectionString"].ConnectionString;
+            string str_cmd_MeterIdAccount = "";
+            StringBuilder json = new StringBuilder();
+
+            str_cmd_MeterIdAccount = "SELECT M.InstallPosition,(M.ECO_Account + '-' + CONVERT(nvarchar(50), MeterID)) AS ECO_AccountAndMeterId FROM AdminSetup AS A";
+            str_cmd_MeterIdAccount += " INNER JOIN ControllerSetup AS C ON A.Account  = C.Account";
+            str_cmd_MeterIdAccount += " INNER JOIN MeterSetup AS M ON M.ECO_Account = C.ECO_Account";
+            str_cmd_MeterIdAccount += " WHERE LineNum = @nodeId AND A.Account = @account ";
+            str_cmd_MeterIdAccount += " ORDER BY LineNum";
+
+            Response.Clear();
+            Response.ContentType = "application/json; charset=utf-8";
+            using (SqlConnection conn = new SqlConnection(str_conn))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(str_cmd_MeterIdAccount, conn))
+                {                    
+                    cmd.Parameters.AddWithValue("@account", _account);
+                    cmd.Parameters.AddWithValue("@nodeId", _node);
+                    SqlDataReader dr = cmd.ExecuteReader();
+                    if (dr.HasRows)
+                    {
+                        dr.Read();
+                        json.Append("[{\"ECO_AccountAndMeterId\":\"" + dr["ECO_AccountAndMeterId"].ToString() + "\",\"InstallPosition\":\"" + dr["InstallPosition"].ToString() + "\"}]");
+                    }
+                    dr.Close();
                 }
             }
             Response.Write(json);

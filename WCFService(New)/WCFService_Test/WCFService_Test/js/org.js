@@ -44,13 +44,13 @@ function second_Orgchart(e1, e2) {
 }
 
 //Insert data into node
-function Info_Insert(e1, e2) {
-    $('#' + e1).parent().prepend(
+function Info_Insert(e1,e2) {
+    $('#' + e1).parent().prepend(        
         $('<a/>')
             .attr('href', '#')
             .attr('data-node', e1)
             .attr('data-toggle', "modal")
-            .attr('data-target', "#myModal")
+            .attr('data-target', "#myModal")          
     );
     $('#' + e1).parent().prepend(
         $('<div/>')
@@ -245,7 +245,7 @@ function OrgChart_DataTable_CheckFormat(e) {
             $(this).BuildOrgChart(e);
             $('#tree a').addClass('azure');
             //orgtoggle();
-
+            
         }
     };
 })(jQuery);

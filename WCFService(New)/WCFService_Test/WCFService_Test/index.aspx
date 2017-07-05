@@ -20,12 +20,13 @@
 
 
         $(document).ready(function () {
+            var node;
+            var _ECO_Group_account;
             $.ajax({
                 url: "server.aspx",
                 dataType: "json",
                 type: "POST",
-                success: function (e) {
-                    //$("#ECO_Group").empty();
+                success: function (e) {                    
                     for (i = 0; i < e.length; i++) {
                         $("#ECO_Group").append(
                             $("<option/>")
@@ -38,37 +39,56 @@
                     alert("error");
                 }
             });
-            var ECO_Group_account;
-            var rec;
-            var table;
+            
             $("#ECO_Group").change(function () {
-                $.ajax({
-                    url: "server.aspx",
-                    dataType: "json",
-                    data: {
-                        ECO_Group_account: this.value
-                    },
-                    type: "POST",
-                    success: function (e) {
-                        console.log(e);
-                        var abc = e;
-                        rec = new Ezrecursion();
-                        table = rec.init_recursion(abc);
-                        rec.recursion(abc)(table);
-                        function SortByName(a, b) {
-                            var aName = a.id.toLowerCase();
-                            var bName = b.id.toLowerCase();
-                            return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+                _ECO_Group_account = this.value;
+                if (_ECO_Group_account != "") {
+                    $.ajax({
+                        url: "server.aspx",
+                        dataType: "json",
+                        data: {
+                            ECO_Group_account: _ECO_Group_account
+                        },
+                        type: "POST",
+                        success: function (e) {
+                            $('#tree').empty();
+                            var rec = new Ezrecursion();
+                            var table = rec.init_recursion(e);
+                            rec.recursion(e)(table);
+                            function SortByName(a, b) {
+                                var aName = a.id.toLowerCase();
+                                var bName = b.id.toLowerCase();
+                                return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+                            }
+                            e.sort(SortByName);
+                            $('#tree').EzOrgChart(e);
+
+                            $("#tree li a").click(function () {
+                                $.ajax({
+                                    url: "server.aspx",
+                                    dataType: "json",
+                                    data: {
+                                        node: $(this).data("node"),
+                                        ECO_Group_account: _ECO_Group_account
+                                    },
+                                    type: "POST",
+                                    success: function (e) {                                        
+                                        $("#myModalLabel").text(e[0]["ECO_AccountAndMeterId"]);
+                                    },
+                                    error: function () {
+                                        alert("error");
+                                    }
+                                })
+                            });
+                        },
+                        error: function () {
+                            alert("error");
                         }
-                        abc.sort(SortByName);
-                        $('#tree').EzOrgChart(abc);
+                    })
+                } else {
+                    $('#tree').empty();
+                }
 
-
-                    },
-                    error: function () {
-                        alert("error");
-                    }
-                })
             });
         });
 
@@ -79,7 +99,9 @@
     <form id="form1" runat="server">
         <div class="WCF_index">
             <div class="header">
-                <div class="title"></div>
+                <div class="title">
+                    <div id="PowerValue">11111564656789</div>                    
+                </div>
                 <nav class="menu">
                     <table>
                         <tr>
@@ -141,5 +163,29 @@
             <div class="footer"></div>
         </div>
     </form>
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="height: 600px;">
+                <div class="modal-header" style="height: 8%;">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">電表編號 : <span id="myModalLabel"></span></h4>
+                </div>
+                <div class="modal-body" style="height: 82%;">
+                    ...
+                </div>
+                <div class="modal-footer" style="height: 10%;">
+
+
+                    <button type="button" class="btn btn-primary">月報表</button>
+                    <button type="button" class="btn btn-primary">日報表</button>
+                    <button type="button" class="btn btn-primary">查詢</button>
+                    <button type="button" class="btn btn-primary">曲線圖</button>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -7,7 +7,18 @@
     height: 210px;
     background-image: url(../img/header/banner_power.png);
     background-size: cover;
+    position:relative;
 }
+
+    .WCF_index .header .title div {
+        color: #f2f2f2;
+        font-size: 60px;
+        position: absolute;
+        top: 50px;
+        left: 500px;
+        font-family: Georgia, 'Times New Roman', Times, serif;
+        direction: rtl;
+    }
 
 .WCF_index .header .menu table {
     width: 100%;
