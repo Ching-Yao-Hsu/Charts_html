@@ -1,6 +1,11 @@
 .WCF_index {
     width: 1024px;
     margin: auto;
+    background: -webkit-linear-gradient(to bottom right, white, #d9d9d9);
+    background: -o-linear-gradient(to bottom right, white, #d9d9d9);
+    background: -moz-linear-gradient(to bottom right, white, #d9d9d9);
+    background: linear-gradient(to bottom right, white, #d9d9d9);
+    border-radius: 5px;
 }
 
     .WCF_index .header .title {
@@ -11,6 +16,20 @@
     }
 
         .WCF_index .header .title div {
+            position: absolute;
+            top: 50px;
+            left: 300px;
+            /*background-color:red;*/
+            width:450px;
+            text-align:right;
+        }
+
+#PowerValue1, #PowerValue2,#PowerValue3{
+    color: #f2f2f2;
+    font-size: 60px;
+    font-family:'Franklin Gothic';    
+}
+        /*.WCF_index .header .title div {
             color: #f2f2f2;
             font-size: 60px;
             position: absolute;
@@ -18,7 +37,7 @@
             left: 500px;
             font-family: Georgia, 'Times New Roman', Times, serif;
             direction: rtl;
-        }
+        }*/
 
     .WCF_index .header .menu table {
         width: 100%;
@@ -132,25 +151,25 @@ input[type=checkbox] {
         }
 
     #myModal .modal-body table {
-        text-align:center;
+        text-align: center;
     }
 
-    #myModal .modal-body table tr .Number {
-            text-align:right;
-            font-family:'Brush Script MT';
-            font-size:35px;
-            letter-spacing:0.05em;
-            color:#595959;
+        #myModal .modal-body table tr .Number {
+            text-align: right;
+            font-family: 'Brush Script MT';
+            font-size: 35px;
+            letter-spacing: 0.05em;
+            color: #595959;
         }
 
-     #myModal .modal-body table tr .Unit {
-            font-size:15px;           
+        #myModal .modal-body table tr .Unit {
+            font-size: 15px;
         }
 
-    #myModal .modal-body table tr td{
-        vertical-align:bottom;
-        font-size:25px;
-    }
+        #myModal .modal-body table tr td {
+            vertical-align: bottom;
+            font-size: 25px;
+        }
 
     #myModal .modal-footer table {
         width: 100%;
@@ -193,5 +212,3 @@ input[type=checkbox] {
         background-image: url(../img/modal/btn_record.png);
         background-size: cover;
     }
-
-

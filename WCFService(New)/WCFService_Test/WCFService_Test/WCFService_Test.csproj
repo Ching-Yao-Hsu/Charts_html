@@ -94,6 +94,7 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="css\animate.css" />
     <Content Include="css\html_reset.css" />
     <Content Include="css\org.css" />
     <Content Include="css\WCF_index.css" />
@@ -112,6 +113,7 @@
     <Content Include="img\header\banner_consumption.png" />
     <Content Include="img\header\banner_power.png" />
     <Content Include="img\icon-account.png" />
+    <Content Include="img\images.jpg" />
     <Content Include="img\modal\btn_daily-report.png" />
     <Content Include="img\modal\btn_daily-report_01.png" />
     <Content Include="img\modal\btn_monthly-report.png" />
@@ -129,6 +131,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="server.aspx" />
+    <Content Include="server_TimeForPowerTotal.aspx" />
     <Content Include="WebForm1.aspx" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -169,6 +172,13 @@
     </Compile>
     <Compile Include="server.aspx.designer.cs">
       <DependentUpon>server.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="server_TimeForPowerTotal.aspx.cs">
+      <DependentUpon>server_TimeForPowerTotal.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="server_TimeForPowerTotal.aspx.designer.cs">
+      <DependentUpon>server_TimeForPowerTotal.aspx</DependentUpon>
     </Compile>
     <Compile Include="WebForm1.aspx.cs">
       <DependentUpon>WebForm1.aspx</DependentUpon>

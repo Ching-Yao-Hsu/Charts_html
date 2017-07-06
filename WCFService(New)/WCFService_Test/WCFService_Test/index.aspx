@@ -10,13 +10,19 @@
     <link href="css/WCF_index.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous" />
+    <link href="css/animate.css" rel="stylesheet" />
     <link href="css/org.css" rel="stylesheet" />
     <style>
-        #myModal .modal-header{
+        #myModal .modal-header {
             border-bottom: dotted 1px;
         }
-        #myModal .modal-footer{
-             border:0; 
+
+        #myModal .modal-footer {
+            border: 0;
+        }
+
+        #PowerValue2, #PowerValue3 {
+            display: none;
         }
     </style>
 
@@ -29,13 +35,58 @@
 
 
         $(document).ready(function () {
+            $("#button_search").click(function () {
+
+                $("#header").addClass("animated zoomIn");
+            });
+
+
+
+            var count_time = 0;
+            $.ajax({
+                url: "server_TimeForPowerTotal.aspx",
+                dataType: "json",
+                type: "POST",
+                success: function (e) {
+                    $("#PowerValue1").text(e[0]["W"]);
+                    $("#PowerValue2").text(e[0]["KWh"]);
+                    $("#PowerValue3").text(e[0]["powertotal"]);
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+
+            //var myInterval = setInterval(function () {                
+            //    switch (count_time) {
+            //        case 2:
+
+            //            count_time++;
+            //            break;
+            //        case 0:
+            //            $('#PowerValue1').slideUp('slow', function () {
+            //                $('#PowerValue1').slideDown();
+            //            });
+            //            count_time++;
+            //            break;
+            //        case 1:
+
+            //            count_time++;
+            //            break;
+            //        default:
+            //            count_time = 0;
+            //            break;
+            //    }
+            //}, 3000);
+
+
             var node;
             var _ECO_Group_account;
             $.ajax({
                 url: "server.aspx",
                 dataType: "json",
                 type: "POST",
-                success: function (e) {                    
+                success: function (e) {
                     for (i = 0; i < e.length; i++) {
                         $("#ECO_Group").append(
                             $("<option/>")
@@ -48,7 +99,7 @@
                     alert("error");
                 }
             });
-            
+
             $("#ECO_Group").change(function () {
                 _ECO_Group_account = this.value;
                 if (_ECO_Group_account != "") {
@@ -81,12 +132,22 @@
                                         ECO_Group_account: _ECO_Group_account
                                     },
                                     type: "POST",
-                                    success: function (e) {                                        
-                                        $("#myModalLabel").text(e[0]["ECO_AccountAndMeterId"]);
-                                        $("#myModalLabe2").text(e[0]["InstallPosition"]);
+                                    success: function (e) {
+                                        $("#myModalLabel").text(e[0]["ECOSMART"][0]["ECO_AccountAndMeterId"]);
+                                        $("#myModalLabe2").text(e[0]["ECOSMART"][0]["InstallPosition"]);
+                                        $("#PowerTotal").text(e[1]["OtherDB"][0]["KWh"]);
+                                        $("#Voltage").text(e[1]["OtherDB"][0]["Vavg"]);
+                                        $("#Power").text(e[1]["OtherDB"][0]["W"]);
+                                        $("#Current").text(e[1]["OtherDB"][0]["Iavg"]);
                                     },
                                     error: function () {
-                                        alert("error");
+                                        alert("此站號無電表，無數值為正常現象!!");
+                                        $("#myModalLabel").text("");
+                                        $("#myModalLabe2").text("");
+                                        $("#PowerTotal").text("");
+                                        $("#Voltage").text("");
+                                        $("#Power").text("");
+                                        $("#Current").text("");
                                     }
                                 })
                             });
@@ -98,10 +159,8 @@
                 } else {
                     $('#tree').empty();
                 }
-
             });
         });
-
     </script>
 
 </head>
@@ -109,8 +168,12 @@
     <form id="form1" runat="server">
         <div class="WCF_index">
             <div class="header">
-                <div class="title">
-                    <div id="PowerValue">11111564656789</div>                    
+                <div class="title" id="Title_Slider">
+                    <div>
+                        <span id="PowerValue1"></span>
+                        <span id="PowerValue2"></span>
+                        <span id="PowerValue3"></span>
+                    </div>
                 </div>
                 <nav class="menu">
                     <table>
@@ -175,53 +238,57 @@
     </form>
     <!-- Modal -->
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-        <div class="modal-dialog" role="document" style="width:800px;">
+        <div class="modal-dialog" role="document" style="width: 800px;">
             <div class="modal-content" style="height: 600px;">
                 <div class="modal-header" style="height: 22%;">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <table>
                         <tr>
-                            <td><h4 class="modal-title"><strong>電表編號 :&nbsp;</strong><span id="myModalLabel"></span></h4></td>
+                            <td>
+                                <h4 class="modal-title"><strong>電表編號 :&nbsp;</strong><span id="myModalLabel"></span></h4>
+                            </td>
                         </tr>
-                         <tr>
-                            <td><h4 class="modal-title"><strong>安裝位置 :&nbsp;</strong><span id="myModalLabe2"></span></h4></td>
+                        <tr>
+                            <td>
+                                <h4 class="modal-title"><strong>安裝位置 :&nbsp;</strong><span id="myModalLabe2"></span></h4>
+                            </td>
                         </tr>
                     </table>
-                    
-                    
+
+
                 </div>
-                <div class="modal-body" style="height:38%; text-align:center;">
-                    <table style="width:100%;height:100%;">
-                        <tr style="height:25%;">
+                <div class="modal-body" style="height: 38%; text-align: center;">
+                    <table style="width: 100%; height: 100%;">
+                        <tr style="height: 25%;">
                             <td colspan="11"></td>
                         </tr>
-                        <tr style="height:25%;">
+                        <tr style="height: 25%;">
                             <td colspan="1"></td>
                             <td colspan="1"><span>總電量 :</span></td>
-                            <td colspan="2" class="Number"><span id="PowerTotal">321321313321</span></td>
-                            <td colspan="1" style="width:5px;"></td>
+                            <td colspan="2" class="Number"><span id="PowerTotal"></span></td>
+                            <td colspan="1" style="width: 5px;"></td>
                             <td colspan="1" class="Unit"><span>KWH</span></td>
                             <td colspan="1"></td>
                             <td colspan="1"><span>電壓 :</span></td>
-                            <td colspan="2" class="Number"><span id="Voltage">565465464654654</span></td>
-                            <td colspan="1" style="width:5px;"></td>
+                            <td colspan="2" class="Number"><span id="Voltage"></span></td>
+                            <td colspan="1" style="width: 5px;"></td>
                             <td colspan="1" class="Unit"><span>V</span></td>
                             <td colspan="1"></td>
                         </tr>
-                        <tr style="height:25%;">
+                        <tr style="height: 25%;">
                             <td colspan="1"></td>
                             <td colspan="1"><span>功率 :</span></td>
-                            <td colspan="2" class="Number"><span id="Power">6546546564</span></td>
-                            <td colspan="1" style="width:5px;"></td>
+                            <td colspan="2" class="Number"><span id="Power"></span></td>
+                            <td colspan="1" style="width: 5px;"></td>
                             <td colspan="1" class="Unit"><span>KW</span></td>
                             <td colspan="1"></td>
                             <td colspan="1"><span>電流 :</span></td>
-                            <td colspan="2" class="Number"><span id="Current">65464654654</span></td>
-                            <td colspan="1" style="width:5px;"></td>
+                            <td colspan="2" class="Number"><span id="Current"></span></td>
+                            <td colspan="1" style="width: 5px;"></td>
                             <td colspan="1" class="Unit"><span>A</span></td>
                             <td colspan="1"></td>
                         </tr>
-                        <tr style="height:25%;">
+                        <tr style="height: 25%;">
                             <td colspan="11"></td>
                         </tr>
                     </table>
@@ -230,35 +297,41 @@
 
                     <table>
                         <tr>
-                            <td class="modal_option"><a href="javascript:;"><div class="Modal_btn_diary"></div></a></td>
+                            <td class="modal_option"><a href="javascript:;">
+                                <div class="Modal_btn_diary"></div>
+                            </a></td>
                             <td></td>
-                            <td class="modal_option"><a href="javascript:;"><div class="Modal_btn_month"></div></a></td>
+                            <td class="modal_option"><a href="javascript:;">
+                                <div class="Modal_btn_month"></div>
+                            </a></td>
                             <td></td>
-                            <td class="modal_option"><a href="javascript:;"><div class="Modal_btn_chart"></div></a></td>
+                            <td class="modal_option"><a href="javascript:;">
+                                <div class="Modal_btn_chart"></div>
+                            </a></td>
                             <td></td>
-                            <td class="modal_option"><a href="javascript:;"><div class="Modal_btn_record"></div></a></td>
+                            <td class="modal_option"><a href="javascript:;">
+                                <div class="Modal_btn_record"></div>
+                            </a></td>
                         </tr>
-                        <tr>                            
+                        <tr>
                             <td><strong>日報表</strong></td>
                             <td><strong></strong></td>
                             <td><strong>月報表</strong></td>
                             <td><strong></strong></td>
                             <td><strong>趨勢圖</strong></td>
                             <td><strong></strong></td>
-                            <td><strong>數值紀錄</strong></td>                            
+                            <td><strong>數值紀錄</strong></td>
                         </tr>
                     </table>
-                    
-                   
-                    
-                    
-                    
+
+
+
+
+
                     <%--<button type="button" class="btn btn-primary">月報表</button>
                     <button type="button" class="btn btn-primary">日報表</button>
                     <button type="button" class="btn btn-primary">查詢</button>
                     <button type="button" class="btn btn-primary">曲線圖</button>--%>
-
-
                 </div>
             </div>
         </div>
