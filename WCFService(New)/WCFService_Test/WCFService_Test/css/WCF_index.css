@@ -3,48 +3,48 @@
     margin: auto;
 }
 
-.WCF_index .header .title {
-    height: 210px;
-    background-image: url(../img/header/banner_power.png);
-    background-size: cover;
-    position:relative;
-}
-
-    .WCF_index .header .title div {
-        color: #f2f2f2;
-        font-size: 60px;
-        position: absolute;
-        top: 50px;
-        left: 500px;
-        font-family: Georgia, 'Times New Roman', Times, serif;
-        direction: rtl;
+    .WCF_index .header .title {
+        height: 210px;
+        background-image: url(../img/header/banner_power.png);
+        background-size: cover;
+        position: relative;
     }
 
-.WCF_index .header .menu table {
-    width: 100%;
-}
+        .WCF_index .header .title div {
+            color: #f2f2f2;
+            font-size: 60px;
+            position: absolute;
+            top: 50px;
+            left: 500px;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            direction: rtl;
+        }
 
-.WCF_index .header .menu table tr .option {
-    text-align: center;
-    vertical-align: middle;
-    width: 19.5%;
-    height: 50px;
-    background-color: rgb(235, 235, 224);
-    font-size: 20px;
-    font-family: cursive;
-}
+    .WCF_index .header .menu table {
+        width: 100%;
+    }
 
-.WCF_index .header .menu table tr td:first-child,
-.WCF_index .header .menu table tr td:last-child {
-    background-color: rgb(235, 235, 224);
-}
+        .WCF_index .header .menu table tr .option {
+            text-align: center;
+            vertical-align: middle;
+            width: 19.5%;
+            height: 50px;
+            background-color: rgb(235, 235, 224);
+            font-size: 20px;
+            font-family: cursive;
+        }
 
-.WCF_index .content .top {
-    height: 100px;
-    background-image: url(../img/content/analysis.png);
-    background-size: cover;
-    position: relative;
-}
+        .WCF_index .header .menu table tr td:first-child,
+        .WCF_index .header .menu table tr td:last-child {
+            background-color: rgb(235, 235, 224);
+        }
+
+    .WCF_index .content .top {
+        height: 100px;
+        background-image: url(../img/content/analysis.png);
+        background-size: cover;
+        position: relative;
+    }
 
 #ECO_Group {
     position: absolute;
@@ -107,3 +107,91 @@ input[type=checkbox] {
 #treeview_block {
     height: 590px;
 }
+
+#myModal {
+    width: 1200px;
+    margin: auto;
+}
+
+    #myModal .modal-content {
+        background: -webkit-linear-gradient(to bottom right, white, #d9d9d9);
+        background: -o-linear-gradient(to bottom right, white, #d9d9d9);
+        background: -moz-linear-gradient(to bottom right, white, #d9d9d9);
+        background: linear-gradient(to bottom right, white, #d9d9d9);
+        border-radius: 5px;
+    }
+
+    #myModal .modal-header table {
+        width: 100%;
+        height: 100%;
+    }
+
+        #myModal .modal-header table span {
+            font-size: 25px;
+            font-family: 'Agency FB';
+        }
+
+    #myModal .modal-body table {
+        text-align:center;
+    }
+
+    #myModal .modal-body table tr .Number {
+            text-align:right;
+            font-family:'Brush Script MT';
+            font-size:35px;
+            letter-spacing:0.05em;
+            color:#595959;
+        }
+
+     #myModal .modal-body table tr .Unit {
+            font-size:15px;           
+        }
+
+    #myModal .modal-body table tr td{
+        vertical-align:bottom;
+        font-size:25px;
+    }
+
+    #myModal .modal-footer table {
+        width: 100%;
+        height: 200px;
+    }
+
+        #myModal .modal-footer table tr td {
+            text-align: center;
+            font-size: 25px;
+        }
+
+        #myModal .modal-footer table tr .modal_option {
+            width: 20%;
+        }
+
+    #myModal .Modal_btn_diary {
+        height: 142px;
+        width: 142px;
+        background: url(../img/modal/btn_daily-report.png);
+        background-size: cover;
+    }
+
+    #myModal .Modal_btn_month {
+        height: 142px;
+        width: 142px;
+        background-image: url(../img/modal/btn_monthly-report.png);
+        background-size: cover;
+    }
+
+    #myModal .Modal_btn_chart {
+        height: 142px;
+        width: 142px;
+        background-image: url(../img/modal/btn_trend.png);
+        background-size: cover;
+    }
+
+    #myModal .Modal_btn_record {
+        height: 142px;
+        width: 142px;
+        background-image: url(../img/modal/btn_record.png);
+        background-size: cover;
+    }
+
+

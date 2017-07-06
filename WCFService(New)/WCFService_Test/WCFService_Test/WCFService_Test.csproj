@@ -113,9 +113,13 @@
     <Content Include="img\header\banner_power.png" />
     <Content Include="img\icon-account.png" />
     <Content Include="img\modal\btn_daily-report.png" />
+    <Content Include="img\modal\btn_daily-report_01.png" />
     <Content Include="img\modal\btn_monthly-report.png" />
+    <Content Include="img\modal\btn_monthly-report_01.png" />
     <Content Include="img\modal\btn_record.png" />
+    <Content Include="img\modal\btn_record_01.png" />
     <Content Include="img\modal\btn_trend.png" />
+    <Content Include="img\modal\btn_trend_01.png" />
     <Content Include="img\modal\panel.png" />
     <Content Include="index.aspx" />
     <Content Include="js\org.js" />
