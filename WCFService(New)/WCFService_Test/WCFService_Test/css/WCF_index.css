@@ -10,14 +10,16 @@
         position: relative;
     }
 
-        .WCF_index .header .title div {
+        .WCF_index .header .title .headerValue {
             color: #f2f2f2;
             font-size: 60px;
             position: absolute;
             top: 50px;
-            left: 500px;
+            left: 400px;
             font-family: Georgia, 'Times New Roman', Times, serif;
-            direction: rtl;
+            direction: rtl;            
+            text-align:right;
+            width:340px;
         }
 
     .WCF_index .header .menu table {
