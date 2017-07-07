@@ -15,29 +15,22 @@
         position: relative;
     }
 
-        .WCF_index .header .title div {
-            position: absolute;
-            top: 50px;
-            left: 300px;
-            /*background-color:red;*/
-            width:450px;
-            text-align:right;
-        }
-
-#PowerValue1, #PowerValue2,#PowerValue3{
-    color: #f2f2f2;
-    font-size: 60px;
-    font-family:'Franklin Gothic';    
-}
-        /*.WCF_index .header .title div {
+        .WCF_index .header .title .headerValue {
             color: #f2f2f2;
             font-size: 60px;
             position: absolute;
             top: 50px;
-            left: 500px;
+            left: 400px;
             font-family: Georgia, 'Times New Roman', Times, serif;
-            direction: rtl;
-        }*/
+            direction: rtl;            
+            text-align:right;
+            width:340px;            
+        }
+
+        
+        #PowerValue1, #PowerValue2, #PowerValue3 {
+            display: inline;
+        }   
 
     .WCF_index .header .menu table {
         width: 100%;
@@ -132,6 +125,10 @@ input[type=checkbox] {
     margin: auto;
 }
 
+ #myModal .modal-header {
+            border-bottom: dotted 1px;
+        }
+
     #myModal .modal-content {
         background: -webkit-linear-gradient(to bottom right, white, #d9d9d9);
         background: -o-linear-gradient(to bottom right, white, #d9d9d9);
@@ -170,6 +167,10 @@ input[type=checkbox] {
             vertical-align: bottom;
             font-size: 25px;
         }
+
+        #myModal .modal-footer {
+            border: 0;
+        }   
 
     #myModal .modal-footer table {
         width: 100%;

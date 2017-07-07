@@ -12,19 +12,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous" />
     <link href="css/animate.css" rel="stylesheet" />
     <link href="css/org.css" rel="stylesheet" />
-    <style>
-        #myModal .modal-header {
-            border-bottom: dotted 1px;
-        }
-
-        #myModal .modal-footer {
-            border: 0;
-        }
-
-        #PowerValue2, #PowerValue3 {
-            display: none;
-        }
-    </style>
+    
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
@@ -32,53 +20,51 @@
     <script type="text/JavaScript" src="js/org_recursion.js"></script>
 
     <script>
-
-
         $(document).ready(function () {
-            $("#button_search").click(function () {
-
-                $("#header").addClass("animated zoomIn");
-            });
-
-
-
             var count_time = 0;
             $.ajax({
                 url: "server_TimeForPowerTotal.aspx",
                 dataType: "json",
                 type: "POST",
                 success: function (e) {
-                    $("#PowerValue1").text(e[0]["W"]);
+                    $("#PowerValue1").text(e[0]["powertotal"]);
                     $("#PowerValue2").text(e[0]["KWh"]);
-                    $("#PowerValue3").text(e[0]["powertotal"]);
+                    $("#PowerValue3").text(e[0]["W"]);
                 },
                 error: function () {
                     alert("error");
                 }
             });
 
-            //var myInterval = setInterval(function () {                
-            //    switch (count_time) {
-            //        case 2:
 
-            //            count_time++;
-            //            break;
-            //        case 0:
-            //            $('#PowerValue1').slideUp('slow', function () {
-            //                $('#PowerValue1').slideDown();
-            //            });
-            //            count_time++;
-            //            break;
-            //        case 1:
-
-            //            count_time++;
-            //            break;
-            //        default:
-            //            count_time = 0;
-            //            break;
-            //    }
-            //}, 3000);
-
+            var count_powervalue = 1;
+            $("#headerValue2").hide();
+            $("#headerValue3").hide();
+            setInterval(function () {
+                console.log(count_powervalue);
+                switch (count_powervalue) {
+                    case 0:
+                        $("#headerValue3").hide();
+                        $("#headerValue1").show().addClass("rotateIn");
+                        count_powervalue++;
+                        break;
+                    case 1:
+                        $("#headerValue1").hide();
+                        $("#headerValue2").show().addClass("rotateIn");
+                        count_powervalue++;
+                        break;
+                    case 2:
+                        $("#headerValue2").hide();
+                        $("#headerValue3").show().addClass("rotateIn");
+                        count_powervalue = 0;
+                        break;
+                }
+                setTimeout(function () {
+                    $("#headerValue1").removeClass("rotateIn");
+                    $("#headerValue2").removeClass("rotateIn");
+                    $("#headerValue3").removeClass("rotateIn");
+                }, 5000);
+            }, 6000);
 
             var node;
             var _ECO_Group_account;
@@ -87,6 +73,7 @@
                 dataType: "json",
                 type: "POST",
                 success: function (e) {
+                    console.log(e);
                     for (i = 0; i < e.length; i++) {
                         $("#ECO_Group").append(
                             $("<option/>")
@@ -168,11 +155,20 @@
     <form id="form1" runat="server">
         <div class="WCF_index">
             <div class="header">
-                <div class="title" id="Title_Slider">
-                    <div>
+                <div class="title">
+                    <%--<div>
                         <span id="PowerValue1"></span>
                         <span id="PowerValue2"></span>
                         <span id="PowerValue3"></span>
+                    </div>--%>
+                    <div class="headerValue animated" id="headerValue1">
+                        <div id="PowerValue1"></div>
+                    </div>
+                    <div class="headerValue animated" id="headerValue2">
+                        <div id="PowerValue2"></div>
+                    </div>
+                    <div class="headerValue animated" id="headerValue3">
+                        <div id="PowerValue3"></div>
                     </div>
                 </div>
                 <nav class="menu">
@@ -221,7 +217,7 @@
                                 <strong>ECO-5編號</strong></td>
                         </tr>
                     </table>
-                    <input type="button" name="name" value="查詢" id="button_search" />
+                    <input type="button" name="name" value="顯示" id="button_search" />
 
                     <%--<a href="javascript:;" id="button_search">查詢</a>--%>
                 </div>

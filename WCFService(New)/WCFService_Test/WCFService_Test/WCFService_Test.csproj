@@ -98,6 +98,7 @@
     <Content Include="css\html_reset.css" />
     <Content Include="css\org.css" />
     <Content Include="css\WCF_index.css" />
+    <Content Include="gif\loading.gif" />
     <Content Include="img\btn_dailyreport_01.png" />
     <Content Include="img\btn_dailyreport_02.png" />
     <Content Include="img\compare.png" />
@@ -124,6 +125,7 @@
     <Content Include="img\modal\btn_trend_01.png" />
     <Content Include="img\modal\panel.png" />
     <Content Include="index.aspx" />
+    <Content Include="infinitescroll.aspx" />
     <Content Include="js\org.js" />
     <Content Include="js\org_recursion.js" />
     <Content Include="packages.config" />
@@ -133,6 +135,7 @@
     <Content Include="server.aspx" />
     <Content Include="server_TimeForPowerTotal.aspx" />
     <Content Include="WebForm1.aspx" />
+    <Content Include="WebForm2.aspx" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -145,7 +148,9 @@
     <Content Include="PowerDayReport.aspx" />
     <Content Include="scripts\ai.0.15.0-build58334.js" />
     <Content Include="scripts\ai.0.15.0-build58334.min.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">
@@ -157,6 +162,13 @@
     </Compile>
     <Compile Include="index.aspx.designer.cs">
       <DependentUpon>index.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="infinitescroll.aspx.cs">
+      <DependentUpon>infinitescroll.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="infinitescroll.aspx.designer.cs">
+      <DependentUpon>infinitescroll.aspx</DependentUpon>
     </Compile>
     <Compile Include="PowerDayReport.aspx.cs">
       <DependentUpon>PowerDayReport.aspx</DependentUpon>
@@ -186,6 +198,13 @@
     </Compile>
     <Compile Include="WebForm1.aspx.designer.cs">
       <DependentUpon>WebForm1.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WebForm2.aspx.cs">
+      <DependentUpon>WebForm2.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WebForm2.aspx.designer.cs">
+      <DependentUpon>WebForm2.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

@@ -5,6 +5,10 @@ using System.Threading;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.Data;
+using System.Data.SqlClient;
+using System.Web.Configuration;
+using System.Text;
 
 namespace WCFService_Test
 {
@@ -12,10 +16,15 @@ namespace WCFService_Test
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            
         }
 
         protected void Button1_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void Return_Data()
         {
             
         }
