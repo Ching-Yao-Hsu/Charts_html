@@ -24,7 +24,11 @@
             font-family: Georgia, 'Times New Roman', Times, serif;
             direction: rtl;            
             text-align:right;
+<<<<<<< HEAD
             width:340px;            
+=======
+            width:340px;
+>>>>>>> d75c8ff7a50c840fa434e03448f6a5e980b733d7
         }
 
         

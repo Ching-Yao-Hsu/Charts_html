@@ -17,6 +17,7 @@ namespace WCFService_Test
         protected void Page_Load(object sender, EventArgs e)
         {
             
+<<<<<<< HEAD
         }
 
         protected void Button1_Click(object sender, EventArgs e)
@@ -27,6 +28,8 @@ namespace WCFService_Test
         private void Return_Data()
         {
             
+=======
+>>>>>>> d75c8ff7a50c840fa434e03448f6a5e980b733d7
         }
     }
 }

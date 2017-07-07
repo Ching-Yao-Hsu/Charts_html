@@ -12,14 +12,31 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous" />
     <link href="css/animate.css" rel="stylesheet" />
     <link href="css/org.css" rel="stylesheet" />
+<<<<<<< HEAD
     
+=======
+    <style>
+        #myModal .modal-header {
+            border-bottom: dotted 1px;
+        }
+
+        #myModal .modal-footer {
+            border: 0;
+        }
+    </style>
+>>>>>>> d75c8ff7a50c840fa434e03448f6a5e980b733d7
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script type="text/JavaScript" src="js/org.js"></script>
     <script type="text/JavaScript" src="js/org_recursion.js"></script>
-
+    <style>
+        #PowerValue1, #PowerValue2, #PowerValue3 {
+            display: inline;
+        }        
+    </style>
     <script>
+<<<<<<< HEAD
         $(document).ready(function () {
             var count_time = 0;
             $.ajax({
@@ -35,8 +52,42 @@
                     alert("error");
                 }
             });
+=======
+        
+        
+>>>>>>> d75c8ff7a50c840fa434e03448f6a5e980b733d7
 
+        $(document).ready(function () {  
+            var count = 1;
+            $("#AnimatedValue2").hide();
+            $("#AnimatedValue3").hide();
+            setInterval(function () {
+                console.log(count);
+                switch (count) {
+                    case 0:
+                        $("#AnimatedValue3").hide();  
+                        $("#AnimatedValue1").show().addClass("rotateIn");
+                        count++;
+                        break;
+                    case 1:
+                        $("#AnimatedValue1").hide();
+                        $("#AnimatedValue2").show().addClass("rotateIn");
+                        count++;
+                        break;
+                    case 2:
+                        $("#AnimatedValue2").hide();
+                        $("#AnimatedValue3").show().addClass("rotateIn");
+                        count = 0;
+                        break;
+                }
+                setTimeout(function () {                    
+                    $("#AnimatedValue1").removeClass("rotateIn");
+                    $("#AnimatedValue2").removeClass("rotateIn");
+                    $("#AnimatedValue3").removeClass("rotateIn");                  
+                }, 5000);                   
+            }, 6000);
 
+<<<<<<< HEAD
             var count_powervalue = 1;
             $("#headerValue2").hide();
             $("#headerValue3").hide();
@@ -66,6 +117,8 @@
                 }, 5000);
             }, 6000);
 
+=======
+>>>>>>> d75c8ff7a50c840fa434e03448f6a5e980b733d7
             var node;
             var _ECO_Group_account;
             $.ajax({
@@ -73,7 +126,10 @@
                 dataType: "json",
                 type: "POST",
                 success: function (e) {
+<<<<<<< HEAD
                     console.log(e);
+=======
+>>>>>>> d75c8ff7a50c840fa434e03448f6a5e980b733d7
                     for (i = 0; i < e.length; i++) {
                         $("#ECO_Group").append(
                             $("<option/>")
@@ -120,12 +176,17 @@
                                     },
                                     type: "POST",
                                     success: function (e) {
+<<<<<<< HEAD
                                         $("#myModalLabel").text(e[0]["ECOSMART"][0]["ECO_AccountAndMeterId"]);
                                         $("#myModalLabe2").text(e[0]["ECOSMART"][0]["InstallPosition"]);
                                         $("#PowerTotal").text(e[1]["OtherDB"][0]["KWh"]);
                                         $("#Voltage").text(e[1]["OtherDB"][0]["Vavg"]);
                                         $("#Power").text(e[1]["OtherDB"][0]["W"]);
                                         $("#Current").text(e[1]["OtherDB"][0]["Iavg"]);
+=======
+                                        $("#myModalLabel").text(e[0]["ECO_AccountAndMeterId"]);
+                                        $("#myModalLabe2").text(e[0]["InstallPosition"]);
+>>>>>>> d75c8ff7a50c840fa434e03448f6a5e980b733d7
                                     },
                                     error: function () {
                                         alert("此站號無電表，無數值為正常現象!!");
@@ -156,6 +217,7 @@
         <div class="WCF_index">
             <div class="header">
                 <div class="title">
+<<<<<<< HEAD
                     <%--<div>
                         <span id="PowerValue1"></span>
                         <span id="PowerValue2"></span>
@@ -169,6 +231,16 @@
                     </div>
                     <div class="headerValue animated" id="headerValue3">
                         <div id="PowerValue3"></div>
+=======
+                    <div class="headerValue animated" id="AnimatedValue1">
+                        <div id="PowerValue1">123</div>
+                    </div>
+                    <div class="headerValue animated" id="AnimatedValue2">
+                        <div id="PowerValue2">456</div>
+                    </div>
+                    <div class="headerValue animated" id="AnimatedValue3">
+                        <div id="PowerValue3">789</div>
+>>>>>>> d75c8ff7a50c840fa434e03448f6a5e980b733d7
                     </div>
                 </div>
                 <nav class="menu">
@@ -232,6 +304,20 @@
             <div class="footer"></div>
         </div>
     </form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <!-- Modal -->
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document" style="width: 800px;">
@@ -261,12 +347,20 @@
                         <tr style="height: 25%;">
                             <td colspan="1"></td>
                             <td colspan="1"><span>總電量 :</span></td>
+<<<<<<< HEAD
                             <td colspan="2" class="Number"><span id="PowerTotal"></span></td>
+=======
+                            <td colspan="2" class="Number"><span id="PowerTotal">321321313321</span></td>
+>>>>>>> d75c8ff7a50c840fa434e03448f6a5e980b733d7
                             <td colspan="1" style="width: 5px;"></td>
                             <td colspan="1" class="Unit"><span>KWH</span></td>
                             <td colspan="1"></td>
                             <td colspan="1"><span>電壓 :</span></td>
+<<<<<<< HEAD
                             <td colspan="2" class="Number"><span id="Voltage"></span></td>
+=======
+                            <td colspan="2" class="Number"><span id="Voltage">565465464654654</span></td>
+>>>>>>> d75c8ff7a50c840fa434e03448f6a5e980b733d7
                             <td colspan="1" style="width: 5px;"></td>
                             <td colspan="1" class="Unit"><span>V</span></td>
                             <td colspan="1"></td>
@@ -274,12 +368,20 @@
                         <tr style="height: 25%;">
                             <td colspan="1"></td>
                             <td colspan="1"><span>功率 :</span></td>
+<<<<<<< HEAD
                             <td colspan="2" class="Number"><span id="Power"></span></td>
+=======
+                            <td colspan="2" class="Number"><span id="Power">6546546564</span></td>
+>>>>>>> d75c8ff7a50c840fa434e03448f6a5e980b733d7
                             <td colspan="1" style="width: 5px;"></td>
                             <td colspan="1" class="Unit"><span>KW</span></td>
                             <td colspan="1"></td>
                             <td colspan="1"><span>電流 :</span></td>
+<<<<<<< HEAD
                             <td colspan="2" class="Number"><span id="Current"></span></td>
+=======
+                            <td colspan="2" class="Number"><span id="Current">65464654654</span></td>
+>>>>>>> d75c8ff7a50c840fa434e03448f6a5e980b733d7
                             <td colspan="1" style="width: 5px;"></td>
                             <td colspan="1" class="Unit"><span>A</span></td>
                             <td colspan="1"></td>
@@ -332,5 +434,11 @@
             </div>
         </div>
     </div>
+
+
+    
+
+
+
 </body>
 </html>

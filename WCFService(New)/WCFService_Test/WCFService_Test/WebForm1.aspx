@@ -7,12 +7,16 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title></title>
     <style>
+<<<<<<< HEAD
         /* Start by setting display:none to make this hidden.
    Then we position it in relation to the viewport window
    with position:fixed. Width, height, top and left speak
    for themselves. Background we set to 80% white with
    our animation centered, and no-repeating */
         .modal {
+=======
+        .loaingpage {
+>>>>>>> d75c8ff7a50c840fa434e03448f6a5e980b733d7
             display: none;
             position: fixed;
             z-index: 1000;
@@ -20,6 +24,7 @@
             left: 0;
             height: 100%;
             width: 100%;
+<<<<<<< HEAD
             background: rgba( 255, 255, 255, .8 ) 50% 50% no-repeat;
             background: url(gif/loading.gif);
             background-size:cover;
@@ -114,10 +119,66 @@
         //    ajaxStart: function () {  },
         //    ajaxStop: function () {  }
         //});
+=======
+            background: rgba( 255, 255, 255, .8) url('http://i.stack.imgur.com/FhHRx.gif') 50% 50% no-repeat;
+        }
+        
+        body.loading {
+            overflow: hidden;
+        }
+        
+        body.loading .loaingpage {
+            display: block;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+    <script>
+
+        
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: "WebForm3.aspx",
+                dataType: "json",
+                type: "POST",
+                success: function (e) {
+                    console.log(e);
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+        });
+
+
+
+        $body = $("body");
+
+        $(document).on({
+            ajaxStart: function () {
+                $body.addClass("loading");
+            },
+            ajaxStop: function () {
+                $body.removeClass("loading");
+            }
+        });
+
+        
+
+
+
+
+
+
+>>>>>>> d75c8ff7a50c840fa434e03448f6a5e980b733d7
 
     </script>
 
 
+<<<<<<< HEAD
 </head>
 <body>
     <form id="form1" runat="server">
@@ -140,4 +201,29 @@
         <!-- Place at bottom of page -->
     </div>
 </body>
+=======
+
+</head>
+<body>
+    <form id="form1" runat="server">
+        
+
+
+        <div></div>
+
+
+
+
+
+
+
+
+
+
+    </form>
+     <div class="loaingpage">
+        <!-- Place at bottom of page -->
+     </div>
+</body>   
+>>>>>>> d75c8ff7a50c840fa434e03448f6a5e980b733d7
 </html>
